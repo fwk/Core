@@ -9,7 +9,7 @@ Via [Composer](http://getcomposer.org):
 ```
 {
     "require": {
-        "fwk/Core": ">=0.1.0",
+        "fwk/core": "dev-master",
     }
 }
 ```

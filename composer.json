@@ -1,5 +1,5 @@
 {
-    "name": "fwk/Core",
+    "name": "fwk/core",
     "description": "Fwk Core System",
     "type": "library",
     "keywords": ["framework", "system", "core", "bundle"],
