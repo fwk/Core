@@ -184,7 +184,7 @@ class Application extends Object
     public static function autorun(Descriptor $descriptor, $baseUrl = null)
     {
         $app             = new self($descriptor);
-        $request            = \Fwk\Request\Factory::automatic();
+        $request         = \Fwk\Request\Factory::automatic();
         
         if ($request instanceof HttpRequest) {
             $request->setBaseUri($baseUrl);
@@ -196,7 +196,7 @@ class Application extends Object
     /**
      * Defines a Services Container
      *
-     * @param $services Services container
+     * @param mixed $services Services container
      * 
      * @return Application
      */
