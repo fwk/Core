@@ -194,7 +194,7 @@ class Application extends Object
     /**
      * Defines a Services Container
      *
-     * @param $services Services container
+     * @param mixed $services Services container
      * 
      * @return Application
      */

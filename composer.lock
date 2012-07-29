@@ -1,5 +1,5 @@
 {
-    "hash": "310eb1e5e014e715b97d36a40f20af0e",
+    "hash": "8a3be01b85cc8ce676ae1e5a3aa48916",
     "packages": [
         {
             "package": "fwk/Events",
@@ -8,10 +8,22 @@
             "commit-date": "1338242176"
         },
         {
+            "package": "fwk/xml",
+            "version": "dev-master",
+            "source-reference": "f842bdadd7cb177d9998f2b7495f5877c264bc08",
+            "commit-date": "1343328915"
+        },
+        {
             "package": "symfony/http-foundation",
             "version": "dev-master",
-            "source-reference": "3399f6f068cd41f1b42140699db1f1e6d3bcb361",
-            "commit-date": "1342107786"
+            "alias-pretty-version": "2.1.x-dev",
+            "alias-version": "2.1.9999999.9999999-dev"
+        },
+        {
+            "package": "symfony/http-foundation",
+            "version": "dev-master",
+            "source-reference": "5dfe8c39f36b47c712b310af5a3b61523b2f2b56",
+            "commit-date": "1343201916"
         }
     ],
     "packages-dev": null,
@@ -21,6 +33,7 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "fwk/events": 20,
+        "fwk/xml": 20,
         "symfony/http-foundation": 20
     }
 }

@@ -32,17 +32,116 @@
  */
 namespace Fwk\Core;
 
+use Fwk\Xml\XmlFile,
+    Fwk\Xml\Map,
+    Fwk\Xml\Path;
+
 /**
- * Descriptor interface
- * 
  * "Describes" an Application.
  * 
- * @category Interfaces
+ * @category Library
  * @package  Fwk\Core
  * @author   Julien Ballestracci <julien@nitronet.org>
  * @license  http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link     http://www.phpfwk.com
  */
-interface Descriptor
+class Descriptor extends XmlFile
 {
+    /**
+     * Application ID (name)
+     * 
+     * @var string
+     */
+    protected $id;
+    
+    /**
+     * Application version
+     * 
+     * @var string
+     */
+    protected $version;
+    
+    /**
+     * Array of actions
+     * 
+     * @var array
+     */
+    protected $actions;
+    
+    /**
+     * Constructor
+     * 
+     * @param string $xml Path to XML file
+     * 
+     * @throws Exception if XML file not found/readable
+     * @return void
+     */
+    public function __construct($xml)
+    {
+        parent::__construct($xml);
+        if(!$this->exists() || !$this->isReadable()) {
+            throw new Exception(sprintf("Descriptor '%s' not found/readable"));
+        }
+        
+        $details = self::getXmlAppDetailsMap()->execute($this);
+        if(!isset($details['app']) || !is_array($details['app'])) {
+            throw new Exception(
+                'Descriptor XML is invalid (root element must be "fwk")'
+            );
+        }
+        
+        $app        = $details['app'];
+        $id         = (isset($app['id']) ? $app['id'] : null);
+        $version    = (isset($app['version']) ? $app['version'] : null);
+        
+        if(empty($id)) {
+            throw new Exception(
+                'Descriptor XML is invalid (missing "id" attribute)'
+            );
+        }
+        
+        if(empty($version)) {
+            throw new Exception(
+                'Descriptor XML is invalid (missing "version" attribute)'
+            );
+        }
+        
+        $this->id       = $id;
+        $this->version  = $version;
+    }
+    
+    /**
+     * Builds and returns an XML Map used to parse actions described in fwk.xml
+     * 
+     * @return Map
+     */
+    public static function getXmlActionsMap()
+    {
+        $map = new Map();
+        $map->add(
+            Path::factory('/fwk/actions/action', 'actions')
+            ->loop(true, '@name')
+            ->attribute('class')
+            ->attribute('method')
+        );
+        
+        return $map;
+    }
+    
+    /**
+     * Builds and returns an XML Map used to parse application's details 
+     * 
+     * @return Map
+     */
+    public static function getXmlAppDetailsMap()
+    {
+        $map = new Map();
+        $map->add(
+            Path::factory('/fwk', 'app')
+            ->attribute('id')
+            ->attribute('version')
+        );
+        
+        return $map;
+    }
 }
