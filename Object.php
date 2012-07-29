@@ -92,11 +92,19 @@ class Object extends Dispatcher
     public function rawGet($key, $default = null)
     {
         if(array_key_exists($key, $this->di)) {
-            
             return $this->di[$key];
         }
         
         return $default;
+    }
+    
+    /**
+     *
+     * @return array 
+     */
+    public function rawGetAll()
+    {
+        return $this->di;
     }
     
     /**
@@ -109,6 +117,22 @@ class Object extends Dispatcher
     public function set($key, $value)
     {
         $this->di[$key] = $value;
+        
+        return $this;
+    }
+    
+    /**
+     * Defines multiples values
+     * 
+     * @param array $values Keys/Values to be set
+     * 
+     * @return Object 
+     */
+    public function setMulti(array $values)
+    {
+        foreach($values as $key => $value) {
+            $this->set($key, $value);
+        }
         
         return $this;
     }

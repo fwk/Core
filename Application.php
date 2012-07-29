@@ -32,6 +32,8 @@
  */
 namespace Fwk\Core;
 
+use Symfony\Component\HttpFoundation\Request;
+
 /**
  * Application
  *
@@ -110,11 +112,11 @@ class Application extends Object
     /**
      * Runs the App according the request
      * 
-     * @param \Fwk\Request\Request $request Actual client request
+     * @param Request $request The request
      * 
      * @return Application
      */
-    public function run(\Fwk\Request\Request $request)
+    public function run(Request $request)
     {
         $this->boot();
         
@@ -124,7 +126,7 @@ class Application extends Object
             new Event(
                 AppEvents::REQUEST,
                 array(
-                  'request' => $request,
+                  'request' => $request, 
                   'context' => $context,
                   'app'     => $this
                 )
@@ -183,12 +185,8 @@ class Application extends Object
      */
     public static function autorun(Descriptor $descriptor, $baseUrl = null)
     {
-        $app             = new self($descriptor);
-        $request            = \Fwk\Request\Factory::automatic();
-        
-        if ($request instanceof HttpRequest) {
-            $request->setBaseUri($baseUrl);
-        }
+        $app        = new self($descriptor);
+        $request    = Request::createFromGlobals();
         
         return $app->run($request);
     }
