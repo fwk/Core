@@ -136,16 +136,11 @@ class Proxy
      */
     protected function populate($class, Request $request)
     {
-        /**
-         * @todo
-         *
-        $params         = $request;
-        $accessor       = new Accessor($class);
-        foreach ($params as $param => $value) {
-            $accessor->set($param, $value);
+        $accessor = new Accessor($class);
+        $props    = array_keys($accessor->toArray());
+        foreach($props as $key) {
+            $accessor->set($key, $request->get($key, null));
         }
-         * 
-         */
     }
 
     /**

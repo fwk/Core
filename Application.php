@@ -72,9 +72,6 @@ class Application extends Object
     /**
      * Constructor
      * 
-     * Builds an app according to its descriptor and attaches
-     * CoreListener to it.
-     * 
      * @param Descriptor Descriptor App descriptor
      * 
      * @return void
@@ -83,6 +80,8 @@ class Application extends Object
     {
         $this->descriptor   = $descriptor;
         
+        // this can cause a problem if we try to add a listener
+        // outside of any Loader registered namespace...
         foreach($descriptor->getListeners() as $listener)
         {
             $class = (isset($listener['class']) ? $listener['class'] : null);

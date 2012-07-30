@@ -76,7 +76,6 @@ class CoreListener
             $app->getDescriptor()->getId(), 
             dirname($app->getDescriptor()->getRealPath())
         );
-        
     }
     
     /**
