@@ -66,6 +66,19 @@ class CoreListener
         return $actionName;
     }
     
+    
+    public function onBoot(CoreEvent $event)
+    {
+        $app = $event->getApplication();
+        
+        $loader = Loader::getInstance();
+        $loader->registerNamespace(
+            $app->getDescriptor()->getId(), 
+            dirname($app->getDescriptor()->getRealPath())
+        );
+        
+    }
+    
     /**
      *
      * @param CoreEvent $event
@@ -106,17 +119,6 @@ class CoreListener
         $proxy->setContext($context);
         
         $context->setActionProxy($proxy);
-        
-        $app->notify(
-            new CoreEvent(
-                AppEvents::INIT,
-                array(
-                    'proxy' => $proxy
-                ),
-                $app,
-                $context
-            )
-        );
     }
     
     /**

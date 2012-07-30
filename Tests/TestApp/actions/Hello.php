@@ -6,13 +6,14 @@ use Fwk\Core\Preparable;
 
 class Hello implements Preparable
 {
+    public $name = null;
+          
     public function prepare()
     {
-        echo 'prepare!!';
     }
     
     public function show()
     {
-        return 'success';
+        return 'Hello '. $this->name;
     }
 }

@@ -36,8 +36,6 @@ namespace Fwk\Core\Exceptions;
 use Fwk\Core\Exception;
 
 /**
- * Thrown when trying to access an inexistant/unreadable file
- * 
  * @category Exceptions
  * @package  Fwk\Core
  * @author   Julien Ballestracci <julien@nitronet.org>

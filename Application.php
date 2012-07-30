@@ -115,12 +115,6 @@ class Application extends Object
      */
     public function boot()
     {
-        $loader = Loader::getInstance();
-        $loader->registerNamespace(
-            $this->descriptor->getId(), 
-            dirname($this->descriptor->getRealPath())
-        );
-        
         $event = new CoreEvent(
             AppEvents::BOOT,
             array(),
@@ -188,7 +182,6 @@ class Application extends Object
         
         $result = call_user_func(array($action, $method));
         $context->setResult($result);
-        
         
         $this->notify(
             new CoreEvent(
