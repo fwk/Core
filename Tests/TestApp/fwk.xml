@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fwk id="TestApp" version="1.0-dev">
+    <listener class="Fwk\Core\CoreListener" />
+    
+    <actions>
+        <action name="Home" class="TestApp\actions\Homepage" method="show">
+            <result name="welcome">
+                homepage.html
+            </result>
+        </action>
+
+        <action name="Hello" class="TestApp\actions\Hello" method="show">
+            <result name="show">hello.html</result>
+        </action>
+    </actions>
+</fwk>

@@ -22,49 +22,28 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * PHP Version 5.3
- *
- * @category  Core
- * @package   Fwk\Core
- * @author    Julien Ballestracci <julien@nitronet.org>
- * @copyright 2011-2012 Julien Ballestracci <julien@nitronet.org>
- * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://www.phpfwk.com
+ * 
+ * @category   Core
+ * @package    Fwk\Core
+ * @subpackage Exceptions
+ * @author     Julien Ballestracci <julien@nitronet.org>
+ * @copyright  2011-2012 Julien Ballestracci <julien@nitronet.org>
+ * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
+ * @link       http://www.phpfwk.com
  */
-namespace Fwk\Core;
+namespace Fwk\Core\Exceptions;
+
+use Fwk\Core\Exception;
 
 /**
- * Static class grouping Context events
- *
- * @category Interfaces
+ * Thrown when trying to access an inexistant/unreadable file
+ * 
+ * @category Exceptions
  * @package  Fwk\Core
  * @author   Julien Ballestracci <julien@nitronet.org>
  * @license  http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link     http://www.phpfwk.com
  */
-class ContextEvents
+class InvalidAction extends Exception
 {
-    /**
-     * Event: notified when context has an action proxy defined
-     */
-    const READY          = 'ready';
-    
-    /**
-     * Event: notified when a context error is defined
-     */
-    const ERROR          = 'error';
-    
-    /**
-     * Event: notified when action Proxy is set
-     */
-    const PROXY_READY    = 'proxyReady';
-    
-    /**
-     * Event: notified when action has been executed
-     */
-    const EXECUTED       = 'executed';
-    
-    /**
-     * Event: notified when return response is set
-     */
-    const RESPONSE       = 'response';
 }

@@ -32,7 +32,8 @@
  */
 namespace Fwk\Core;
 
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Request, 
+    Symfony\Component\HttpFoundation\Response;
 
 /**
  * Application
@@ -81,7 +82,20 @@ class Application extends Object
     public function __construct(Descriptor $descriptor)
     {
         $this->descriptor   = $descriptor;
-        $this->addListener(new CoreListener());
+        
+        foreach($descriptor->getListeners() as $listener)
+        {
+            $class = (isset($listener['class']) ? $listener['class'] : null);
+            if(empty($class)) {
+                throw new \InvalidArgumentException(
+                    "Empty listener class",
+                    $class
+                );
+            }
+            
+            $listener = new $class($this);
+            $this->addListener(new $class($this));
+        }
     }
 
     /**
@@ -101,9 +115,16 @@ class Application extends Object
      */
     public function boot()
     {
-        $event = new Event(
+        $loader = Loader::getInstance();
+        $loader->registerNamespace(
+            $this->descriptor->getId(), 
+            dirname($this->descriptor->getRealPath())
+        );
+        
+        $event = new CoreEvent(
             AppEvents::BOOT,
-            array('app' => $this)
+            array(),
+            $this
         );
 
         $this->notify($event);
@@ -123,52 +144,60 @@ class Application extends Object
         $context = new Context($request);
         
         $this->notify(
-            new Event(
-                AppEvents::REQUEST,
-                array(
-                  'request' => $request, 
-                  'context' => $context,
-                  'app'     => $this
-                )
+            CoreEvent::factory(
+                AppEvents::REQUEST, 
+                array(), 
+                $this, 
+                $context
             )
         );
         
-        $context->addListener(new ContextListener($this, $context));
-        $request->match($context);
-        
-        if (!$context->isReady() && !$context->isExecuted() && !$context->isDone()) {
+        if (!$context->isReady()) {
             $this->notify(
-                new Event(
+                new CoreEvent(
                     AppEvents::DISPATCH,
-                    array(
-                        'app'      => $this,
-                        'context'  => $context
-                    )
+                    array(),
+                    $this,
+                    $context
                 )
             );
         }
 
-        if ($context->getAction() == null && !$context->isDone()) {
-            $context->setError(
-                'Invalid request - Action is not defined (404 ?).'
+        if (!$context->isReady()) {
+            throw $this->setErrorException(
+                new Exceptions\InvalidAction('No action found'), 
+                $context
             );
         }
         
-        $proxy = $context->getProxy($this);
-        $action = $proxy->getClass();
-        if ($action instanceof Preparable) {
-            call_user_func(array($action, 'prepare'));
+        $proxy  = $context->getActionProxy();
+        $action = $proxy->getInstance();
+        
+        $method      = $proxy->getMethod();
+        $callable    = array($action, $method);
+
+        if (!\is_callable($callable)) {
+            throw new Exceptions\InvalidAction(
+                sprintf(
+                    'Invalid action callback (%s::%s()', 
+                    get_class($action), 
+                    $method
+                )
+            );
         }
         
-        $context->setResult($proxy->execute());
+        $result = call_user_func(array($action, $method));
+        $context->setResult($result);
+        
         
         $this->notify(
-            new Event(
+            new CoreEvent(
                 AppEvents::END, 
                 array(
-                    'app'       => $this, 
-                    'response'  => $context->getResponse()
-                )
+                    'result' => $result
+                ),
+                $this,
+                $context
             )
         );
         
@@ -230,18 +259,24 @@ class Application extends Object
      * be thrown)
      * 
      * @param \Exception $errorException To-be thrown exception
+     * @param Context $context The running Context (if any)
      * 
      * @return \Exception ($errorException)
      */
-    public function setErrorException(\Exception $errorException)
-    {
+    public function setErrorException(\Exception $errorException, 
+        Context $context = null
+    ) {
         $this->errorException = $errorException;
         
-        $event = new Event(AppEvents::ERROR, array(
-            'app'       => $this,
-            'exception' => $errorException,
-            'continue'  => false
-        ));
+        $event = new CoreEvent(
+            AppEvents::ERROR, 
+            array(
+                'exception' => $errorException,
+                'continue'  => false
+            ),
+            $this,
+            $context
+        );
         
         $this->notify($event);
         

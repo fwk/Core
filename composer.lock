@@ -22,15 +22,15 @@
         {
             "package": "symfony/http-foundation",
             "version": "dev-master",
-            "source-reference": "5dfe8c39f36b47c712b310af5a3b61523b2f2b56",
-            "commit-date": "1343201916"
+            "source-reference": "2e28043ea4cd2aa173f5ec9f4f38231fd99305b1",
+            "commit-date": "1343512949"
         }
     ],
     "packages-dev": null,
     "aliases": [
 
     ],
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "stability-flags": {
         "fwk/events": 20,
         "fwk/xml": 20,

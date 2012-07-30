@@ -51,8 +51,7 @@ use Fwk\Core\Object,
  * </pre>
  * 
  * @category   Core
- * @package    Fwk
- * @subpackage Core
+ * @package    Fwk\Core
  * @author     Julien Ballestracci <julien@nitronet.org>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link       http://www.phpfwk.com
@@ -80,11 +79,11 @@ class Context extends Object
     protected $response;
     
     /**
-     * Running Action's name
+     * Running Action Proxy
      * 
      * @var string
      */
-    protected $actionName;
+    protected $actionProxy;
     
     /**
      * Current state
@@ -99,13 +98,6 @@ class Context extends Object
      * @var string
      */
     protected $error;
-    
-    /**
-     * Action Proxy
-     * 
-     * @var Proxy
-     */
-    protected $proxy;
     
     /**
      * Action's result returned by executed method
@@ -158,30 +150,34 @@ class Context extends Object
 
     
     /**
-     * Returns Action name
+     * Returns Action Proxy
      * 
-     * @return string 
+     * @return Action\Proxy 
      */
-    public function getActionName()
+    public function getActionProxy()
     {
-        return $this->action;
+        return $this->actionProxy;
     }
     
     /**
-     * Defines action name and toggle context state to READY
+     * Defines action proxy and toggle context state to READY
      * 
-     * @param string $str Action name
-     * 
-     * @see ContextEvents::READY
      * @return void
      */
-    public function setActionName($str)
+    public function setActionProxy(Action\Proxy $proxy)
     {
-        $this->action   = $str;
-        $this->state    = self::STATE_READY;
-        unset($this->proxy);
+        $this->actionProxy   = $proxy;
+        $this->state         = self::STATE_READY;
         
-        $this->notify(new Event(ContextEvents::READY));
+        $this->notify(
+            new ContextEvent(
+                ContextEvents::PROXY_READY,
+                array(
+                    'proxy' => $proxy
+                ),
+                $this
+            )
+        );
     }
 
     
@@ -240,7 +236,7 @@ class Context extends Object
      */
     public function isReady()
     {
-        return ($this->state === self::STATE_READY);
+        return ($this->state >= self::STATE_READY);
     }
 
     /**
@@ -261,7 +257,7 @@ class Context extends Object
      */
     public function isExecuted()
     {
-        return ($this->state === self::STATE_EXECUTED);
+        return ($this->state >= self::STATE_EXECUTED);
     }
 
     /**
@@ -272,7 +268,7 @@ class Context extends Object
      */
     public function isDone()
     {
-        return ($this->state === self::STATE_DONE);
+        return ($this->state >= self::STATE_DONE);
     }
 
     /**
@@ -376,11 +372,14 @@ class Context extends Object
         $this->result   = $result;
         
         $this->notify(
-            new Event(
-                ContextEvents::EXECUTED, 
-                array('result' => $result)
+            new ContextEvent(
+                ContextEvents::EXECUTED,
+                array(
+                    'result' => $result
+                ),
+                $this
             )
-        );
+         );
     }
 
     /**
@@ -395,12 +394,5 @@ class Context extends Object
     {
         $this->state    = self::STATE_DONE;
         $this->response = $response;
-
-        $this->notify(
-            new Event(
-                ContextEvents::RESPONSE, 
-                array('response' => $this->response)
-            )
-        );
     }
 }

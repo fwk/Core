@@ -69,6 +69,13 @@ class Descriptor extends XmlFile
     protected $actions;
     
     /**
+     * Array of listeners
+     * 
+     * @var array
+     */
+    protected $listeners;
+    
+    /**
      * Constructor
      * 
      * @param string $xml Path to XML file
@@ -80,7 +87,12 @@ class Descriptor extends XmlFile
     {
         parent::__construct($xml);
         if(!$this->exists() || !$this->isReadable()) {
-            throw new Exception(sprintf("Descriptor '%s' not found/readable"));
+            throw new Exception(
+                sprintf(
+                    "Descriptor '%s' not found/readable",
+                    $xml
+                )
+            );
         }
         
         $details = self::getXmlAppDetailsMap()->execute($this);
@@ -108,6 +120,106 @@ class Descriptor extends XmlFile
         
         $this->id       = $id;
         $this->version  = $version;
+    }
+    
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
+
+    public function setVersion($version)
+    {
+        $this->version = $version;
+    }
+
+    public function setActions(array $actions)
+    {
+        $this->actions = $actions;
+    }
+    
+    /**
+     * Application's Namespace
+     * 
+     * @return string 
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Application's version
+     * 
+     * @return string 
+     */
+    public function getVersion()
+    {
+        return $this->version;
+    }
+    
+    /**
+     * List of actions
+     * 
+     * @return array 
+     */
+    public function getActions()
+    {
+        if(!isset($this->actions)) {
+            $result     = self::getXmlActionsMap()->execute($this);
+            $this->actions = (isset($result['actions']) ?
+                $result['actions'] : 
+                array()
+            );
+        }
+        
+        return $this->actions;
+    }
+    
+    /**
+     * List of listeners
+     * 
+     * @return array 
+     */
+    public function getListeners()
+    {
+        if(!isset($this->listeners)) {
+            $result     = self::getXmlListenersMap()->execute($this);
+            $this->listeners = (isset($result['listeners']) ?
+                $result['listeners'] : 
+                array()
+            );
+        }
+        
+        return $this->listeners;
+    }
+
+    /**
+     * Tells if an action exists
+     * 
+     * @return boolean
+     */
+    public function hasAction($actionName)
+    {
+        $actions = $this->getActions();
+        
+        return array_key_exists($actionName, $actions);
+    }
+    
+    /**
+     * Builds and returns an XML Map used to parse listeners in fwk.xml
+     * 
+     * @return Map
+     */
+    public static function getXmlListenersMap()
+    {
+        $map = new Map();
+        $map->add(
+            Path::factory('/fwk/listener', 'listeners')
+            ->loop(true)
+            ->attribute('class')
+        );
+        
+        return $map;
     }
     
     /**

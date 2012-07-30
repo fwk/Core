@@ -32,39 +32,74 @@
  */
 namespace Fwk\Core;
 
+use Fwk\Events\Event;
+
 /**
- * Static class grouping Context events
- *
- * @category Interfaces
+ * @category Listeners
  * @package  Fwk\Core
  * @author   Julien Ballestracci <julien@nitronet.org>
  * @license  http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link     http://www.phpfwk.com
  */
-class ContextEvents
+class ContextEvent extends Event
 {
     /**
-     * Event: notified when context has an action proxy defined
+     * Running Context
+     * 
+     * @var Context 
      */
-    const READY          = 'ready';
+    protected $context;
     
     /**
-     * Event: notified when a context error is defined
+     * Constructor
+     * 
+     * @param type $name
+     * @param type $data
+     * @param Application $app
+     * @param Context $context 
+     * 
+     * @return void
      */
-    const ERROR          = 'error';
+    public function __construct($name, $data = array(), Context $context = null) 
+    {
+        parent::__construct($name, $data);
+        $this->context      = $context;
+    }
+
+    /**
+     * 
+     * @return Context 
+     */
+    public function getContext()
+    {
+        return $this->context;
+    }
+
+    /**
+     *
+     * @param Context $context
+     * 
+     * @return CoreEvent 
+     */
+    public function setContext(Context $context)
+    {
+        $this->context = $context;
+        
+        return $this;
+    }
     
     /**
-     * Event: notified when action Proxy is set
+     *
+     * @param type        $name
+     * @param array       $data
+     * @param Context     $context
+     * 
+     * @return CoreEvent 
      */
-    const PROXY_READY    = 'proxyReady';
-    
-    /**
-     * Event: notified when action has been executed
-     */
-    const EXECUTED       = 'executed';
-    
-    /**
-     * Event: notified when return response is set
-     */
-    const RESPONSE       = 'response';
+    public static function factory($name, array $data = array(), 
+        Context $context = null
+    ) {
+        $event = new self($name, $data, $context);
+        return $event;
+    }
 }
