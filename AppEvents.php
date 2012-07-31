@@ -47,7 +47,6 @@ class AppEvents
      * Event: notified on app bootstrap
      */
     const BOOT           = 'boot';
-
     /**
      * Event: notified after app bootstrap
      */
@@ -57,10 +56,6 @@ class AppEvents
      */
     const DISPATCH       = 'dispatch';
   
-    /**
-     * notified when routing/dispatch has set context in error state
-     */
-    const CONTEXT_ERROR  = 'contextError';
     /**
      * notified when app is ready to load action class
      */
@@ -90,7 +85,7 @@ class AppEvents
      */
     const END            = 'end';
     /**
-     *  notified when the response is sent to the client
+     *  notified when an error occurs
      */
     const ERROR          = 'error';
 }

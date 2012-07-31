@@ -32,8 +32,6 @@
  */
 namespace Fwk\Core;
 
-use Fwk\Db\Relation;
-
 /**
  * This class is a simple accessor for values of objects
  *
@@ -41,7 +39,7 @@ use Fwk\Db\Relation;
  * If not, we try to directly get/set the value (\ArrayAccess or \stdClass)
  *
  * @category Utilities
- * @package  Fwk\Db
+ * @package  Fwk\Core
  * @author   Julien Ballestracci <julien@nitronet.org>
  * @license  http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link     http://www.phpfwk.com

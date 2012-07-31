@@ -139,7 +139,10 @@ class Proxy
         $accessor = new Accessor($class);
         $props    = array_keys($accessor->toArray());
         foreach($props as $key) {
-            $accessor->set($key, $request->get($key, null));
+            $value = $request->get($key, false);
+            if(false !== $value) {
+                $accessor->set($key, $value);
+            }
         }
     }
 

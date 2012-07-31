@@ -22,42 +22,42 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * PHP Version 5.3
- *
- * @category  Core
- * @package   Fwk\Core
- * @author    Julien Ballestracci <julien@nitronet.org>
- * @copyright 2011-2012 Julien Ballestracci <julien@nitronet.org>
- * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://www.phpfwk.com
+ * 
+ * @category   Core
+ * @package    Fwk\Core
+ * @subpackage Components
+ * @author     Julien Ballestracci <julien@nitronet.org>
+ * @copyright  2011-2012 Julien Ballestracci <julien@nitronet.org>
+ * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
+ * @link       http://www.phpfwk.com
  */
-namespace Fwk\Core;
+namespace Fwk\Core\Components\Bootstrap;
 
 /**
- * ServicesAware Interface
+ * This is the interface for all bootstrappers
  *
- * Represents an action aware of the app services
- *
- * @category Interfaces
- * @package  Fwk\Core
- * @author   Julien Ballestracci <julien@nitronet.org>
- * @license  http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link     http://www.phpfwk.com
+ * @category   Utilities
+ * @package    Fwk\Core
+ * @subpackage Components
+ * @author     Julien Ballestracci <julien@nitronet.org>
+ * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
+ * @link       http://www.phpfwk.com
  */
-interface ServicesAware
+interface Bootstrapper
 {
     /**
-     * Defines A Services Container
-     * 
-     * @param mixed $container Service DI Container
+     * "Boot" the app:
+     *
+     * @param \Fwk\Core\Application $app App to boot
      * 
      * @return void
      */
-    public function setServices($container);
+    public function boot(\Fwk\Core\Application $app);
 
     /**
-     * Returns the Services Container
-     * 
-     * @return mixed
+     * Tells if this bootstrapper has already been executed
+     *
+     * @return boolean
      */
-    public function getServices();
+    public function isBootstrapped();
 }

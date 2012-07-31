@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <fwk id="TestApp" version="1.0-dev">
     <listener class="Fwk\Core\CoreListener" />
+    <listener class="Fwk\Core\Components\Bootstrap\BootstrapListener" />
+    <listener class="Fwk\Core\Components\PropertiesListener" />
+    <listener class="Fwk\Core\Components\UrlRewriter\UrlRewriterListener" />
+    
+    <bootstrap type="Fwk\Core\Components\Bootstrap\ClassBootstrapper">
+        TestApp\Bootstrap
+    </bootstrap>
+    
+    <properties>
+        <property name="currentTheme">default</property>
+        <property name="test">:currentTheme/test!</property>
+    </properties>
     
     <actions>
         <action name="Home" class="TestApp\actions\Homepage" method="show">
@@ -13,4 +25,10 @@
             <result name="show">hello.html</result>
         </action>
     </actions>
+    
+    <url-rewrite>
+        <url route="/hello/?:name$" action="Hello">
+            <param name="name" />
+        </url>
+    </url-rewrite>
 </fwk>
