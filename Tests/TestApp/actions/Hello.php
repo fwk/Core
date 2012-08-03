@@ -2,7 +2,7 @@
 namespace TestApp\actions;
 
 
-use Fwk\Core\Preparable;
+use Fwk\Core\Preparable, Fwk\Core\Action\Result;
 
 class Hello implements Preparable
 {
@@ -14,6 +14,6 @@ class Hello implements Preparable
     
     public function show()
     {
-        return 'Hello '. $this->name;
+        return Result::SUCCESS;
     }
 }

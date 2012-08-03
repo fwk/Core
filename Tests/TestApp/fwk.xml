@@ -4,6 +4,7 @@
     <listener class="Fwk\Core\Components\Bootstrap\BootstrapListener" />
     <listener class="Fwk\Core\Components\PropertiesListener" />
     <listener class="Fwk\Core\Components\UrlRewriter\UrlRewriterListener" />
+    <listener class="Fwk\Core\Components\ResultType\ResultTypeListener" />
     
     <bootstrap type="Fwk\Core\Components\Bootstrap\ClassBootstrapper">
         TestApp\Bootstrap
@@ -14,20 +15,34 @@
         <property name="test">:currentTheme/test!</property>
     </properties>
     
+    <result-types>
+        <result-type 
+            name="template" 
+            class="Fwk\Core\Components\ResultType\Types\PhpFile">       
+            <param name="templatesDir">:packageDir/templates/:currentTheme</param>
+        </result-type>
+    </result-types>
+    
     <actions>
         <action name="Home" class="TestApp\actions\Homepage" method="show">
             <result name="welcome">
-                homepage.html
+                <param name="pwet">coucou</param>
+                <param name="template">hello.phtml</param>
             </result>
         </action>
 
         <action name="Hello" class="TestApp\actions\Hello" method="show">
-            <result name="show">hello.html</result>
+            <result name="success" type="template">
+                 <param name="file">hello.phtml</param>
+            </result>
+            <result name="error" type="template">
+                 <param name="file">hello.phtml</param>
+            </result>
         </action>
     </actions>
     
     <url-rewrite>
-        <url route="/hello/?:name$" action="Hello">
+        <url route="/hello/:name$" action="Hello">
             <param name="name" />
         </url>
     </url-rewrite>

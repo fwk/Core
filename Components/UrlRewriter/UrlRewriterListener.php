@@ -132,8 +132,6 @@ class UrlRewriterListener
     protected function getRewriter(Application $app) {
         $descriptor = $app->getDescriptor();
         $rw         = new Rewriter();
-        
-        
         $result     = self::getRewritesXmlMap()->execute($descriptor);
         if(!is_array($result['rewrites'])) {
             return;
