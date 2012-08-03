@@ -115,7 +115,7 @@ class ResultTypeListener
         
         $data           = $this->getActionData($proxy->getInstance());
         $params         = $final['params'];
-        $typeInstance   = $this->loadType($final['type']);
+        $typeInstance   = $this->loadType($final['type'], $app);
         
         $response       = $typeInstance->getResponse($data, $params);
         if ($response instanceof Response) {
@@ -123,7 +123,7 @@ class ResultTypeListener
         }
     }
 
-    protected function loadType($typeName)
+    protected function loadType($typeName, Application $app)
     {
         if(!isset($this->types[$typeName])) {
              throw new Exception(
@@ -132,10 +132,20 @@ class ResultTypeListener
         }
         
         $type           = $this->types[$typeName];
-        $typeInstance   = $this->instanceOfType($type['class'], $type['params']);
+        $appParams      = $app->rawGetAll();
+        $appParams['packageDir'] = dirname($app->getDescriptor()->getRealPath());
+        $params         = array();
+        
+        foreach ($type['params'] as $key => $value)
+        {
+            $params[$key] = $this->inflectorParams($value, $appParams);
+        }
+        
+        $typeInstance   = $this->instanceOfType($type['class'], $params);
         
         return $typeInstance;
     }
+    
     public function onViewHelperRegistered($event) {
         $vh = \Fwk\Core\ViewHelper\ViewHelper::getInstance();
         $vh->addListener(new ViewParamsListener());
@@ -186,8 +196,20 @@ class ResultTypeListener
         
         return $instance;
     }
-
    
+    protected function inflectorParams($value, array $params = array())
+    {
+        $find   = array();
+        $found  = array();
+
+        foreach ($params as $key => $param) {
+            $find[]     = ':'. $key;
+            $found[]    = $param;
+        }
+
+        return str_replace($find, $found, $value);
+    }
+    
     protected function getActionResults(Application $app, $actionName)
     {
         $results    = array();

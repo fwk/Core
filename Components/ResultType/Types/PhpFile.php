@@ -33,11 +33,14 @@
  */
 namespace Fwk\Core\Components\ResultType\Types;
 
-use Fwk\Core\Components\ResultType\ResultType;
+use Fwk\Core\Components\ResultType\ResultType,
+    Symfony\Component\HttpFoundation\Response;
 
 class PhpFile implements ResultType
 {
     protected $params;
+    
+    protected $data;
     
     public function __construct(array $params = array())
     {
@@ -49,8 +52,68 @@ class PhpFile implements ResultType
         );
     }
     
-    public function getResponse(array $actionData = array(), array $params = array()) {
+    public function getResponse(array $actionData = array(), 
+        array $params = array()
+    ) {
+        if(!isset($params['file']) || empty($params['file'])) {
+            throw new \RuntimeException(
+                sprintf('Missing template "file" parameter')
+            );
+        } 
         
-        return new \Symfony\Component\HttpFoundation\Response('PhpFile Response');
+        $file = $params['file'];
+        if(!empty($this->params['templatesDir'])) {
+            $file = rtrim($this->params['templatesDir'], DIRECTORY_SEPARATOR) .
+                    DIRECTORY_SEPARATOR .
+                    $file;
+        }
+        
+        $this->data = $actionData;
+        
+        return new Response($this->loadTemplate($file));
+    }
+    
+    /**
+     * Loads contents from simple PHP template file
+     *
+     * @return string
+     */
+    protected function loadTemplate($file)
+    {
+        if(!is_file($file) || !is_readable($file)) {
+            throw new \RuntimeException(
+                sprintf(
+                    'Template file "%s" cannot be found/read.', 
+                    $file
+                )
+            );
+        }
+
+        ob_start();
+
+        include $file;
+        
+        $contents = ob_get_contents();
+        ob_end_clean();
+
+        return $contents;
+    }
+    
+    /**
+     *
+     * @param string $param
+     */
+    public function __get($param)
+    {
+        return (isset($this->data[$param]) ? $this->data[$param] : null);
+    }
+    
+    /**
+     *
+     * @param string $param
+     */
+    public function __isset($param)
+    {
+        return array_key_exists($param, $this->data);
     }
 }

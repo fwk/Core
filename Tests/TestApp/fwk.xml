@@ -19,7 +19,7 @@
         <result-type 
             name="template" 
             class="Fwk\Core\Components\ResultType\Types\PhpFile">       
-            <param name="templatesDir">:packageDir/templates/:currentTheme</param>
+            <param name="templatesDir">:packageDir/templates</param>
         </result-type>
     </result-types>
     
