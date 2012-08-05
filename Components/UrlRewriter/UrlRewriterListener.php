@@ -110,16 +110,13 @@ class UrlRewriterListener
      *
      * @param Event $event
      */
-    public function onBundleLoaded($event) {
-        $bundle     = $event->bundle;
-        $loaded     = $event->loadedBundle;
-
+    public function onAppLoaded(CoreEvent $event) {
+        $loaded     = $event->application;
         $rw         = $this->getRewriter($loaded);
 
-        if($this->rewriter instanceof Rewriter) {
+        if ($this->rewriter instanceof Rewriter) {
             $this->rewriter->addRoutes($rw->getRoutes());
-        }
-        else {
+        } else {
             $this->rewriter = $rw;
         }
     }

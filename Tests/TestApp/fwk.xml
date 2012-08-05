@@ -5,6 +5,9 @@
     <listener class="Fwk\Core\Components\PropertiesListener" />
     <listener class="Fwk\Core\Components\UrlRewriter\UrlRewriterListener" />
     <listener class="Fwk\Core\Components\ResultType\ResultTypeListener" />
+    <listener class="Fwk\Core\Components\ExtendsListener" />
+    
+    <extends path="./lib/OtherApp" />
     
     <bootstrap type="Fwk\Core\Components\Bootstrap\ClassBootstrapper">
         TestApp\Bootstrap
@@ -37,6 +40,12 @@
             </result>
             <result name="error" type="template">
                  <param name="file">hello.phtml</param>
+            </result>
+        </action>
+        
+        <action name="NewAction">
+            <result name="success" type="template">
+                <param name="file">newactionExtends.phtml</param>
             </result>
         </action>
     </actions>

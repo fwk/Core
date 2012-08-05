@@ -62,27 +62,43 @@ class ResultTypeListener
      * 
      * @var array
      */
-    protected $types;
+    protected static $types = array();
 
-    /**
-     * Action's defined results from XML
-     * 
-     * @var array
-     */
-    protected $results;
-
-    /**
-     * Default result type
-     * 
-     * @var string
-     */
-    protected $default;
-
+    protected static $apps = array();
+    
     protected $viewHelperEnabled = false;
   
     public function onBoot(CoreEvent $event)
     {
-        $this->types = $this->getAppResultTypes($event->getApplication());
+        $types = $this->getAppResultTypes($event->getApplication());
+        foreach($types as $typeName => $infos) {
+            $types[$typeName]['app'] = $event->getApplication();
+        }
+        
+        self::$types = array_merge(
+            $types,
+            self::$types
+        );
+        
+        array_push(self::$apps, $event->getApplication());
+    }
+    
+    public function onAppLoaded(CoreEvent $event)
+    {
+        array_push(self::$apps, $event->application);
+    }
+    
+    private function getAppsForAction($actionName)
+    {
+        $apps = array();
+        foreach(self::$apps as $appli) {
+            $desc = $appli->getDescriptor();
+            if($desc->hasAction($actionName)) {
+                array_push($apps, $appli);
+            }
+        }
+        
+        return $apps;
     }
     
     public function onResult(CoreEvent $event)
@@ -97,7 +113,7 @@ class ResultTypeListener
         }
 
         $actionName     = $context->getActionProxy()->getName();
-        $results        = $this->getActionResults($app, $actionName);
+        $results        = $this->getActionResults($actionName);
         
         if(!isset($results[$result])) {
             return;
@@ -115,7 +131,7 @@ class ResultTypeListener
         
         $data           = $this->getActionData($proxy->getInstance());
         $params         = $final['params'];
-        $typeInstance   = $this->loadType($final['type'], $app);
+        $typeInstance   = $this->loadType($final['type']);
         
         $response       = $typeInstance->getResponse($data, $params);
         if ($response instanceof Response) {
@@ -123,15 +139,16 @@ class ResultTypeListener
         }
     }
 
-    protected function loadType($typeName, Application $app)
+    protected function loadType($typeName)
     {
-        if(!isset($this->types[$typeName])) {
+        if(!isset(self::$types[$typeName])) {
              throw new Exception(
                 sprintf('Unknown Result Type "%s"', $typeName)
             );
         }
         
-        $type           = $this->types[$typeName];
+        $app            = self::$types[$typeName]['app'];
+        $type           = self::$types[$typeName];
         $appParams      = $app->rawGetAll();
         $appParams['packageDir'] = dirname($app->getDescriptor()->getRealPath());
         $params         = array();
@@ -210,18 +227,23 @@ class ResultTypeListener
         return str_replace($find, $found, $value);
     }
     
-    protected function getActionResults(Application $app, $actionName)
+    protected function getActionResults($actionName)
     {
-        $results    = array();
-        $desc       = $app->getDescriptor();
-        $res        = self::getActionResultsXmlMap($actionName)->execute($desc);
+        $final      = array();
+        $apps       = $this->getAppsForAction($actionName);
+        foreach($apps as $app) {
+            $desc       = $app->getDescriptor();
+            $res        = self::getActionResultsXmlMap($actionName)->execute($desc);
+
+            $results = (is_array($res['results']) ? 
+                $res['results'] : 
+                array()
+            );
+            
+            $final  += $results;
+        }
         
-        $results = (is_array($res['results']) ? 
-            $res['results'] : 
-            array()
-        );
-        
-        return $results;
+        return $final;
     }
 
 
@@ -231,12 +253,12 @@ class ResultTypeListener
         $desc           = $app->getDescriptor();
         $results        = self::getResultsTypesXmlMap()->execute($desc);
         
-        $this->types    = (is_array($results['types']) ? 
+        $types    = (is_array($results['types']) ? 
             $results['types'] : 
             array()
         );
         
-        return $this->types;
+        return $types;
     }
     
     /**

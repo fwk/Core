@@ -34,12 +34,12 @@
 namespace Fwk\Core\Components;
 
 use Fwk\Core\CoreEvent, 
-    Fwk\Core\Context,
     Fwk\Xml\Map, 
     Fwk\Xml\Path;
 
 /**
- * This Listener is in charge of handling properties
+ * This Listener adds the ability to "extends" functionnalities from another
+ * Application
  *
  * @category   Utilities
  * @package    Fwk\Core
@@ -48,65 +48,71 @@ use Fwk\Core\CoreEvent,
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link       http://www.phpfwk.com
  */
-class PropertiesListener
+class ExtendsListener
 {
     /**
      * @var array
      */
     public function onBoot(CoreEvent $event)
     {
-        $app = $event->getApplication();
-        $desc = $app->getDescriptor();
-        $res  = self::getPropertiesXmlMap()->execute($desc);
-        $props = (is_array($res['properties']) ? $res['properties'] : array());
+        $app    = $event->getApplication();
+        $appdesc = $app->getDescriptor();
+        $res    = self::getExtendsXmlMap()->execute($appdesc);
+        $extds  = (is_array($res['extends']) ? $res['extends'] : array());
         
-        foreach($props as $key => $value) {
-            $value =  $this->inflectorParams($value, $app->rawGetAll());
-            $app->set($key, $value);
+        foreach($extds as $infos) {
+            $path = $infos['path'];
+            
+            if(strpos($path, './', 0) !== false) {
+                $path = dirname($appdesc->getRealPath()) . 
+                        DIRECTORY_SEPARATOR . 
+                        substr($path, 2);
+            }
+                $xmlFile = rtrim($path, DIRECTORY_SEPARATOR) .
+                        DIRECTORY_SEPARATOR .
+                        'fwk.xml';
+            
+            try {
+                $desc = new \Fwk\Core\Descriptor($xmlFile);
+            } catch(\Fwk\Core\Exception $exp) {
+                throw new \Fwk\Core\Exception(
+                    sprintf("Invalid Extends path: %s (missing xml)", $path)
+                );
+            }
+            
+            $actions = $desc->getActions();
+            $current = $appdesc->getActions();
+            $appdesc->setActions(array_merge($current, $actions));
+            
+            $loaded = new \Fwk\Core\Application($desc);
+            $loaded->boot();
+            
+            $loaded->notify(
+                new CoreEvent(
+                    ComponentsEvents::APP_LOADED,
+                    array(
+                        'application' => $loaded
+                    ),
+                    $app,
+                    $event->getContext()
+                )
+            );
         }
     }
 
-    /**
-     * @var array
-     */
-    public function onAppLoaded(CoreEvent $event)
-    {
-        $app = $event->application;
-        $desc = $app->getDescriptor();
-        $res  = self::getPropertiesXmlMap()->execute($desc);
-        $props = (is_array($res['properties']) ? $res['properties'] : array());
-        
-        $app = $event->getApplication();
-        foreach($props as $key => $value) {
-            $value =  $this->inflectorParams($value, $app->rawGetAll());
-            $app->set($key, $value);
-        }
-    }
-    
     /**
      *
      * @return Map 
      */
-    private static function getPropertiesXmlMap()
+    private static function getExtendsXmlMap()
     {
         $map = new Map();
         $map->add(
-            Path::factory('/fwk/properties/property', 'properties')
-            ->loop(true, '@name')
+            Path::factory('/fwk/extends', 'extends')
+            ->loop(true)
+            ->attribute('path')
         );
         
         return $map;
-    }
-    
-    private function inflectorParams($value, array $params = array()) {
-        $find   = array();
-        $found  = array();
-
-        foreach($params as $key => $param) {
-            $find[]     = ':'. $key;
-            $found[]    = $param;
-        }
-
-        return str_replace($find, $found, $value);
     }
 }
