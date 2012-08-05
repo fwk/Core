@@ -64,41 +64,29 @@ class ResultTypeListener
      */
     protected static $types = array();
 
-    protected static $apps = array();
-    
     protected $viewHelperEnabled = false;
   
     public function onBoot(CoreEvent $event)
     {
         $types = $this->getAppResultTypes($event->getApplication());
-        foreach($types as $typeName => $infos) {
-            $types[$typeName]['app'] = $event->getApplication();
-        }
         
         self::$types = array_merge(
             $types,
             self::$types
         );
-        
-        array_push(self::$apps, $event->getApplication());
-    }
-    
-    public function onAppLoaded(CoreEvent $event)
-    {
-        array_push(self::$apps, $event->application);
     }
     
     private function getAppsForAction($actionName)
     {
         $apps = array();
-        foreach(self::$apps as $appli) {
-            $desc = $appli->getDescriptor();
+        foreach(self::$types as $typeName => $infos) {
+            $desc = $infos['app']->getDescriptor();
             if($desc->hasAction($actionName)) {
-                array_push($apps, $appli);
+                array_push($apps, $infos['app']);
             }
         }
         
-        return $apps;
+        return array_reverse($apps);
     }
     
     public function onResult(CoreEvent $event)
@@ -257,6 +245,10 @@ class ResultTypeListener
             $results['types'] : 
             array()
         );
+        
+        foreach($types as $typeName => $type) {
+            $types[$typeName]['app'] = $app;
+        }
         
         return $types;
     }
