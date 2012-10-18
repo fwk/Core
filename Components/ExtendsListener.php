@@ -96,7 +96,7 @@ class ExtendsListener
                     $app,
                     $event->getContext()
                 )
-            );
+            ); 
         }
     }
 

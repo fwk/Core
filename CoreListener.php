@@ -34,7 +34,8 @@ namespace Fwk\Core;
 
 use Fwk\Events\Event, 
     Symfony\Component\HttpFoundation\Request, 
-    Symfony\Component\HttpFoundation\Response;
+    Symfony\Component\HttpFoundation\Response, 
+    Fwk\Core\Components\Console\ConsoleListener;
 
 /**
  * @category Listeners
@@ -49,6 +50,10 @@ class CoreListener
 
     protected function match(Request $request, Context $context)
     {
+        if (ConsoleListener::isCLI()) {
+            return null;
+        }
+        
         $baseUri     = $request->getBaseUrl();
         $uri         = $request->getRequestUri();
         

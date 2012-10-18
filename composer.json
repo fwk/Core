@@ -16,6 +16,9 @@
         "fwk/xml": "dev-master",
         "symfony/http-foundation": "dev-master"
     },
+    "suggest": {
+        "symfony/console": "Allows a Core app to run as a CLI Application"
+    },
     "autoload": {
         "psr-0": {
             "Fwk\\Core": ""
