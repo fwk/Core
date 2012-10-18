@@ -4,3 +4,4 @@ vendor
 /test.php
 /build/
 /app
+/composer.lock
