@@ -40,7 +40,7 @@ pour le chargement des classes (autoload).
         }
     ],
     "require": {
-	"fwk/core": "dev-master"
+        "fwk/core": "dev-master"
     },
     "autoload": {
         "psr-0": {
@@ -48,7 +48,6 @@ pour le chargement des classes (autoload).
         }
     }
 }
-
 ```
 
 Ensuite, il suffit de finaliser l'installation:
@@ -75,7 +74,6 @@ use Fwk\Core\Application,
 
 $desc = new Descriptor(__DIR__ .'/../HelloWorld/fwk.xml');
 $app = Application::autorun($desc);
-
 ```
 
 ## fwk.xml
@@ -96,7 +94,6 @@ Voici son contenu:
         <action name="Hello" class="HelloWorld\actions\Hello" method="show" />
     </actions>
 </fwk>
-
 ```  
 
 Notre application étant simplissime, ce fichier est très simple à comprendre:
@@ -112,7 +109,6 @@ ici "Hello".
 ```
 [neiluj @fwk:~/app]$ mkdir HelloWorld/actions && cd HelloWorld/actions
 [neiluj @fwk:~/app/HelloWorld/actions]$ touch Hello.php
-
 ```
 
 Le contenu de notre classe Hello est lui aussi très simple:
@@ -129,7 +125,6 @@ class Hello
         return "Hello World";
     }
 }
-
 ```
 
 ## Premier test
@@ -144,4 +139,77 @@ http://helloworld.localhost/index.php/Hello.action
 Ceci devrait afficher le texte "Hello World" !
 
 ## URL-Rewritting
+
+Core dispose d'un listener permettant de réécrire les URLs de manière simple et 
+efficaces. Pour des raisons de brièveté, nous n'allons pas en détailler son usage
+en détail (@todo documentation). Tout se passe dans le fichier *fwk.xml* ...
+
+``` xml
+<?xml version="1.0" encoding="UTF-8"?>
+<fwk id="HelloWorld" version="1.0-dev">
+    <listener class="Fwk\Core\CoreListener" />
+    <listener class="Fwk\Core\Components\UrlRewriter\UrlRewriterListener" />
+    <actions>
+        <!-- ... -->
+    </actions>
+
+    <url-rewrite>
+        <url route="/" action="Hello" />
+    </url-rewrite>
+</fwk>
+```
+
+à présent, notre application répond à l'adresse suivante
+
+```
+http://helloworld.localhost/
+```
+
+## Hello-who?
+
+Maintenant que notre application est en place, il est temps de l'améliorer un
+petit peu. Nous allons préciser à l'aide d'un paramètre de requête le nom de
+la personne qui souhaite être saluée.
+
+On commence donc par éditer notre action *Hello* 
+
+``` php
+<?php
+namespace HelloWorld\actions;
+
+class Hello
+{ 
+    protected $name = "World";
+
+    public function show()
+    {
+        return "Hello ". htmlspecialchars($this->name);
+    }
+
+    public function getName() 
+    {
+        return $this->name;
+    }
+
+    public function setName($name) 
+    {
+        $this->name = $name;
+    }
+}
+```
+
+Notre paramètre ```$name``` est accessible depuis la requête HTTP, par exemple:
+
+```
+http://helloworld.localhost/index.php/Hello.action?name=John
+```
+
+Ajoutons maintenant une règle de réécriture dans notre fichier *fwk.xml* 
+
+``` xml
+<!-- http://helloworld.localhost/index.php/hello/john -->
+<url route="/hello/:name" action="Hello">
+    <param name="name" required="true" />
+</url>
+```
 
