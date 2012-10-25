@@ -213,3 +213,6 @@ Ajoutons maintenant une règle de réécriture dans notre fichier *fwk.xml*
 </url>
 ```
 
+# Fin
+
+Vous pouvez télécharger/forker cet exemple sur Github: [http://github.com/neiluj/fwk-helloworld](http://github.com/fwk/Core)
