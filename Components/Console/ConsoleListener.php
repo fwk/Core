@@ -86,6 +86,10 @@ class ConsoleListener
      */
     public function onDispatch(CoreEvent $event)
     {
+        if (!self::isCLI()) {
+            return;
+        }
+        
         $desc       = $event->getApplication()->getDescriptor();
         $result     = self::getCommandsXmlMap()->execute($desc);
         $commands   = array_keys($result['commands']);

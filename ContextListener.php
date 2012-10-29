@@ -59,25 +59,6 @@ class ContextListener
     }
     
     /**
-     * Triggered when action name has been defined
-     * 
-     * @return void
-     */
-    public function onReady(ContextListener $event)
-    {
-        $app = $this->app;
-        
-        $app->notify(
-            new CoreEvent(
-                AppEvents::INIT, 
-                array(), 
-                $app, 
-                $event->getContext()
-            )
-        );
-    }
-
-    /**
      * Triggered when action Proxy is loaded 
      * 
      * @return void
@@ -124,24 +105,6 @@ class ContextListener
                 $this->app, 
                 $event->getContext()
             )
-        );
-    }
-
-    /**
-     * Triggered when Response has been defined
-     * 
-     * @param Event $event The event with response as parameter
-     * 
-     * @see ContextEvents::RESPONSE
-     * @return void
-     */
-    public function onResponse(Event $event)
-    {
-        $response       = $event->response;
-
-        $this->notifyBundle(
-            BundleEvents::RESPONSE, 
-            array('response' => $response)
         );
     }
 }

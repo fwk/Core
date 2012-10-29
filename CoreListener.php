@@ -197,7 +197,7 @@ class CoreListener
             new CoreEvent(
                 AppEvents::FINAL_RESPONSE,
                 array(
-                    'response' => $response
+                    'response' => &$response
                 ),
                 $event->getApplication(),
                 $event->getContext()
