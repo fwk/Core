@@ -36,10 +36,10 @@ use Fwk\Core\CoreEvent;
 
 /**
  * The Context Listener
- * 
+ *
  * This listener adds application behavior to the Context and is intended to
  * be used along with CoreListener
- * 
+ *
  * @category Listeners
  * @package  Fwk\Core
  * @author   Julien Ballestracci <julien@nitronet.org>
@@ -49,15 +49,16 @@ use Fwk\Core\CoreEvent;
 class ContextListener
 {
     /**
-     * 
-     * @var Application 
+     *
+     * @var Application
      */
     protected $app;
-    
-    public function __construct(Application $app) {
+
+    public function __construct(Application $app)
+    {
         $this->app = $app;
     }
-    
+
     /**
      * Triggered when action Proxy is loaded 
      * 
@@ -68,15 +69,14 @@ class ContextListener
         $app            = $this->app;
         $proxy          = $event->proxy;
         $actionClass    = $proxy->getInstance();
-        
         $app->notify(
             new CoreEvent(
-                AppEvents::ACTION_LOADED, 
+                AppEvents::ACTION_LOADED,
                 array(
                     'proxy'     => $proxy,
                     'action'    => $actionClass
-                ), 
-                $app, 
+                ),
+                $app,
                 $event->getContext()
             )
         );
@@ -84,9 +84,9 @@ class ContextListener
 
     /**
      * Triggered when action has been executed
-     * 
+     *
      * @param Event $event The event with context and action result
-     * 
+     *
      * @return void
      */
     public function onExecuted(ContextEvent $event)
@@ -94,15 +94,15 @@ class ContextListener
         $context        = $event->getContext();
         $result         = $event->result;
         $proxy          = $context->getActionProxy();
-        
+
         $this->app->notify(
             new CoreEvent(
-                AppEvents::ACTION_SUCCESS, 
+                AppEvents::ACTION_SUCCESS,
                 array(
-                    'action' => $proxy->getInstance(), 
+                    'action' => $proxy->getInstance(),
                     'result' => $result
-                ), 
-                $this->app, 
+                ),
+                $this->app,
                 $event->getContext()
             )
         );
