@@ -22,7 +22,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * PHP Version 5.3
- * 
+ *
  * @category   Core
  * @package    Fwk\Core
  * @subpackage Components
@@ -34,12 +34,12 @@
 namespace Fwk\Core\Components\Console;
 
 
-use Fwk\Core\CoreEvent, 
-    Fwk\Core\Application, 
-    Fwk\Xml\Map, 
+use Fwk\Core\CoreEvent,
+    Fwk\Core\Application,
+    Fwk\Xml\Map,
     Fwk\Xml\Path,
     \Symfony\Component\Console\Application as CliApplication,
-    Fwk\Core\ContextAware, 
+    Fwk\Core\ContextAware,
     Fwk\Core\ServicesAware;
 
 /**
@@ -55,45 +55,49 @@ class ConsoleListener
 {
     /**
      *
-     * @var CliApplication 
+     * @var CliApplication
      */
     protected static $app;
-    
+
     /**
      * Function triggered when main Application boot
-     * 
+     *
      * @param CoreEvent $event Event object
-     * 
+     *
      * @see AppEvents::BOOT
      * @return void
      */
     public function onBoot(CoreEvent $event)
     {
-        if (!$this->isCLI()) {
+        if (!self::isCLI()) {
             return;
-        } 
-        
+        }
+
         $desc = $event->getApplication()->getDescriptor();
-        $app  = self::consoleApp($desc->getId(), $desc->getVersion());
+        self::consoleApp($desc->getId(), $desc->getVersion());
     }
-    
+
     /**
      *
-     * @param CoreEvent $event 
-     * 
+     * @param CoreEvent $event
+     *
      * @see AppEvents::DISPATCH
      * @return void
      */
     public function onDispatch(CoreEvent $event)
     {
+	if (!self::isCLI()) {
+            return;
+        }
+
         $desc       = $event->getApplication()->getDescriptor();
         $result     = self::getCommandsXmlMap()->execute($desc);
         $commands   = array_keys($result['commands']);
         $app        = self::$app;
-        
+
         foreach ($commands as $command) {
             $cmd = new $command;
-            
+
             if ($cmd instanceof ContextAware) {
                 $cmd->setContext($event->getContext());
             }
@@ -101,28 +105,28 @@ class ConsoleListener
             if ($cmd instanceof ServicesAware) {
                 $cmd->setServices($event->getApplication()->getServices());
             }
-            
-            $app->add(new $cmd);
+
+            $app->add($cmd);
         }
-        
+
         exit(self::consoleApp()->run());
     }
-    
+
     /**
-     * 
+     *
      * @return boolean
      */
     public static function isCLI()
     {
         return (php_sapi_name() === "cli");
     }
-    
-    
+
+
     /**
      *
      * @param type $appName
      * @param type $version
-     * 
+     *
      * @return CliApplication
      */
     protected static function consoleApp($appName = null, $version = null)
@@ -130,13 +134,13 @@ class ConsoleListener
         if (!isset(self::$app)) {
             self::$app = new CliApplication($appName, $version);
         }
-        
+
         return self::$app;
     }
-    
+
     /**
      *
-     * @return Map 
+     * @return Map
      */
     private static function getCommandsXmlMap()
     {
@@ -145,7 +149,7 @@ class ConsoleListener
             Path::factory('/fwk/commands/command', 'commands')
             ->loop(true, '@class')
         );
-        
+
         return $map;
     }
 }

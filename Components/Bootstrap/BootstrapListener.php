@@ -22,7 +22,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * PHP Version 5.3
- * 
+ *
  * @category   Core
  * @package    Fwk\Core
  * @subpackage Components
@@ -33,9 +33,9 @@
  */
 namespace Fwk\Core\Components\Bootstrap;
 
-use Fwk\Core\CoreEvent, 
-    Fwk\Core\Application, 
-    Fwk\Xml\Map, 
+use Fwk\Core\CoreEvent,
+    Fwk\Core\Application,
+    Fwk\Xml\Map,
     Fwk\Xml\Path;
 
 /**
@@ -54,9 +54,9 @@ class BootstrapListener
 
     /**
      * Function triggered when main Application boot
-     * 
+     *
      * @param CoreEvent $event Event object
-     * 
+     *
      * @see AppEvents::BOOT
      * @return void
      */
@@ -66,41 +66,25 @@ class BootstrapListener
     }
 
     /**
-     * Function triggered when sub-apps are loaded
-     * 
-     * @param Event $event Event object
-     * 
-     * @see CoreEvents::APP_LOADED
-     * @return void
-     */
-    public function onBundleLoaded(CoreEvent $event)
-    {
-        $bundle     = $event->bundle;
-        $loaded     = $event->loadedBundle;
-
-        $this->bootstrap($loaded, $bundle);
-    }
-    
-    /**
      * Bootstraps the specified Bundle
-     * 
-     * @param Application $loaded Loaded bundle 
-     * 
-     * @return void 
+     *
+     * @param Application $loaded Loaded bundle
+     *
+     * @return void
      */
     protected function bootstrap(Application $app)
     {
         $desc = $app->getDescriptor();
         $bootstraps = self::getBootstrapsXmlMap()->execute($desc);
-        
+
         if(!is_array($bootstraps['bootstraps'])) {
             return;
         }
-        
+
         foreach($bootstraps['bootstraps'] as $bootinfo) {
             $class = $bootinfo['class'];
             $type = $bootinfo['type'];
-            
+
             $boot = new $type(new $class);
             if(!$boot instanceof Bootstrapper) {
                 throw new \InvalidArgumentException(
@@ -110,14 +94,14 @@ class BootstrapListener
                     )
                 );
             }
-            
+
             $boot->boot($app);
         }
     }
-    
+
     /**
      *
-     * @return Map 
+     * @return Map
      */
     private static function getBootstrapsXmlMap()
     {
@@ -128,7 +112,7 @@ class BootstrapListener
             ->attribute('type', 'type')
             ->value('class')
         );
-        
+
         return $map;
     }
 }

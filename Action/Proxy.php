@@ -33,7 +33,7 @@
 namespace Fwk\Core\Action;
 
 use Fwk\Core\Accessor,
-    Fwk\Core\Context, 
+    Fwk\Core\Context,
     Symfony\Component\HttpFoundation\Request,
     Fwk\Core\Preparable,
     Fwk\Core\Exceptions as Exceptions;
@@ -53,51 +53,51 @@ class Proxy
 {
     /**
      * Action name
-     * 
+     *
      * @var array
      */
     protected $name;
 
     /**
      * Action's method name
-     * 
+     *
      * @var string
      */
     protected $method;
 
     /**
      * Action's class name
-     * 
+     *
      * @var string
      */
     protected $class;
-    
+
     /**
      *
-     * @var mixed 
+     * @var mixed
      */
     protected $instance;
 
     /**
      * Actual Context
-     * 
+     *
      * @var Context
      */
     protected $context;
-    
+
     /**
      * Constructor
-     * 
-     * Action description should be: 
+     *
+     * Action description should be:
      * <code>
      *     array(
      *          'class' => \BundleNs\Action\Class,
      *          'method' => 'show',
      *      )
      * </code>
-     * 
+     *
      * @param array $actionDesc Array description of selected action
-     * 
+     *
      * @return void
      */
     public function __construct($name, array $actionDesc = array())
@@ -108,8 +108,8 @@ class Proxy
     }
 
     /**
-     * Loads the action's class 
-     * 
+     * Loads the action's class
+     *
      * @return mixed
      */
     public function getInstance()
@@ -119,10 +119,10 @@ class Proxy
             $class          = new $className();
 
             $this->populate($class, $this->context->getRequest());
-            
+
             $this->instance = $class;
         }
-        
+
         return $this->instance;
     }
 
@@ -131,13 +131,13 @@ class Proxy
      *
      * @param mixed   $class   Action's class
      * @param Request $request Current request
-     * 
+     *
      * @return void
      */
     protected function populate($class, Request $request)
     {
         $accessor = new Accessor($class);
-        $props    = array_keys($accessor->toArray());
+        $props    = $accessor->getAttributes();
         foreach($props as $key) {
             $value = $request->get($key, false);
             if(false !== $value) {
@@ -148,26 +148,26 @@ class Proxy
 
     /**
      * Sets the context
-     * 
+     *
      * @param Context $context Actual context
-     * 
+     *
      * @return void
      */
     public function setContext(Context $context)
     {
         $this->context = $context;
     }
-    
+
     /**
      * Returns the actual context
-     * 
+     *
      * @return Context
      */
     public function getContext()
     {
         return $this->context;
     }
-    
+
     public function getName() {
         return $this->name;
     }

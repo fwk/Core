@@ -32,9 +32,9 @@
  */
 namespace Fwk\Core;
 
-use Fwk\Events\Event, 
-    Symfony\Component\HttpFoundation\Request, 
-    Symfony\Component\HttpFoundation\Response, 
+use Fwk\Events\Event,
+    Symfony\Component\HttpFoundation\Request,
+    Symfony\Component\HttpFoundation\Response,
     Fwk\Core\Components\Console\ConsoleListener;
 
 /**
@@ -53,44 +53,44 @@ class CoreListener
         if (ConsoleListener::isCLI()) {
             return null;
         }
-        
+
         $baseUri     = $request->getBaseUrl();
         $uri         = $request->getRequestUri();
-        
+
         if(\strpos($uri, $baseUri) === 0) {
             $uri    = \substr($uri, strlen($baseUri));
         }
 
         $uri         = trim($uri, '/');
         $actionName  = null;
-        
+
         if (\preg_match(self::ACTION_REGEX, $uri, $matches)) {
             $actionName = $matches[1];
         }
-        
+
         return $actionName;
     }
-    
-    
+
+
     public function onBoot(CoreEvent $event)
     {
         $app = $event->getApplication();
-        
+
         $loader = Loader::getInstance();
         $loader->registerNamespace(
-            $app->getDescriptor()->getId(), 
+            $app->getDescriptor()->getId(),
             dirname($app->getDescriptor()->getRealPath())
         );
     }
-    
+
     /**
      *
      * @param CoreEvent $event
-     * 
-     * @throws Exceptions\InvalidAction If unknown action name submitted by 
+     *
+     * @throws Exceptions\InvalidAction If unknown action name submitted by
      *                                  request
-     * 
-     * @return void 
+     *
+     * @return void
      */
     public function onRequest(CoreEvent $event)
     {
@@ -98,38 +98,38 @@ class CoreListener
         $app        = $event->getApplication();
         $request    = $context->getRequest();
         $context->addListener(new ContextListener($app));
-        
+
         $actionName = $this->match($request, $context);
-        
+
         if (empty($actionName)) {
             return;
         }
-        
+
         $descriptor = $app->getDescriptor();
         if(!$descriptor->hasAction($actionName)) {
             throw $app->setErrorException(
                 new Exceptions\InvalidAction(
                     sprintf(
-                        "Unknown action '%s'", 
+                        "Unknown action '%s'",
                         $actionName
                     )
-                ), 
+                ),
                 $context
             );
         }
-        
+
         $actions = $descriptor->getActions();
         $proxy = new Action\Proxy($actionName, $actions[$actionName]);
         $proxy->setContext($context);
-        
+
         $context->setActionProxy($proxy);
     }
-    
+
     /**
      * Triggered when action class is instanciated
-     * 
+     *
      * @param CoreEvent $event The event
-     * 
+     *
      * @return void
      */
     public function onActionLoaded(CoreEvent $event)
@@ -141,20 +141,20 @@ class CoreListener
         if ($action instanceof ContextAware) {
             $action->setContext($context);
         }
-        
+
         if ($action instanceof ServicesAware) {
             $action->setServices($app->getServices());
         }
-        
+
         if ($action instanceof Preparable) {
             call_user_func(array($action, 'prepare'));
         }
     }
-    
+
     /**
      * Triggered when action has successfully executed and returned some result
-     * 
-     * @return void 
+     *
+     * @return void
      */
     public function onActionSuccess(CoreEvent $event)
     {
@@ -179,11 +179,11 @@ class CoreListener
             )
         );
     }
-    
-    
+
+
     /**
-     * Triggered when Response has been defined 
-     * 
+     * Triggered when Response has been defined
+     *
      * @return void
      */
     public function onEnd(CoreEvent $event)
@@ -192,7 +192,7 @@ class CoreListener
         if($response === null) {
             $response = new Response($event->result);
         }
-        
+
         $event->getApplication()->notify(
             new CoreEvent(
                 AppEvents::FINAL_RESPONSE,
@@ -203,7 +203,7 @@ class CoreListener
                 $event->getContext()
             )
         );
-        
+
         $response->send();
     }
 }
