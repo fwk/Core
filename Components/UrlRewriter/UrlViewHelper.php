@@ -60,8 +60,9 @@ class UrlViewHelper extends AbstractHelper
         $actionName = (isset($arguments[0]) ? $arguments[0] : false);
         if (false === $actionName)
         {
-            return null;
+            return $context->getRequest()->getBaseUrl();
         }
+        
         $params     = ((isset($arguments[1]) && is_array($arguments[1])) ? $arguments[1] : array());
 
         $base       = "%s%s";
