@@ -8,10 +8,10 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Fwk\Core\ServicesAware, Fwk\Core\ContextAware;
 
-class Test extends Command implements ContextAware
+class ThisIsACommand extends Command implements ContextAware
 {
     protected $context;
-    
+
     protected function configure()
     {
         $this->setName('test')
@@ -34,7 +34,7 @@ class Test extends Command implements ContextAware
 
         $output->writeln($text);
     }
-    
+
     /**
      * @return Context
      */

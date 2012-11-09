@@ -58,7 +58,7 @@
 
 
     <commands>
-        <command class="TestApp\commands\Test" />
+        <command class="TestApp\commands\ThisIsACommand" />
     </commands>
 
     <url-rewrite>
