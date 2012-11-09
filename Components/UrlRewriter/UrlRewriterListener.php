@@ -22,7 +22,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * PHP Version 5.3
- * 
+ *
  * @category   Core
  * @package    Fwk\Core
  * @subpackage Components
@@ -33,10 +33,10 @@
  */
 namespace Fwk\Core\Components\UrlRewriter;
 
-use Fwk\Core\CoreEvent, 
-    Fwk\Xml\Map, 
-    Fwk\Xml\Path, 
-    Fwk\Core\Application, 
+use Fwk\Core\CoreEvent,
+    Fwk\Xml\Map,
+    Fwk\Xml\Path,
+    Fwk\Core\Application,
     Fwk\Core\Action\Proxy;
 
 /**
@@ -57,7 +57,7 @@ class UrlRewriterListener
     {
         $app    = $event->getApplication();
         $rw     = $this->getRewriter($app);
-        
+
         if ($this->rewriter instanceof Rewriter) {
             $this->rewriter->addRoutes($rw->getRoutes());
         } else {
@@ -72,8 +72,8 @@ class UrlRewriterListener
 
         $baseUri     = $request->getBaseUrl();
         $uri         = $request->getRequestUri();
-        
-        if(\strpos($uri, $baseUri) === 0) {
+
+        if(!empty($baseUri) && \strpos($uri, $baseUri) === 0) {
             $uri    = \substr($uri, strlen($baseUri));
         }
 
@@ -81,25 +81,25 @@ class UrlRewriterListener
         if(!$route instanceof Route) {
             return;
         }
-        
+
         $descriptor = $event->getApplication()->getDescriptor();
         $actionName = $route->getActionName();
         if(!$descriptor->hasAction($actionName)) {
             throw $app->setErrorException(
                 new Exceptions\InvalidAction(
                     sprintf(
-                        "Unknown action '%s'", 
+                        "Unknown action '%s'",
                         $actionName
                     )
-                ), 
+                ),
                 $context
             );
         }
-        
+
         foreach ($route->getParameters() as $param) {
             $request->query->set($param->getName(), $param->getValue());
         }
-        
+
         $actions = $descriptor->getActions();
         $proxy = new Proxy($actionName, $actions[$actionName]);
         $proxy->setContext($context);
@@ -121,9 +121,14 @@ class UrlRewriterListener
         }
     }
 
-    public function onViewHelperRegistered($event) {
-        $vh = \Fwk\Core\ViewHelper\ViewHelper::getInstance();
-        $vh->addListener(new RwViewHelperListener($this->rewriter));
+    /**
+     *
+     * @param CoreEvent $event
+     */
+    public function onViewHelperRegistered(CoreEvent $event)
+    {
+        $vh = $event->viewHelper;
+        $vh->set('rewriter', $this->rewriter);
     }
 
     protected function getRewriter(Application $app) {
@@ -131,19 +136,19 @@ class UrlRewriterListener
         $rw         = new Rewriter();
         $result     = self::getRewritesXmlMap()->execute($descriptor);
         if(!is_array($result['rewrites'])) {
-            return;
+            return $rw;
         }
-        
+
         $it = 0;
         foreach ($result['rewrites'] as $url) {
             $it++;
             $route  = $url['route'];
             $action = $url['action'];
-            
+
             if (empty($route)) {
                 throw new \RuntimeException(sprintf('Url #%u [app: %s] has no route defined.', $it, $descriptor->getId()));
             }
-            
+
             if(empty($action)) {
                 throw new \RuntimeException(sprintf('Url #%u [app: %s] has no action defined.', $it, $descriptor->getId()));
             }
@@ -159,7 +164,7 @@ class UrlRewriterListener
                 if(empty($paramName)) {
                     throw new \RuntimeException(sprintf('Url #%u [app: %s] has a nameless param.', $it, $descriptor->getId()));
                 }
-                
+
                 if ($required == 'true' || $required == '1' || empty($required)) {
                     $required = true;
                 } elseif ($required == 'false' || $required == '0') {
@@ -176,10 +181,10 @@ class UrlRewriterListener
 
         return $rw;
     }
-    
+
     /**
      *
-     * @return Map 
+     * @return Map
      */
     private static function getRewritesXmlMap()
     {
@@ -197,7 +202,7 @@ class UrlRewriterListener
                 ->value('value')
             )
         );
-        
+
         return $map;
     }
 }

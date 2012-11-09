@@ -7,26 +7,31 @@
     <listener class="Fwk\Core\Components\UrlRewriter\UrlRewriterListener" />
     <listener class="Fwk\Core\Components\ResultType\ResultTypeListener" />
     <listener class="Fwk\Core\Components\ExtendsListener" />
-    
+    <listener class="Fwk\Core\Components\ViewHelper\ViewHelperListener" />
+
     <extends path="./lib/OtherApp" />
-    
+
     <bootstrap type="Fwk\Core\Components\Bootstrap\ClassBootstrapper">
         TestApp\Bootstrap
     </bootstrap>
-    
+
     <properties>
         <property name="currentTheme">default</property>
         <property name="test">:currentTheme/test!</property>
     </properties>
-    
+
     <result-types>
-        <result-type 
-            name="template" 
-            class="Fwk\Core\Components\ResultType\Types\PhpFile">       
+        <result-type
+            name="template"
+            class="Fwk\Core\Components\ResultType\Types\PhpFile">
             <param name="templatesDir">:packageDir/templates</param>
         </result-type>
     </result-types>
-    
+
+    <view-helper>
+        <helper name="url" class="Fwk\Core\Components\UrlRewriter\UrlViewHelper" />
+    </view-helper>
+
     <actions>
         <action name="Home" class="TestApp\actions\Homepage" method="show">
             <result name="welcome">
@@ -43,19 +48,19 @@
                  <param name="file">hello.phtml</param>
             </result>
         </action>
-        
+
         <action name="NewAction">
             <result name="success" type="template">
                 <param name="file">newactionExtends.phtml</param>
             </result>
         </action>
     </actions>
-    
-    
+
+
     <commands>
         <command class="TestApp\commands\Test" />
     </commands>
-    
+
     <url-rewrite>
         <url route="/hello/:name$" action="Hello">
             <param name="name" />
