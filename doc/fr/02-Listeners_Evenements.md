@@ -18,7 +18,7 @@ Les Listeners sont configurés dans le Descripteur de l'application (fwk.xml) de
 </fwk>
 ```
 
-Un Listener est une classe dont les fonctions correspondant aux noms des évènements, préfixés par "on", seront exécutés au déclenchement du dit évènement. Pour plus d'informations, se référer à la documentation du package (Events)[http://github.com/fwk/Events]. 
+Un Listener est une classe dont les fonctions correspondant aux noms des évènements, préfixés par "on", seront exécutés au déclenchement du dit évènement. Pour plus d'informations, se référer à la documentation du package [Events](http://github.com/fwk/Events). 
 
 Par exemple, le Listener suivant affichera le texte "Hello Listener" lors du *boot* de l'application:
 
@@ -156,7 +156,7 @@ http://myapp.localhost/index.php/hello/John
 
 Le paramètres *route* est interprété comme une expression régulière. Les paramètres cependant fonctionnent comme des inflecteurs classiques. Chaque paramètre doit être décrit dans une balise ```<param />``` reprenant son nom, s'il est requis ou non (```required```) et l'expression régulière (```regex```) qui le valide ou l'invalide. Généralement, les noms des paramètres correspondent aux noms de propriétés de l'Action que nous visons.
 
-**NOTE**: Afin d'éviter d'avoir à reprendre *index.php* dans le préfixe des URLs il vous faudra passer par le moteur de réécriture classique de votre serveur web. Pour (Apache)[http://httpd.apache.org/] et *mod_rewrite* bien souvent, un fichier ```.htaccess``` à la racine de votre webroot résoud ce problème. Voici un exemple:
+**NOTE**: Afin d'éviter d'avoir à reprendre *index.php* dans le préfixe des URLs il vous faudra passer par le moteur de réécriture classique de votre serveur web. Pour [Apache](http://httpd.apache.org/) et *mod_rewrite* bien souvent, un fichier ```.htaccess``` à la racine de votre webroot résoud ce problème. Voici un exemple:
 
 ```
 RewriteEngine On

@@ -2,7 +2,7 @@
 
 [fwk/Core](http://github.com/fwk/Core) est un framework facilitant la création d'applications robustes, maintenables et modulaires. 
 
-Voici une liste non exhaustive des principaux atouts de fwk/Core:
+Voici une liste des principaux atouts de fwk/Core:
 
 * Architecture MVC (excepté pour le Model - compatible Doctrine, Propel2 ...)
 * Classes faiblement couplées (réutilisables).
