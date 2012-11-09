@@ -60,8 +60,8 @@ class ContextListener
     }
 
     /**
-     * Triggered when action Proxy is loaded 
-     * 
+     * Triggered when action Proxy is loaded
+     *
      * @return void
      */
     public function onProxyReady(ContextEvent $event)
