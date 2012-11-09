@@ -31,27 +31,20 @@
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link       http://www.phpfwk.com
  */
-namespace Fwk\Core\Components;
+namespace Fwk\Core\Components\ViewHelper;
+
+
+use Fwk\Core\Exception as ExceptionBase;
 
 /**
- * Static class grouping Components events
+ * ViewHelper Exception
  *
- * @category   Utilities
- * @package    Fwk\Core
- * @subpackage Components
- * @author     Julien Ballestracci <julien@nitronet.org>
- * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link       http://www.phpfwk.com
+ * @category Exceptions
+ * @package  Fwk\Core
+ * @author   Julien Ballestracci <julien@nitronet.org>
+ * @license  http://www.opensource.org/licenses/bsd-license.php  BSD License
+ * @link     http://www.phpfwk.com
  */
-class ComponentsEvents
+class Exception extends ExceptionBase
 {
-    /**
-     * Event: notified when loading an extended App
-     */
-    const APP_LOADED                = 'appLoaded';
-
-    /**
-     * Event: notified when loading an extended App
-     */
-    const VIEWHELPER_REGISTERED     = 'viewHelperRegistered';
 }

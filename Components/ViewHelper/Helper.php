@@ -31,10 +31,10 @@
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link       http://www.phpfwk.com
  */
-namespace Fwk\Core\Components;
+namespace Fwk\Core\Components\ViewHelper;
 
 /**
- * Static class grouping Components events
+ * This interface represents a View Helper
  *
  * @category   Utilities
  * @package    Fwk\Core
@@ -43,15 +43,13 @@ namespace Fwk\Core\Components;
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link       http://www.phpfwk.com
  */
-class ComponentsEvents
+interface Helper
 {
-    /**
-     * Event: notified when loading an extended App
-     */
-    const APP_LOADED                = 'appLoaded';
+    public function __construct(array $options = array());
 
-    /**
-     * Event: notified when loading an extended App
-     */
-    const VIEWHELPER_REGISTERED     = 'viewHelperRegistered';
+    public function execute(array $arguments);
+
+    public function setViewHelper(ViewHelper $vhelper);
+
+    public function getViewHelper();
 }

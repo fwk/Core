@@ -22,7 +22,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * PHP Version 5.3
- * 
+ *
  * @category   Core
  * @package    Fwk\Core
  * @subpackage Components
@@ -35,7 +35,7 @@ namespace Fwk\Core\Components\UrlRewriter;
 
 /**
  * Rewriter
- * 
+ *
  * @category   Utilities
  * @package    Fwk\Core
  * @subpackage Components
@@ -46,26 +46,26 @@ namespace Fwk\Core\Components\UrlRewriter;
 class Rewriter
 {
     protected $routes = array();
-    
+
     /**
      * Adds a route
-     * 
+     *
      * @param Route $route The Route
-     * 
-     * @return Rewriter 
+     *
+     * @return Rewriter
      */
     public function addRoute(Route $route)
     {
         $this->routes[] = $route;
-        
+
         return $this;
     }
 
     /**
      * Removes a Route
-     * 
+     *
      * @param Route $route The Route
-     * 
+     *
      * @return Rewriter
      */
     public function removeRoute(Route $route)
@@ -76,14 +76,14 @@ class Rewriter
                 break;
             }
         }
-        
+
         return $this;
     }
 
     /**
      *
      * @param string $url
-     * 
+     *
      * @return Route
      */
     public function getRoute($url)
@@ -97,8 +97,8 @@ class Rewriter
 
     /**
      * Returns all routes
-     * 
-     * @return array 
+     *
+     * @return array
      */
     public function getRoutes()
     {
@@ -107,8 +107,8 @@ class Rewriter
 
     /**
      *
-     * @param array $routes 
-     * 
+     * @param array $routes
+     *
      * @return Rewriter
      */
     public function addRoutes(array $routes)
@@ -118,7 +118,7 @@ class Rewriter
                 $this->routes[] = $route;
             }
         }
-        
+
         return $this;
     }
 
@@ -126,8 +126,8 @@ class Rewriter
      *
      * @param string $actionName
      * @param array  $params
-     * 
-     * @return string 
+     *
+     * @return string
      */
     public function reverse($actionName, array $params = array())
     {

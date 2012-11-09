@@ -22,7 +22,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * PHP Version 5.3
- * 
+ *
  * @category   Core
  * @package    Fwk\Core
  * @subpackage Components
@@ -33,21 +33,21 @@
  */
 namespace Fwk\Core\Components\ResultType;
 
-use Fwk\Core\Context, 
-    Fwk\Core\CoreEvent, 
+use Fwk\Core\Context,
+    Fwk\Core\CoreEvent,
     Fwk\Core\Accessor,
-    Fwk\Core\Application, 
-    Fwk\Xml\Map, 
-    Fwk\Xml\Path, 
-    Fwk\Core\Loader, 
-    Symfony\Component\HttpFoundation\Response;
+    Fwk\Core\Application,
+    Fwk\Xml\Map,
+    Fwk\Xml\Path,
+    Symfony\Component\HttpFoundation\Response,
+    Fwk\Core\Components\ViewHelper\ViewHelper;
 
 /**
  * This Listener is in charge of handling a result (string) from an action and
  * generate an appropriate Response.
  *
  * Defined in fwk.xml as <result-type />
- * 
+ *
  * @category   Utilities
  * @package    Fwk\Core
  * @subpackage Components
@@ -59,23 +59,26 @@ class ResultTypeListener
 {
     /**
      * Results types from XML
-     * 
+     *
      * @var array
      */
     protected static $types = array();
 
-    protected $viewHelperEnabled = false;
-  
+    /**
+     * @var \Fwk\Core\Components\ViewHelper\ViewHelper
+     */
+    protected $viewHelper;
+
     public function onBoot(CoreEvent $event)
     {
         $types = $this->getAppResultTypes($event->getApplication());
-        
+
         self::$types = array_merge(
             $types,
             self::$types
         );
     }
-    
+
     private function getAppsForAction($actionName)
     {
         $apps = array();
@@ -85,42 +88,42 @@ class ResultTypeListener
                 array_push($apps, $infos['app']);
             }
         }
-        
+
         return array_reverse($apps);
     }
-    
+
     public function onResult(CoreEvent $event)
     {
         $context    = $event->getContext();
         $app        = $event->getApplication();
         $result     = strtolower($event->result);
         $proxy      = $context->getActionProxy();
-        
+
         if(!\is_string($result)) {
             return;
         }
 
         $actionName     = $context->getActionProxy()->getName();
         $results        = $this->getActionResults($actionName);
-        
+
         if(!isset($results[$result])) {
             return;
         }
-        
+
         $final = $results[$result];
         if (empty($final['type'])) {
              throw new Exception(
                 sprintf(
-                    'Missing Result Type for Action Result "%s"', 
+                    'Missing Result Type for Action Result "%s"',
                     $result
                 )
             );
         }
-        
+
         $data           = $this->getActionData($proxy->getInstance());
         $params         = $final['params'];
         $typeInstance   = $this->loadType($final['type']);
-        
+
         $response       = $typeInstance->getResponse($data, $params);
         if ($response instanceof Response) {
             $context->setResponse($response);
@@ -134,57 +137,50 @@ class ResultTypeListener
                 sprintf('Unknown Result Type "%s"', $typeName)
             );
         }
-        
+
         $app            = self::$types[$typeName]['app'];
         $type           = self::$types[$typeName];
         $appParams      = $app->rawGetAll();
         $appParams['packageDir'] = dirname($app->getDescriptor()->getRealPath());
         $params         = array();
-        
+
         foreach ($type['params'] as $key => $value)
         {
             $params[$key] = $this->inflectorParams($value, $appParams);
         }
-        
+
         $typeInstance   = $this->instanceOfType($type['class'], $params);
-        
+
         return $typeInstance;
     }
-    
-    public function onViewHelperRegistered($event) {
-        $vh = \Fwk\Core\ViewHelper\ViewHelper::getInstance();
-        $vh->addListener(new ViewParamsListener());
-        $this->viewHelperEnabled = true;
 
-        $vh->set('helper', $vh);
+    public function onViewHelperRegistered(CoreEvent $event)
+    {
+        $this->viewHelper = $event->viewHelper;
     }
-    
+
     /**
      * Fetches actions parameters using Reflection and returns an array of
      * key/value pairs.
-     * 
+     *
      * @param object $action
      * @return array
      */
     protected function getActionData($action)
     {
         $accessor   = new Accessor($action);
+        $data       = $accessor->toArray();
 
-        /*
-        if($this->viewHelperEnabled) {
-            $vh = \Fwk\Core\ViewHelper\ViewHelper::getInstance();
-            $params = $vh->getParameters();
-
-            $data   = \array_merge($data, $params);
+        if ($this->viewHelper instanceof ViewHelper) {
+            $data[ViewHelper::PROP_NAME] = $this->viewHelper;
         }
-         */
 
-        return $accessor->toArray();
+        return $data;
     }
 
     /**
      * Returns an instance of the Type class
-     * 
+     *
      * @return ResultType
      */
     protected function instanceOfType($className, $params = array()) {
@@ -193,15 +189,15 @@ class ResultTypeListener
         if(!$instance instanceof ResultType) {
             throw new \RuntimeException(
                 sprintf(
-                    '"%s" is not an instance of Fwk\Core\Components\ResultType\ResultType', 
+                    '"%s" is not an instance of Fwk\Core\Components\ResultType\ResultType',
                     $className
                 )
             );
         }
-        
+
         return $instance;
     }
-   
+
     protected function inflectorParams($value, array $params = array())
     {
         $find   = array();
@@ -214,7 +210,7 @@ class ResultTypeListener
 
         return str_replace($find, $found, $value);
     }
-    
+
     protected function getActionResults($actionName)
     {
         $final      = array();
@@ -223,14 +219,14 @@ class ResultTypeListener
             $desc       = $app->getDescriptor();
             $res        = self::getActionResultsXmlMap($actionName)->execute($desc);
 
-            $results = (is_array($res['results']) ? 
-                $res['results'] : 
+            $results = (is_array($res['results']) ?
+                $res['results'] :
                 array()
             );
-            
+
             $final  += $results;
         }
-        
+
         return $final;
     }
 
@@ -240,22 +236,22 @@ class ResultTypeListener
         $types          = array();
         $desc           = $app->getDescriptor();
         $results        = self::getResultsTypesXmlMap()->execute($desc);
-        
-        $types    = (is_array($results['types']) ? 
-            $results['types'] : 
+
+        $types    = (is_array($results['types']) ?
+            $results['types'] :
             array()
         );
-        
+
         foreach($types as $typeName => $type) {
             $types[$typeName]['app'] = $app;
         }
-        
+
         return $types;
     }
-    
+
     /**
      *
-     * @return Map 
+     * @return Map
      */
     private static function getResultsTypesXmlMap()
     {
@@ -269,20 +265,20 @@ class ResultTypeListener
                 ->loop(true, '@name')
             )
         );
-        
+
         return $map;
     }
-    
+
     /**
      *
-     * @return Map 
+     * @return Map
      */
     private static function getActionResultsXmlMap($actionName)
     {
         $map = new Map();
         $map->add(
             Path::factory(
-                sprintf("/fwk/actions/action[@name='%s']/result", $actionName), 
+                sprintf("/fwk/actions/action[@name='%s']/result", $actionName),
                 'results'
             )
             ->loop(true, '@name')
@@ -292,7 +288,7 @@ class ResultTypeListener
                 ->loop(true, '@name')
             )
         );
-        
+
         return $map;
     }
 }

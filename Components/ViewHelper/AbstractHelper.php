@@ -22,7 +22,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * PHP Version 5.3
- * 
+ *
  * @category   Core
  * @package    Fwk\Core
  * @subpackage Components
@@ -31,53 +31,40 @@
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link       http://www.phpfwk.com
  */
-namespace Fwk\Core\Components\UrlRewriter;
+namespace Fwk\Core\Components\ViewHelper;
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+use Fwk\Core\Object;
 
-use Fwk\Core\ViewHelper\Helpers\Url;
+abstract class AbstractHelper extends Object implements Helper
+{
+    /**
+     *
+     * @var ViewHelper
+     */
+    protected $viewHelper;
 
-class RwViewHelperListener {
-
-    const FUNC_NAME = Url::FUNC_NAME;
-
-    protected $rewriter;
-
-    public function __construct(\Fwk\Core\UrlRewriter\Rewriter $rewriter) {
-        $this->rewriter = $rewriter;
-    }
-    
-    public function onFunctionCall($event) {
-        if($event->funcName !== self::FUNC_NAME)
-                return;
-
-        $actionName = (isset($event->arguments[0]) ? $event->arguments[0] : false);
-        $params     = ((isset($event->arguments[1]) && is_array($event->arguments[1])) ? $event->arguments[1] : array());
-
-        if(false === $actionName)
-        {
-            return;
-        }
-
-        $base       = "%s%s";
-        $context    = $event->context;
-        $baseUrl    = "/";
-
-        if($context instanceof \Fwk\Action\Context) {
-            $request    = $context->getRequest();
-            if($request instanceof \Fwk\Request\HttpRequest)
-                $baseUrl = $request->getBaseUri () ."/";
-        }
-        
-        $reverse    = $this->rewriter->reverse($actionName, $params);
-        if($reverse === false)
-            return;
-        
-        $str    = sprintf($base, \rtrim($baseUrl,'/'), $reverse);
-        $event->returnValue = $str;
+    public function __construct(array $options = array())
+    {
+        $this->setMulti($options);
     }
 
+    /**
+     *
+     * @param ViewHelper $vhelper
+     *
+     * @return void
+     */
+    public function setViewHelper(ViewHelper $vhelper)
+    {
+        $this->viewHelper = $vhelper;
+    }
+
+    /**
+     *
+     * @return ViewHelper
+     */
+    public function getViewHelper()
+    {
+        return $this->viewHelper;
+    }
 }

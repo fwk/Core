@@ -32,8 +32,7 @@
  */
 namespace Fwk\Core;
 
-use Fwk\Events\Event,
-    Symfony\Component\HttpFoundation\Request,
+use Symfony\Component\HttpFoundation\Request,
     Symfony\Component\HttpFoundation\Response,
     Fwk\Core\Components\Console\ConsoleListener;
 
@@ -57,7 +56,7 @@ class CoreListener
         $baseUri     = $request->getBaseUrl();
         $uri         = $request->getRequestUri();
 
-        if(\strpos($uri, $baseUri) === 0) {
+        if(!empty($baseUri) && \strpos($uri, $baseUri) === 0) {
             $uri    = \substr($uri, strlen($baseUri));
         }
 
