@@ -217,6 +217,10 @@ class Descriptor extends XmlFile
             Path::factory('/fwk/listener', 'listeners')
             ->loop(true)
             ->attribute('class')
+            ->addChildren(
+                Path::factory('param', 'params')
+                ->loop(true, '@name')
+             )
         );
         
         return $map;

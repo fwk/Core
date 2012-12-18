@@ -2,7 +2,9 @@
 <fwk id="TestApp" version="1.0-dev">
     <listener class="Fwk\Core\CoreListener" />
     <listener class="Fwk\Core\Components\Console\ConsoleListener" />
-    <listener class="Fwk\Core\Components\SessionListener" />
+    <listener class="Fwk\Core\Components\SessionListener">
+        <param name="sessionName">TestParam</param>
+    </listener>
     <listener class="Fwk\Core\Components\Bootstrap\BootstrapListener" />
     <listener class="Fwk\Core\Components\PropertiesListener" />
     <listener class="Fwk\Core\Components\UrlRewriter\UrlRewriterListener" />

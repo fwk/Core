@@ -85,7 +85,9 @@ class Application extends Object
         // outside of any Loader registered namespace...
         foreach($descriptor->getListeners() as $listener)
         {
-            $class = (isset($listener['class']) ? $listener['class'] : null);
+            $class  = (isset($listener['class']) ? $listener['class'] : null);
+            $params = (isset($listener['params']) ? $listener['params'] : array());
+            
             if(empty($class)) {
                 throw new \InvalidArgumentException(
                     "Empty listener class",
@@ -93,8 +95,7 @@ class Application extends Object
                 );
             }
             
-            $listener = new $class($this);
-            $this->addListener(new $class($this));
+            $this->addListener(new $class($params));
         }
     }
 
