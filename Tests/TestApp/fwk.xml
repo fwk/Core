@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <fwk id="TestApp" version="1.0-dev">
     <listener class="Fwk\Core\CoreListener" />
-    <listener class="Fwk\Core\Components\Console\ConsoleListener" />
+    <listener class="Fwk\Core\Components\ConsoleListener" />
     <listener class="Fwk\Core\Components\SessionListener">
         <param name="sessionName">TestParam</param>
     </listener>

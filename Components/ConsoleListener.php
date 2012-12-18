@@ -31,7 +31,7 @@
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link       http://www.phpfwk.com
  */
-namespace Fwk\Core\Components\Console;
+namespace Fwk\Core\Components;
 
 
 use Fwk\Core\CoreEvent,

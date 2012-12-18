@@ -33,8 +33,7 @@
 namespace Fwk\Core;
 
 use Symfony\Component\HttpFoundation\Request,
-    Symfony\Component\HttpFoundation\Response,
-    Fwk\Core\Components\Console\ConsoleListener;
+    Symfony\Component\HttpFoundation\Response;
 
 /**
  * @category Listeners
@@ -49,7 +48,7 @@ class CoreListener
 
     protected function match(Request $request, Context $context)
     {
-        if (ConsoleListener::isCLI()) {
+        if (php_sapi_name() === "cli") {
             return null;
         }
 
