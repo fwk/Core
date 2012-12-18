@@ -3,11 +3,11 @@
 Une Application Core n'est ni plus ni moins qu'un conteneur qui émet des évènements tout le long du cycle d'une requête HTTP. 
 Ces évènements sont ensuite traités par différents *Listeners* qui se chargent d'orchestrer le déroulement (runtime) de l'application.
 
-Le Listener principal est ```Fwk\Core\Listener```. Il est responsable du comportement général de l'application et génère a son tour d'autres évènements. Il est possible de changer ce comportement, totalement ou en partie, si le développeur le désire. 
+Le Listener principal est ```Fwk\Core\CoreListener```. Il est responsable du comportement général de l'application et génère a son tour d'autres évènements. Il est possible de changer ce comportement, totalement ou en partie, si le développeur le désire. 
 
 Les Listeners sont configurés dans le Descripteur de l'application (fwk.xml) de la manière suivante:
 
-**IMPORTANT**: ```Fwk\Core\Listener``` doit être le premier indiqué (si on souhaite l'utiliser). L'ordre des listeners peut éventuellement avoir un impact. 
+**IMPORTANT**: ```Fwk\Core\CoreListener``` doit être le premier indiqué (si on souhaite l'utiliser). L'ordre des listeners peut éventuellement avoir un impact. 
 
 ``` xml
 <?xml version="1.0" encoding="UTF-8"?>

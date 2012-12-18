@@ -17,12 +17,3 @@ Toute contribution sur [Github](http://github.com) est bienvenue!
 
 * Reportez un bogue: [Issue Tracker](http://github.com/fwk/Core/issues)
 * Forkez!
-
-# Crédits Symfony2
-
-fwk/Core utilise le composant Symfony/HttpFoundation pour la gestion du HTTP.
-
-```
-Copyright (c) 2006-2012 Fabien Potencier
-```
-

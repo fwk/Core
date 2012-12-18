@@ -1,6 +1,6 @@
 # Hello World !
 
-Comme tout framework d'applications, l'exemple du Hello World s'impose :) 
+Comme pour tout framework d'applications, l'exemple du Hello World s'impose :) 
 Nous allons donc développer de A à Z une application répondant "Hello World" sur
 la page d'accueil. 
 
@@ -141,8 +141,8 @@ Ceci devrait afficher le texte "Hello World" !
 ## URL-Rewritting
 
 Core dispose d'un listener permettant de réécrire les URLs de manière simple et 
-efficaces. Pour des raisons de brièveté, nous n'allons pas en détailler son usage
-en détail (@todo documentation). Tout se passe dans le fichier *fwk.xml* ...
+efficace. Pour des raisons de brièveté, nous n'allons pas en détailler son usage
+en détail ici. Tout se passe dans le fichier *fwk.xml* ...
 
 ``` xml
 <?xml version="1.0" encoding="UTF-8"?>
