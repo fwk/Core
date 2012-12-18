@@ -79,6 +79,7 @@ class Application extends Object
     public function __construct(Descriptor $descriptor)
     {
         $this->descriptor   = $descriptor;
+        $this->services     = new Object();
         
         // this can cause a problem if we try to add a listener
         // outside of any Loader registered namespace...
