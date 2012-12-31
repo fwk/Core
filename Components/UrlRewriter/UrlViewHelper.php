@@ -90,8 +90,10 @@ class UrlViewHelper extends AbstractHelper
         if (count($params)) {
             $paramsStr = "?";
             foreach ($params as $key => $value) {
-                $paramsStr .= urlencode($key) ."=". urlencode($value);
+                $paramsStr .= urlencode($key) ."=". urlencode($value) ."&";
             }
+            
+            $paramsStr = rtrim($paramsStr, '&');
         }
 
         return sprintf(
