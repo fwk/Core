@@ -114,11 +114,13 @@ class Application extends Object
      *
      * @return void
      */
-    public function boot()
+    public function boot(Application $app = null)
     {
         $event = new CoreEvent(
             AppEvents::BOOT,
-            array(),
+            array(
+                'parent' => $app
+            ),
             $this
         );
 

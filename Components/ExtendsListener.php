@@ -37,6 +37,8 @@ use Fwk\Core\CoreEvent,
     Fwk\Xml\Map, 
     Fwk\Xml\Path;
 
+use Fwk\Core\AppEvents;
+
 /**
  * This Listener adds the ability to "extends" functionnalities from another
  * Application
@@ -85,7 +87,8 @@ class ExtendsListener
             $appdesc->setActions(array_merge($current, $actions));
             
             $loaded = new \Fwk\Core\Application($desc);
-            $loaded->boot();
+            $loaded->setServices($app->getServices());
+            $loaded->boot($app);
             
             $app->notify(
                 new CoreEvent(
