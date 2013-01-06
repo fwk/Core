@@ -87,7 +87,7 @@ class ExtendsListener
             $loaded = new \Fwk\Core\Application($desc);
             $loaded->boot();
             
-            $loaded->notify(
+            $app->notify(
                 new CoreEvent(
                     ComponentsEvents::APP_LOADED,
                     array(

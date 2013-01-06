@@ -63,7 +63,6 @@ class PropertiesListener
         foreach($props as $key => $value) {
             $value =  $this->inflectorParams($value, $app->rawGetAll());
             $app->set($key, $value);
-            $app->getServices()->set($key, $value);
         }
     }
 
@@ -81,7 +80,6 @@ class PropertiesListener
         foreach($props as $key => $value) {
             $value =  $this->inflectorParams($value, $app->rawGetAll());
             $app->set($key, $value);
-            $app->getServices()->set($key, $value);
         }
     }
     
