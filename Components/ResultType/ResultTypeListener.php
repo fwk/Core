@@ -40,7 +40,8 @@ use Fwk\Core\Context,
     Fwk\Xml\Map,
     Fwk\Xml\Path,
     Symfony\Component\HttpFoundation\Response,
-    Fwk\Core\Components\ViewHelper\ViewHelper;
+    Fwk\Core\Components\ViewHelper\ViewHelper,
+    Fwk\Core\Components\ViewHelper\ViewHelperAware;
 
 /**
  * This Listener is in charge of handling a result (string) from an action and
@@ -193,6 +194,11 @@ class ResultTypeListener
                     $className
                 )
             );
+        }
+        
+        if ($instance instanceof ViewHelperAware && 
+            $this->viewHelper instanceof ViewHelper) {
+            $instance->setViewHelper($this->viewHelper);
         }
 
         return $instance;
