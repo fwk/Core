@@ -48,16 +48,16 @@ interface ViewHelperAware
     /**
      * Defines the View Helper
      * 
-     * @param Fwk\Core\Components\ViewHelper\ViewHelper $viewHelper The ViewHelper
+     * @param ViewHelper $viewHelper The ViewHelper
      * 
      * @return void
      */
-    public function setViewHelper(Fwk\Core\Components\ViewHelper\ViewHelper $viewHelper);
+    public function setViewHelper(ViewHelper $viewHelper);
     
     /**
      * Returns the ViewHelper
      * 
-     * @return Fwk\Core\Components\ViewHelper\ViewHelper
+     * @return ViewHelper
      */
     public function getViewHelper();
 }
