@@ -65,6 +65,16 @@ class ExtendsListener
         foreach($extds as $infos) {
             $path = $infos['path'];
             
+            if(strpos($path, ':', 0) === 0) {
+                $path = str_replace(array(
+                    ':packageDir',
+                    ':vendorDir'
+                ), array(
+                    $appdesc->getRealPath(),
+                    realpath($appdesc->getRealPath() . '/../vendor')
+                ), $path);
+            }
+            
             if(strpos($path, './', 0) !== false) {
                 $path = dirname($appdesc->getRealPath()) . 
                         DIRECTORY_SEPARATOR . 
