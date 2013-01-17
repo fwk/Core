@@ -125,8 +125,6 @@ class Json implements ResultType
             return (string)$value;
         } elseif (is_bool($value)) {
             return (string)$value;
-        } elseif ($value instanceof \Fwk\Db\Relation) {
-            return static::prepareForJson($value->getRegistry()->toArray());
         } elseif (is_array($value) || $value instanceof \ArrayAccess) {
             return static::prepareForJson($value);
         } elseif (is_object($value)) {
