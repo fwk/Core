@@ -62,11 +62,12 @@ use Fwk\Core\Components\ViewHelper\ViewHelper;
  * This will redirect the user to ViewList.action?slug=[$action->slug] when the
  * Action's result is 'success'.
  * 
- * @category Exceptions
- * @package  Fwk\Core
- * @author   Julien Ballestracci <julien@nitronet.org>
- * @license  http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link     http://www.phpfwk.com
+ * @category   Core
+ * @package    Fwk\Core
+ * @subpackage Components
+ * @author     Julien Ballestracci <julien@nitronet.org>
+ * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
+ * @link       http://www.phpfwk.com
  */
 class Redirect implements ResultType, ViewHelperAware
 {

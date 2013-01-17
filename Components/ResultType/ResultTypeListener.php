@@ -99,7 +99,8 @@ class ResultTypeListener
         $app        = $event->getApplication();
         $result     = strtolower($event->result);
         $proxy      = $context->getActionProxy();
-
+        $ajax       = $context->getRequest()->isXmlHttpRequest();
+        
         if(!\is_string($result)) {
             return;
         }
@@ -107,11 +108,15 @@ class ResultTypeListener
         $actionName     = $context->getActionProxy()->getName();
         $results        = $this->getActionResults($actionName);
 
-        if(!isset($results[$result])) {
+        if(!isset($results[$result]) && ($ajax && !isset($results['ajax:'. $result]))) {
             return;
         }
 
-        $final = $results[$result];
+        $final = (($ajax && isset($results['ajax:'. $result])) ? 
+            $results['ajax:'. $result] : 
+            $results[$result]
+        );
+        
         if (empty($final['type'])) {
              throw new Exception(
                 sprintf(
