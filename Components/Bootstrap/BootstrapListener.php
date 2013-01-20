@@ -62,7 +62,7 @@ class BootstrapListener
      */
     public function onBoot(CoreEvent $event)
     {
-        $this->bootstrap($event->getApplication());
+        $this->bootstrap($event->getApplication(), $event->parent);
     }
 
     /**
@@ -72,7 +72,7 @@ class BootstrapListener
      *
      * @return void
      */
-    protected function bootstrap(Application $app)
+    protected function bootstrap(Application $app, Application $parent = null)
     {
         $desc = $app->getDescriptor();
         $bootstraps = self::getBootstrapsXmlMap()->execute($desc);
@@ -95,7 +95,7 @@ class BootstrapListener
                 );
             }
 
-            $boot->boot($app);
+            $boot->boot((null !== $parent ? $parent : $app));
         }
     }
 
