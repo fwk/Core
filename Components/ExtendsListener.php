@@ -104,7 +104,6 @@ class ExtendsListener
             
             $loaded = new \Fwk\Core\Application($desc);
             $loaded->setServices($app->getServices());
-            $loaded->boot($app);
             
             $app->notify(
                 new CoreEvent(
@@ -116,6 +115,8 @@ class ExtendsListener
                     $event->getContext()
                 )
             ); 
+            
+            $loaded->boot($app);
         }
     }
 

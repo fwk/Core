@@ -78,7 +78,8 @@ class PropertiesListener
         
         $app = $event->getApplication();
         foreach($props as $key => $value) {
-            $value =  $this->inflectorParams($value, $app->rawGetAll());
+            $currents = array_merge($app->rawGetAll(), array('packageDir' => dirname($event->getApplication()->getDescriptor()->getRealPath())));
+            $value =  $this->inflectorParams($app->get($key, $value), $currents);
             $app->set($key, $value);
         }
     }
@@ -101,7 +102,7 @@ class PropertiesListener
     private function inflectorParams($value, array $params = array()) {
         $find   = array();
         $found  = array();
-
+        
         foreach($params as $key => $param) {
             $find[]     = ':'. $key;
             $found[]    = $param;
