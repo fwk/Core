@@ -394,5 +394,15 @@ class Context extends Object
     {
         $this->state    = self::STATE_DONE;
         $this->response = $response;
+        
+        $this->notify(
+            new ContextEvent(
+                ContextEvents::RESPONSE,
+                array(
+                    'response' => $response
+                ),
+                $this
+            )
+         );
     }
 }

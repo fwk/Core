@@ -107,4 +107,18 @@ class ContextListener
             )
         );
     }
+    
+    public function onResponse(ContextEvent $event)
+    {
+        $this->app->notify(
+            new CoreEvent(
+                AppEvents::END, 
+                array(
+                    'result' => $event->getContext()->getResponse()
+                ),
+                $this->app,
+                $event->getContext()
+            )
+        );
+    }
 }

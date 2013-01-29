@@ -159,7 +159,7 @@ class Application extends Object
                 )
             );
         }
-
+        
         if (!$context->isReady()) {
             throw $this->setErrorException(
                 new Exceptions\InvalidAction('No action found'), 
@@ -186,16 +186,18 @@ class Application extends Object
         $result = call_user_func(array($action, $method));
         $context->setResult($result);
         
-        $this->notify(
-            new CoreEvent(
-                AppEvents::END, 
-                array(
-                    'result' => $result
-                ),
-                $this,
-                $context
-            )
-        );
+        if (!$context->isDone()) {
+            $this->notify(
+                new CoreEvent(
+                    AppEvents::END, 
+                    array(
+                        'result' => $result
+                    ),
+                    $this,
+                    $context
+                )
+            );
+        }
         
         return $this;
     }

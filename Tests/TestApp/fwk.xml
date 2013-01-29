@@ -11,7 +11,7 @@
     <listener class="Fwk\Core\Components\ResultType\ResultTypeListener" />
     <listener class="Fwk\Core\Components\ExtendsListener" />
     <listener class="Fwk\Core\Components\ViewHelper\ViewHelperListener" />
-
+    
     <extends path="./lib/OtherApp" />
 
     <bootstrap type="Fwk\Core\Components\Bootstrap\ClassBootstrapper">
