@@ -114,7 +114,7 @@ class ResultTypeListener
 
         $final = (($ajax && isset($results['ajax:'. $result])) ? 
             $results['ajax:'. $result] : 
-            $results[$result]
+            (isset($results[$result]) ? $results[$result] : null)
         );
         
         if (empty($final['type'])) {
