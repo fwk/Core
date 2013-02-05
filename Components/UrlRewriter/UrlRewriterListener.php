@@ -108,7 +108,7 @@ class UrlRewriterListener
      * @param Event $event
      */
     public function onAppLoaded(CoreEvent $event) {
-        $loaded     = $event->application;
+        $loaded     = $event->loaded;
         $rw         = $this->getRewriter($loaded);
 
         if ($this->rewriter instanceof Rewriter) {

@@ -72,7 +72,7 @@ class PropertiesListener
      */
     public function onAppLoaded(CoreEvent $event)
     {
-        $app = $event->application;
+        $app = $event->loaded;
         $desc = $app->getDescriptor();
         $res  = self::getPropertiesXmlMap()->execute($desc);
         $props = (is_array($res['properties']) ? $res['properties'] : array());

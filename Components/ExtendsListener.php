@@ -110,7 +110,7 @@ class ExtendsListener
                 new CoreEvent(
                     ComponentsEvents::APP_LOADED,
                     array(
-                        'application' => $loaded
+                        'loaded' => $loaded
                     ),
                     $app,
                     $event->getContext()
