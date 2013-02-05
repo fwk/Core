@@ -34,6 +34,12 @@ namespace Fwk\Core;
 
 use Symfony\Component\HttpFoundation\Request, 
     Symfony\Component\HttpFoundation\Response;
+use Fwk\Core\Exceptions\Runtime as RuntimeException;
+use Fwk\Core\Events\ErrorEvent, 
+    Fwk\Core\Events\RequestEvent, 
+    Fwk\Core\Events\DispatchEvent,
+    Fwk\Core\Events\BootEvent,
+    Events\EndEvent;
 
 /**
  * Application
@@ -61,13 +67,6 @@ class Application extends Object
      * @var mixed
      */
     protected $services;
-    
-    /**
-     * Last exception thrown
-     * 
-     * @var \Exception
-     */
-    protected $errorException;
     
     /**
      * Constructor
@@ -116,13 +115,7 @@ class Application extends Object
      */
     public function boot(Application $app = null)
     {
-        $event = new CoreEvent(
-            AppEvents::BOOT,
-            array(
-                'parent' => $app
-            ),
-            $this
-        );
+        $event = new BootEvent($this, $app);
 
         $this->notify($event);
     }
@@ -134,69 +127,38 @@ class Application extends Object
      * 
      * @return Application
      */
-    public function run(Request $request)
+    public function run(Request $request = null)
     {
-        $this->boot();
+        if (null === $request) {
+            $request = Request::createFromGlobals();
+        }
         
         $context = new Context($request);
         
-        $this->notify(
-            CoreEvent::factory(
-                AppEvents::REQUEST, 
-                array(), 
-                $this, 
-                $context
-            )
-        );
-        
-        if (!$context->isReady()) {
-            $this->notify(
-                new CoreEvent(
-                    AppEvents::DISPATCH,
-                    array(),
-                    $this,
-                    $context
-                )
-            );
-        }
-        
-        if (!$context->isReady()) {
-            throw $this->setErrorException(
-                new Exceptions\InvalidAction('No action found'), 
-                $context
-            );
-        }
-        
-        $proxy  = $context->getActionProxy();
-        $action = $proxy->getInstance();
-        
-        $method      = $proxy->getMethod();
-        $callable    = array($action, $method);
+        try {
+            $this->boot();
+            $this->notify(new RequestEvent($request, $this, $context));
+            
+            if (!$context->isReady()) {
+                $this->notify(new DispatchEvent($this, $context));
+            }
 
-        if (!\is_callable($callable)) {
-            throw new Exceptions\InvalidAction(
-                sprintf(
-                    'Invalid action callback (%s::%s()', 
-                    get_class($action), 
-                    $method
-                )
-            );
-        }
-        
-        $result = call_user_func(array($action, $method));
-        $context->setResult($result);
-        
-        if (!$context->isDone()) {
-            $this->notify(
-                new CoreEvent(
-                    AppEvents::END, 
-                    array(
-                        'result' => $result
-                    ),
-                    $this,
-                    $context
-                )
-            );
+            if (!$context->isReady()) {
+                throw new Exceptions\InvalidAction('No action found');
+            }
+
+            $proxy  = $context->getActionProxy();
+            $context->setResult($result = $proxy->execute());
+
+            if (!$context->isDone()) {
+                $this->notify(new EndEvent($result, $this, $context));
+            }
+            
+        } catch(\Exception $exp) {
+            $this->notify($event = new ErrorEvent($exp, $this, $context));
+            if (!$event->isStopped()) {
+                throw new RuntimeException(null, null, $exp);
+            }
         }
         
         return $this;
@@ -240,44 +202,5 @@ class Application extends Object
     public function getServices()
     {
         return $this->services;
-    }
-
-    /**
-     * Return last error exception
-     * 
-     * @return \Exception
-     */
-    public function getErrorException()
-    {
-        return $this->errorException;
-    }
-
-    /**
-     * Sets an error exception, notify the event and returns it (so it can
-     * be thrown)
-     * 
-     * @param \Exception $errorException To-be thrown exception
-     * @param Context $context The running Context (if any)
-     * 
-     * @return \Exception ($errorException)
-     */
-    public function setErrorException(\Exception $errorException, 
-        Context $context = null
-    ) {
-        $this->errorException = $errorException;
-        
-        $event = new CoreEvent(
-            AppEvents::ERROR, 
-            array(
-                'exception' => $errorException,
-                'continue'  => false
-            ),
-            $this,
-            $context
-        );
-        
-        $this->notify($event);
-        
-        return $errorException;
     }
 }

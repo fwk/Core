@@ -179,4 +179,22 @@ class Proxy
     public function getClass() {
         return $this->class;
     }
+    
+    public function execute()
+    {
+        $action      = $this->getInstance();
+        $callable    = array($action, $this->method);
+
+        if (!\is_callable($callable)) {
+            throw new \RuntimeException(
+                sprintf(
+                    'Invalid action callback (%s::%s()', 
+                    get_class($action), 
+                    $this->method
+                )
+            );
+        }
+
+        return call_user_func(array($action, $this->method));
+    }
 }

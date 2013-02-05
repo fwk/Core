@@ -35,6 +35,10 @@ namespace Fwk\Core;
 use Symfony\Component\HttpFoundation\Request,
     Symfony\Component\HttpFoundation\Response;
 
+use Fwk\Core\Events\BootEvent, 
+    Fwk\Core\Events\RequestEvent;
+use Fwk\Core\Exceptions\InvalidAction;
+
 /**
  * @category Listeners
  * @package  Fwk\Core
@@ -69,8 +73,7 @@ class CoreListener
         return $actionName;
     }
 
-
-    public function onBoot(CoreEvent $event)
+    public function onBoot(BootEvent $event)
     {
         $app = $event->getApplication();
 
@@ -90,11 +93,12 @@ class CoreListener
      *
      * @return void
      */
-    public function onRequest(CoreEvent $event)
+    public function onRequest(RequestEvent $event)
     {
         $context    = $event->getContext();
         $app        = $event->getApplication();
-        $request    = $context->getRequest();
+        $request    = $event->getRequest();
+        
         $context->addListener(new ContextListener($app));
 
         $actionName = $this->match($request, $context);
@@ -104,22 +108,13 @@ class CoreListener
         }
 
         $descriptor = $app->getDescriptor();
-        if(!$descriptor->hasAction($actionName)) {
-            throw $app->setErrorException(
-                new Exceptions\InvalidAction(
-                    sprintf(
-                        "Unknown action '%s'",
-                        $actionName
-                    )
-                ),
-                $context
-            );
+        if (!$descriptor->hasAction($actionName)) {
+            throw new InvalidAction(sprintf("Unknown action '%s'", $actionName));
         }
 
         $actions = $descriptor->getActions();
         $proxy = new Action\Proxy($actionName, $actions[$actionName]);
         $proxy->setContext($context);
-
         $context->setActionProxy($proxy);
     }
 

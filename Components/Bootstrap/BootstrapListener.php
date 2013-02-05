@@ -33,10 +33,10 @@
  */
 namespace Fwk\Core\Components\Bootstrap;
 
-use Fwk\Core\CoreEvent,
-    Fwk\Core\Application,
+use Fwk\Core\Application,
     Fwk\Xml\Map,
-    Fwk\Xml\Path;
+    Fwk\Xml\Path,
+    Fwk\Core\Events\BootEvent;
 
 /**
  * This listener adds ability to define bootstrapping classes to help loading
@@ -51,18 +51,19 @@ use Fwk\Core\CoreEvent,
  */
 class BootstrapListener
 {
-
     /**
      * Function triggered when main Application boot
      *
-     * @param CoreEvent $event Event object
+     * @param BootEvent $event Event object
      *
-     * @see AppEvents::BOOT
      * @return void
      */
-    public function onBoot(CoreEvent $event)
+    public function onBoot(BootEvent $event)
     {
-        $this->bootstrap($event->getApplication(), $event->parent);
+        $this->bootstrap(
+            $event->getApplication(), 
+            $event->getParentApplication()
+        );
     }
 
     /**

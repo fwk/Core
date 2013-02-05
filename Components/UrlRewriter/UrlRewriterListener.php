@@ -39,6 +39,11 @@ use Fwk\Core\CoreEvent,
     Fwk\Core\Application,
     Fwk\Core\Action\Proxy;
 
+use Fwk\Core\Exceptions\InvalidAction;
+
+use Fwk\Core\Events\BootEvent, 
+    Fwk\Core\Events\DispatchEvent;
+
 /**
  * This Listener allows URLs to be customized the mod_rewrite way
  *
@@ -53,7 +58,7 @@ class UrlRewriterListener
 {
     protected $rewriter;
 
-    public function onBoot(CoreEvent $event)
+    public function onBoot(BootEvent $event)
     {
         $app    = $event->getApplication();
         $rw     = $this->getRewriter($app);
@@ -65,7 +70,7 @@ class UrlRewriterListener
         }
     }
 
-    public function onDispatch(CoreEvent $event)
+    public function onDispatch(DispatchEvent $event)
     {
         $context    = $event->getContext();
         $request    = $context->getRequest();
@@ -84,16 +89,8 @@ class UrlRewriterListener
 
         $descriptor = $event->getApplication()->getDescriptor();
         $actionName = $route->getActionName();
-        if(!$descriptor->hasAction($actionName)) {
-            throw $app->setErrorException(
-                new Exceptions\InvalidAction(
-                    sprintf(
-                        "Unknown action '%s'",
-                        $actionName
-                    )
-                ),
-                $context
-            );
+        if (!$descriptor->hasAction($actionName)) {
+            throw new InvalidAction(sprintf("Unknown action '%s'", $actionName));
         }
 
         foreach ($route->getParameters() as $param) {

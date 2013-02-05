@@ -34,6 +34,7 @@
 namespace Fwk\Core\Components;
 
 use Fwk\Core\CoreEvent, 
+    Fwk\Core\Events\BootEvent, 
     Fwk\Core\Context,
     Fwk\Xml\Map, 
     Fwk\Xml\Path;
@@ -53,7 +54,7 @@ class PropertiesListener
     /**
      * @var array
      */
-    public function onBoot(CoreEvent $event)
+    public function onBoot(BootEvent $event)
     {
         $app = $event->getApplication();
         $desc = $app->getDescriptor();

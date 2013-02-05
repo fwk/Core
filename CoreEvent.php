@@ -44,20 +44,6 @@ use Fwk\Events\Event;
 class CoreEvent extends Event
 {
     /**
-     * Running Application
-     * 
-     * @var Application 
-     */
-    protected $application;
-    
-    /**
-     * Running Context
-     * 
-     * @var Context 
-     */
-    protected $context;
-    
-    /**
      * Constructor
      * 
      * @param type $name
@@ -70,9 +56,10 @@ class CoreEvent extends Event
     public function __construct($name, $data = array(), Application $app = null,
         Context $context = null
     ) {
-        parent::__construct($name, $data);
-        $this->application  = $app;
-        $this->context      = $context;
+        parent::__construct($name, array_merge($data, array(
+            'application'   => $app,
+            'context'       => $context
+        )));
     }
     
     /**
