@@ -75,14 +75,16 @@ class ResultTypeListener
         $types = $this->getAppResultTypes($event->getApplication());
 
         self::$types = array_merge(
-            $types,
-            self::$types
+            self::$types,
+            $types
         );
     }
+    
 
     private function getAppsForAction($actionName)
     {
         $apps = array();
+        
         foreach(self::$types as $typeName => $infos) {
             $desc = $infos['app']->getDescriptor();
             if($desc->hasAction($actionName)) {
@@ -128,7 +130,8 @@ class ResultTypeListener
 
         $data           = $this->getActionData($proxy->getInstance());
         $params         = $final['params'];
-        $typeInstance   = $this->loadType($final['type']);
+        $appId          = $final['appId'];
+        $typeInstance   = $this->loadType($appId .'.'. $final['type'], $app->rawGetAll());
 
         $response       = $typeInstance->getResponse($data, $params);
         if ($response instanceof Response) {
@@ -136,7 +139,7 @@ class ResultTypeListener
         }
     }
 
-    protected function loadType($typeName)
+    protected function loadType($typeName, array $properties = array())
     {
         if(!isset(self::$types[$typeName])) {
              throw new Exception(
@@ -146,7 +149,7 @@ class ResultTypeListener
 
         $app            = self::$types[$typeName]['app'];
         $type           = self::$types[$typeName];
-        $appParams      = $app->rawGetAll();
+        $appParams      = $properties;
         $appParams['packageDir'] = dirname($app->getDescriptor()->getRealPath());
         $params         = array();
 
@@ -235,6 +238,10 @@ class ResultTypeListener
                 array()
             );
 
+            foreach ($results as &$result) {
+                $result['appId'] = $desc->getId();
+            }
+            
             $final  += $results;
         }
 
@@ -248,15 +255,18 @@ class ResultTypeListener
         $desc           = $app->getDescriptor();
         $results        = self::getResultsTypesXmlMap()->execute($desc);
 
-        $types    = (is_array($results['types']) ?
+        $appId          = $app->getDescriptor()->getId();
+        $typesRes = (is_array($results['types']) ?
             $results['types'] :
             array()
         );
 
-        foreach($types as $typeName => $type) {
-            $types[$typeName]['app'] = $app;
+        $types = array();
+        foreach($typesRes as $typeName => $type) {
+            $types[$appId . '.' . $typeName] = $type;
+            $types[$appId . '.' . $typeName]['app'] = $app;
         }
-
+        
         return $types;
     }
 
