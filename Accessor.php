@@ -208,8 +208,9 @@ class Accessor
     {
         $reflector  = $this->getReflector();
         $final      = array();
+        $props      = $this->getClassProperties($this->reflector->getName());
 
-        foreach ($reflector->getProperties() as $property) {
+        foreach ($props as $property) {
             $value = $this->get($property->getName());
 
             if (\is_callable($modifier)) {
@@ -221,6 +222,45 @@ class Accessor
 
         return $final;
     }
+    
+    /**
+     * Recursive function to get an associative array of class properties by 
+     * property name => ReflectionProperty() object including inherited ones 
+     * from extended classes.
+     * 
+     * @param string  $className Class name
+     * @param integer $filter    ReflectionProperty filter
+     * @author muratyaman at gmail dot com
+     * @return array
+     */
+    protected function getClassProperties($className, $filter = null)
+    {
+        $ref            = new \ReflectionClass($className);
+        if (null === $filter) {
+            $filter = \ReflectionProperty::IS_PUBLIC 
+                    | \ReflectionProperty::IS_PRIVATE 
+                    | \ReflectionProperty::IS_PROTECTED 
+                    | \ReflectionProperty::IS_STATIC;
+        }
+        
+        $props          = $ref->getProperties($filter);
+        $props_arr      = array();
+        $parentClass    = $ref->getParentClass();
+        
+        foreach ($props as $prop) {
+            $f              = $prop->getName();
+            $props_arr[$f]  = $prop;
+        }
+        
+        if ($parentClass) {
+            $props_arr = array_merge(
+                $this->getClassProperties($parentClass->getName(), $filter), 
+                $props_arr
+            );
+        }
+        
+        return $props_arr;
+    } 
 
     /**
      * Returns class attributes
