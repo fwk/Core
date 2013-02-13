@@ -405,4 +405,22 @@ class Context extends Object
             )
          );
     }
+    
+    /**
+     *
+     * @return integer
+     */
+    public function getState()
+    {
+        return $this->state;
+    }
+
+    /**
+     *
+     * @return mixed
+     */
+    public function getResult()
+    {
+        return $this->result;
+    }
 }

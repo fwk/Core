@@ -105,7 +105,11 @@ class Accessor
         } else {
             $reflector  = $this->getReflector();
             try {
-                $prop   = $reflector->getProperty($key);
+                $props   = $this->getClassProperties($this->reflector->getName());
+                if (!isset($props[$key])) {
+                    return false;
+                }
+                $prop    = $props[$key];
                 if (($prop->isPrivate() || $prop->isProtected()) && $this->force) {
                     $prop->setAccessible(true);
                 }

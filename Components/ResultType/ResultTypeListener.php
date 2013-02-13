@@ -41,7 +41,8 @@ use Fwk\Core\Context,
     Fwk\Xml\Path,
     Symfony\Component\HttpFoundation\Response,
     Fwk\Core\Components\ViewHelper\ViewHelper,
-    Fwk\Core\Components\ViewHelper\ViewHelperAware;
+    Fwk\Core\Components\ViewHelper\ViewHelperAware,
+    Fwk\Core\Exception;
 
 /**
  * This Listener is in charge of handling a result (string) from an action and
@@ -88,7 +89,7 @@ class ResultTypeListener
         foreach(self::$types as $typeName => $infos) {
             $desc = $infos['app']->getDescriptor();
             if($desc->hasAction($actionName)) {
-                array_push($apps, $infos['app']);
+                $apps[$desc->getId()] = $infos['app'];
             }
         }
 
