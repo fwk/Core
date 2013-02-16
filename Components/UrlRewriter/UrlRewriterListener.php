@@ -81,7 +81,13 @@ class UrlRewriterListener
         if(!empty($baseUri) && \strpos($uri, $baseUri) === 0) {
             $uri    = \substr($uri, strlen($baseUri));
         }
-
+        
+        if (strpos($uri, '?') !== false) {
+            list($uri,) = explode('?', $uri);
+        } elseif (empty($uri)) {
+            $uri = '/';
+        }
+        
         $route      = $this->rewriter->getRoute($uri);
         if(!$route instanceof Route) {
             return;

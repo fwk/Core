@@ -267,8 +267,13 @@ class Route
             $regex      = $param->getRegex();
             $default    = $param->getDefault();
 
-            $fValue     = (isset($params[$paramName]) ? $params[$paramName] : $default);
-
+            if (isset($params[$paramName])) {
+                $fValue = $params[$paramName];
+                unset($params[$paramName]);
+            } else {
+                $fValue = $default;
+            }
+            
             if(empty($fValue) && $required) {
                 return false;
             }
@@ -285,9 +290,17 @@ class Route
             $regs[]         = sprintf('#(:%s\??)#', $paramName);
         }
 
-        $cleanUpUri     = \rtrim($this->uri,'$');
-        $cleanUpUri     = \ltrim($cleanUpUri, '^');
+        $cleanUpUri = \ltrim(\rtrim($this->uri,'$'), '^');
+        $final      = preg_replace($regs, $finalParams, $cleanUpUri);
+        if (count($params)) {
+            $paramsStr = "?";
+            foreach ($params as $key => $value) {
+                $paramsStr .= urlencode($key) ."=". urlencode($value) ."&";
+            }
+            
+            $final .= rtrim($paramsStr, '&');
+        }
         
-        return preg_replace($regs, $finalParams, $cleanUpUri);
+        return $final;
     }
 }
