@@ -32,10 +32,16 @@
  */
 namespace Fwk\Core\Action;
 
-
-class Result
+final class Result
 {
-    const SUCCESS   = 'success';
+    const SUCCESS       = 'success';
+    const ERROR         = 'error';
+    const FORM          = 'form';
+    const FORM_ERROR    = 'form_error';
+    const REDIRECT      = 'redirect';
     
-    const ERROR     = 'error';
+    private function __construct()
+    {
+        // this class should not be instanciated
+    }
 }

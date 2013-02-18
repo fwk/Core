@@ -96,7 +96,9 @@ class Redirect implements ResultType, ViewHelperAware
             );
         }
         
-        $response = new Response(null, 302);
+        $response   = new Response(null, 302);
+        $params     = $this->inflectParameters($actionData, $params);
+        
         if (isset($params['uri']) && !empty($params['uri'])) {
             $final      = $params['uri'];
             unset($params['uri']);
@@ -108,7 +110,6 @@ class Redirect implements ResultType, ViewHelperAware
             }
             
             $final     .= '?';
-            $params     = $this->inflectParameters($actionData, $params);
             $fparams    = array();
             foreach ($params as $id => $value) {
                 $fparams[] = $id .'='. urlencode($value);
