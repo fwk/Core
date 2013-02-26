@@ -12,8 +12,8 @@ class EndEvent extends CoreEvent
         Context $context = null
     ) {
         parent::__construct(
-            AppEvents::REQUEST, 
-            array('result'  =>  $result), 
+            AppEvents::END, 
+            array('result'  =>  $actionResult), 
             $app, 
             $context
         );

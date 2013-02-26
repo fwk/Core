@@ -33,6 +33,7 @@
 namespace Fwk\Core;
 
 use Fwk\Core\CoreEvent;
+use Fwk\Core\Events\EndEvent;
 
 /**
  * The Context Listener
@@ -111,12 +112,9 @@ class ContextListener
     public function onResponse(ContextEvent $event)
     {
         $this->app->notify(
-            new CoreEvent(
-                AppEvents::END, 
-                array(
-                    'result' => $event->getContext()->getResponse()
-                ),
-                $this->app,
+            new EndEvent(
+                $event->getContext()->getResponse(), 
+                $this->app, 
                 $event->getContext()
             )
         );

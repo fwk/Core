@@ -196,7 +196,7 @@ class CoreListener
                 $event->getContext()
             )
         );
-
+        
         $response->send();
     }
 }
