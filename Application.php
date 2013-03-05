@@ -39,7 +39,7 @@ use Fwk\Core\Events\ErrorEvent,
     Fwk\Core\Events\RequestEvent, 
     Fwk\Core\Events\DispatchEvent,
     Fwk\Core\Events\BootEvent,
-    Events\EndEvent;
+    Fwk\Core\Events\EndEvent;
 
 /**
  * Application
@@ -148,6 +148,23 @@ class Application extends Object
             }
 
             $proxy  = $context->getActionProxy();
+            
+            $this->notify(
+                 new CoreEvent(
+                     AppEvents::INIT,
+                     array(
+                         'request'  => $request,
+                         'proxy'    => $proxy
+                     ),
+                     $this, 
+                     $context
+                 )
+             );
+            
+            if ($context->isDone()) {
+                return $this;
+            }
+            
             $context->setResult($result = $proxy->execute());
 
             if (!$context->isDone()) {
