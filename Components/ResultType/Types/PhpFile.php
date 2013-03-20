@@ -56,9 +56,13 @@ class PhpFile implements ResultType
         array $params = array()
     ) {
         if(!isset($params['file']) || empty($params['file'])) {
-            throw new \RuntimeException(
-                sprintf('Missing template "file" parameter')
-            );
+            if (!isset($params['template'])) {
+                throw new \RuntimeException(
+                    sprintf('Missing template "file" parameter')
+                );
+            }
+            
+            $params['file'] = $params['template'];
         } 
         
         $file = $params['file'];

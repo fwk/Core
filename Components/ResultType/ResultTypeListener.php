@@ -93,7 +93,7 @@ class ResultTypeListener
             }
         }
 
-        return array_reverse($apps);
+        return $apps;
     }
 
     public function onResult(CoreEvent $event)
@@ -238,7 +238,7 @@ class ResultTypeListener
                 $res['results'] :
                 array()
             );
-
+            
             foreach ($results as &$result) {
                 $result['appId'] = $desc->getId();
             }
