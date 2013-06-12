@@ -131,11 +131,23 @@ class Rewriter
      */
     public function reverse($actionName, array $params = array())
     {
-        foreach ($this->routes as $route) {
+        $possibles = array();
+        foreach ($this->routes as $x => $route) {
             if ($route->getActionName() != $actionName) {
                 continue;
             }
 
+            $idx = 1 + $x;
+            if (count($params) != count($route->getParameters())) {
+                $idx = 99999 + $x;
+            }
+            
+            $possibles[$idx] = $route;
+        }
+        
+        ksort($possibles);
+        
+        foreach ($possibles as $route) {
             $reverse = $route->getReverse($params);
             if ($reverse !== false) {
                 return $reverse;
