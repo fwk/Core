@@ -220,7 +220,7 @@ class Application extends Dispatcher implements \ArrayAccess
                 if ($result instanceof Response) {
                     $response = $result;
                 } else {
-                    $response = new Response($result);
+                    $response = new Response((is_string($result) ? $result : null));
                 }
                 $context->setResponse($response);
             } else {
