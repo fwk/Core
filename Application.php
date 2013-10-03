@@ -37,6 +37,12 @@ class Application extends Dispatcher implements \ArrayAccess
     protected $services;
     
     /**
+     * The default action (i.e the "homepage")
+     * @var string
+     */
+    protected $defaultAction;
+    
+    /**
      * Constructor
      * 
      * @param string    $id       Application name
@@ -201,7 +207,10 @@ class Application extends Dispatcher implements \ArrayAccess
             }
 
             if (!$context->isReady()) {
-                throw new Exceptions\InvalidAction('No action found');
+                if (null === $this->defaultAction || $context->isError()) {
+                    throw new Exceptions\InvalidAction('No action found');
+                }
+                $context->setActionName($this->defaultAction);
             }
 
             if (!$this->exists($context->getActionName())) {
@@ -243,6 +252,30 @@ class Application extends Dispatcher implements \ArrayAccess
         }
     }
     
+    /**
+     * Returns the default action name (if any)
+     * 
+     * @return string
+     */
+    public function getDefaultAction()
+    {
+        return $this->defaultAction;
+    }
+
+    /**
+     * Defines a default action. Basically the one which answers on /
+     * 
+     * @param string $defaultAction Default action name
+     * 
+     * @return Application 
+     */
+    public function setDefaultAction($defaultAction)
+    {
+        $this->defaultAction = $defaultAction;
+        
+        return $this;
+    }
+
     public function offsetExists($actionName)
     {
         return $this->exists($actionName);

@@ -6,6 +6,7 @@ use Fwk\Core\Action\CallableActionProxy;
 use Fwk\Di\ClassDefinition;
 use Fwk\Core\Context;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Fwk\Core\Action\ProxyFactory;
 
 require_once __DIR__ .'/vendor/autoload.php';
 
@@ -25,27 +26,25 @@ $app = Application::factory("myApp")
     'application_root' => dirname(__FILE__),
     'display_line_numbers' => true,
     'server_name' => 'DEV',
-    'ignore_folders' => array(
-        dirname(__FILE__) . DIRECTORY_SEPARATOR . '/vendor',
-        '/home/neiluj/www/framework'
-    ),
+    'ignore_folders' => array(),
     'enable_saving' => false,
     'catch_ajax_errors' => true,
     'snippet_num_lines' => 10
 ))) 
 ->addListener(new Components\SessionListener())
-->register('TestClosure', new CallableActionProxy(function() {
+->register('TestClosure', ProxyFactory::factory(function() {
     return "coucou from closure";
 }))
-->register('TestClosureResponse', new CallableActionProxy(function() {
+->register('TestClosureResponse', ProxyFactory::factory(function() {
     return new RedirectResponse('http://www.example.org');
 }))
-->register('TestInclude', new Action\IncludeActionProxy(__DIR__ . DIRECTORY_SEPARATOR . 'test_incl_proxy.php'))
-->register('TestController', new ControllerActionProxy('Fwk\\Core\\TestController', 'show'))
-->register('TestCtxClosure', new CallableActionProxy(function(Context $context) {
+->register('TestInclude', ProxyFactory::factory('+'. __DIR__ . DIRECTORY_SEPARATOR . 'test_incl_proxy.php'))
+->register('TestController', ProxyFactory::factory('Fwk\\Core\\TestController:show'))
+->register('TestCtxClosure', ProxyFactory::factory(function(Context $context) {
     return "coucou from ContextAware closure";
 }))
-->register('TestService', new Action\ServiceActionProxy('actionService'))
+->register('TestService', ProxyFactory::factory('@actionService'))
+->setDefaultAction('TestClosure')
 ;
 
 // services

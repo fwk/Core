@@ -55,11 +55,11 @@ use Symfony\Component\HttpFoundation\Request,
  */
 class Context
 {
+    const STATE_ERROR       = -1;
     const STATE_INIT        = 0;
     const STATE_READY       = 1;
-    const STATE_ERROR       = 2;
-    const STATE_EXECUTED    = 3;
-    const STATE_DONE        = 4;
+    const STATE_EXECUTED    = 2;
+    const STATE_DONE        = 3;
 
     /**
      * Client request
@@ -311,10 +311,13 @@ class Context
 
     public function setActionName($actionName)
     {
-        $this->actionName = $actionName;
-        
-        if (!empty($actionName)) {
-            $this->state = self::STATE_READY;
+        if ($actionName !== false) {
+            $this->actionName = $actionName;
+            if (!empty($actionName)) {
+                $this->state = self::STATE_READY;
+            }
+        } else {
+            $this->setError('No action found');
         }
     }
 }

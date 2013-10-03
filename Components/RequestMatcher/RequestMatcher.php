@@ -32,12 +32,15 @@ class RequestMatcher
         }
 
         $uri         = trim($uri, '/');
-        $actionName  = null;
-
+        if (empty($uri)) {
+            return null;
+        }
+        
+        $actionName  = false;
         if (\preg_match($this->actionRegex, $uri, $matches)) {
             $actionName = $matches[1];
         }
-
+        
         return $actionName;
     }
 }
