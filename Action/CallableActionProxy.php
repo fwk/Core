@@ -16,7 +16,8 @@ class CallableActionProxy implements ActionProxy
         $this->callable = $callable;
     }
     
-    public function execute() {
-        ;
+    public function execute()
+    {
+        return call_user_func($this->callable);
     }
 }
