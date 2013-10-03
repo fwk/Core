@@ -211,7 +211,7 @@ class Application extends Dispatcher implements \ArrayAccess
             $proxy = $this->get($context->getActionName());
             $this->notify(new BeforeActionEvent($proxy, $this, $context));
 
-            $result = $proxy->execute();
+            $result = $proxy->execute($this, $context);
             $context->setResult($result);
             
             $this->notify(new AfterActionEvent($proxy, $this, $context));
@@ -261,10 +261,5 @@ class Application extends Dispatcher implements \ArrayAccess
     public function offsetUnset($actionName)
     {
         return $this->unregister($actionName);
-    }
-    
-    public function notify($event, array $data = array()) {
-        parent::notify($event, $data);
-        echo "notified '{$event->getName()}' [". get_class($event) ."]: ". strip_tags(json_encode($event->getArrayCopy())) ." <br />";
     }
 }

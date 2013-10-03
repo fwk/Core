@@ -22,6 +22,10 @@ class BeforeActionEvent extends CoreEvent
         );
     }
     
+    /**
+     * 
+     * @return ActionProxy
+     */
     public function getActionProxy()
     {
         return $this->actionProxy;

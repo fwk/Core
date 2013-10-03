@@ -32,6 +32,8 @@
  */
 namespace Fwk\Core;
 
+use Fwk\Di\Container;
+
 /**
  * ServicesAware Interface
  *
@@ -48,16 +50,16 @@ interface ServicesAware
     /**
      * Defines A Services Container
      * 
-     * @param mixed $container Service DI Container
+     * @param Container $container Service DI Container
      * 
      * @return void
      */
-    public function setServices($container);
+    public function setServices(Container $container);
 
     /**
      * Returns the Services Container
      * 
-     * @return mixed
+     * @return Container
      */
     public function getServices();
 }

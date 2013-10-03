@@ -8,26 +8,25 @@ use Fwk\Core\Preparable;
 use Fwk\Core\Application;
 use Fwk\Core\Context;
 
-class ControllerActionProxy implements ActionProxy
+class ServiceControllerActionProxy implements ActionProxy
 {
-    protected $className;
+    protected $serviceName;
     
     protected $method;
 
-    public function __construct($className, $method)
+    public function __construct($serviceName, $method)
     {
-        if (empty($className) || empty($method)) {
-            throw new \InvalidArgumentException("Controller class name and method cannot be empty");
+        if (empty($serviceName) || empty($method)) {
+            throw new \InvalidArgumentException("Controller service name and method cannot be empty");
         }
         
-        $this->className    = $className;
+        $this->serviceName  = $serviceName;
         $this->method       = $method;
     }
     
     public function execute(Application $app, Context $context)
     {
-        $refClass = new \ReflectionClass($this->className);
-        $instance = $refClass->newInstanceArgs();
+        $instance = $app->getServices()->get($this->serviceName);
         
         if ($instance instanceof ContextAware) {
             $instance->setContext($context);
