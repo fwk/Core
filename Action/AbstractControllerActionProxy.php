@@ -53,14 +53,14 @@ use Fwk\Core\Accessor;
 abstract class AbstractControllerActionProxy implements ActionProxy
 {
     /**
-     * Instanciates the controller class (must be overriden)
+     * Instantiates the controller class (must be overriden)
      * 
      * @param Application $app The running Application
      * 
      * @abstract
      * @return mixed
      */
-    abstract protected function instanciate(Application $app);
+    abstract protected function instantiate(Application $app);
     
     /**
      * Populates action class according to request params
@@ -117,7 +117,7 @@ abstract class AbstractControllerActionProxy implements ActionProxy
      */
     public function execute(Application $app, Context $context)
     {
-        $instance = $this->instanciate($app);
+        $instance = $this->instantiate($app);
         
         $this->populate($instance, $context->getRequest());
         $this->populateCoreInterfaces($instance, $app, $context);

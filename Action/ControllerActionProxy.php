@@ -87,7 +87,7 @@ class ControllerActionProxy extends AbstractControllerActionProxy
      * 
      * @return mixed Controller's instance
      */
-    protected function instanciate(Application $app)
+    protected function instantiate(Application $app)
     {
         $refClass = new \ReflectionClass($this->className);
         

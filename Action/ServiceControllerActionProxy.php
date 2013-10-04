@@ -24,7 +24,7 @@ class ServiceControllerActionProxy extends AbstractControllerActionProxy
      * 
      * @return mixed
      */
-    protected function instanciate(Application $app)
+    protected function instantiate(Application $app)
     {
         return $app->getServices()->get($this->serviceName);
     }
