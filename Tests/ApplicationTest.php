@@ -76,7 +76,7 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase {
     /**
      */
     public function testGetId() {
-        $this->assertEquals('testApp', $this->object->getId());
+        $this->assertEquals('testApp', $this->object->getName());
     }
 
     /**
@@ -88,15 +88,5 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase {
         $container = new \Fwk\Di\Container();
         $this->assertEquals($this->object, $this->object->setServices($container));
         $this->assertEquals($container, $this->object->getServices());
-    }
-
-    /**
-     * @todo Implement testRun().
-     */
-    public function testRun() {
-         // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
     }
 }

@@ -1,9 +1,50 @@
 <?php
+/**
+ * Fwk
+ *
+ * Copyright (c) 2011-2012, Julien Ballestracci <julien@nitronet.org>.
+ * All rights reserved.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * PHP Version 5.3
+ *
+ * @category  Core
+ * @package   Fwk\Core
+ * @author    Julien Ballestracci <julien@nitronet.org>
+ * @copyright 2011-2014 Julien Ballestracci <julien@nitronet.org>
+ * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
+ * @link      http://www.fwk.pw
+ */
 namespace Fwk\Core\Action;
 
 use Fwk\Core\ActionProxy;
 use Fwk\Core\Exception;
 
+/**
+ * Strategy Factory utility to help loading the correct ActionProxy depending
+ * on the argument passed to the factory() method.
+ *
+ * @category ActionProxy
+ * @package  Fwk\Core
+ * @author   Julien Ballestracci <julien@nitronet.org>
+ * @license  http://www.opensource.org/licenses/bsd-license.php  BSD License
+ * @link     http://www.fwk.pw
+ */
 class ProxyFactory
 {
     /**
@@ -44,7 +85,10 @@ class ProxyFactory
                     return new ServiceActionProxy(substr($callableOrShortcut, 1));
                 } elseif (strpos($callableOrShortcut, ':') !== false) {
                     list($service, $method) = explode(':', $callableOrShortcut);
-                    return new ServiceControllerActionProxy(substr($service, 1), $method);
+                    return new ServiceControllerActionProxy(
+                        substr($service, 1), 
+                        $method
+                    );
                 }
                 throw new Exception(
                     sprintf(

@@ -28,7 +28,7 @@
  * @author    Julien Ballestracci <julien@nitronet.org>
  * @copyright 2011-2012 Julien Ballestracci <julien@nitronet.org>
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://www.phpfwk.com
+ * @link      http://www.fwk.pw
  */
 namespace Fwk\Core;
 
@@ -103,7 +103,7 @@ class Accessor
         } elseif ($obj instanceof \ArrayAccess && $obj->offsetExists($key)) {
             return  $obj->offsetGet($key);
         } else {
-            $reflector  = $this->getReflector();
+            $this->getReflector();
             try {
                 $props   = $this->getClassProperties($this->reflector->getName());
                 if (!isset($props[$key])) {
@@ -210,7 +210,7 @@ class Accessor
      */
     public function toArray($modifier = null)
     {
-        $reflector  = $this->getReflector();
+        $this->getReflector();
         $final      = array();
         $props      = $this->getClassProperties($this->reflector->getName());
 
@@ -234,6 +234,7 @@ class Accessor
      * 
      * @param string  $className Class name
      * @param integer $filter    ReflectionProperty filter
+     * 
      * @author muratyaman at gmail dot com
      * @return array
      */
@@ -268,8 +269,6 @@ class Accessor
 
     /**
      * Returns class attributes
-     *
-     * @param mixed $modifier Filtering callable
      *
      * @return array The resulting array
      */

@@ -20,10 +20,6 @@ class RequestMatcher
     
     public function match(Request $request)
     {
-        if (php_sapi_name() === "cli") {
-            return null;
-        }
-
         $baseUri     = $request->getBaseUrl();
         $uri         = $request->getRequestUri();
 

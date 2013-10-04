@@ -12,7 +12,7 @@ class ErrorReporterListener
         $this->options = $handlerOptions;
     }
     
-    public function onBoot(BootEvent $event)
+    public function onBoot()
     {
         $handler = new \php_error\ErrorHandler($this->options);
         $handler->turnOn();

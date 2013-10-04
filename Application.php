@@ -21,7 +21,7 @@ class Application extends Dispatcher implements \ArrayAccess
      * Application name
      * @var string
      */
-    protected $id;
+    protected $name;
     
     /**
      * List of registered actions
@@ -44,14 +44,14 @@ class Application extends Dispatcher implements \ArrayAccess
     /**
      * Constructor
      * 
-     * @param string    $id       Application name
+     * @param string    $name     Application name
      * @param Container $services Services Container (di)
      * 
      * @return void
      */
-    public function __construct($id, Container $services = null)
+    public function __construct($name, Container $services = null)
     {
-        $this->id       = $id;
+        $this->name = $name;
         
         if (null === $services) {
             $services = new Container();
@@ -138,13 +138,13 @@ class Application extends Dispatcher implements \ArrayAccess
      * Instanciates a new Application 
      * (useful for chaining)
      * 
-     * @param string $id Application name
+     * @param string $name Application name
      * 
      * @return Application App instance
      */
-    public static function factory($id)
+    public static function factory($name)
     {
-        return new self($id);
+        return new self($name);
     }
     
     /**
@@ -152,9 +152,9 @@ class Application extends Dispatcher implements \ArrayAccess
      * 
      * @return string
      */
-    public function getId()
+    public function getName()
     {
-        return $this->id;
+        return $this->name;
     }
 
     /**
@@ -186,7 +186,7 @@ class Application extends Dispatcher implements \ArrayAccess
      * 
      * @param Request $request The HTTP request (optional)
      * 
-     * @return void
+     * @return mixed
      */
     public function run(Request $request = null)
     {
@@ -219,7 +219,7 @@ class Application extends Dispatcher implements \ArrayAccess
             $proxy = $this->get($context->getActionName());
             $this->notify(new BeforeActionEvent($proxy, $this, $context));
 
-            $result = $proxy->execute($this, $context);
+            $result = $response = $proxy->execute($this, $context);
             $context->setResult($result);
             
             $this->notify(new AfterActionEvent($proxy, $this, $context));
@@ -227,15 +227,18 @@ class Application extends Dispatcher implements \ArrayAccess
             if (!$context->isDone()) {
                 if ($result instanceof Response) {
                     $response = $result;
-                } else {
-                    $response = new Response((is_string($result) ? $result : null));
+                    $context->setResponse($response);
+                } elseif (is_string($result)) {
+                    $response = new Response($result);
+                    $context->setResponse($response);
                 }
-                $context->setResponse($response);
             } else {
                 $response = $context->getResponse();
             }
             
-            $this->notify(new ResponseEvent($response, $this, $context));
+            if ($response instanceof Response) {
+                $this->notify(new ResponseEvent($response, $this, $context));
+            }
         } catch(\Exception $exp) {
             $event = new ErrorEvent($exp, $this, $context);
             $this->notify($event);
@@ -247,8 +250,10 @@ class Application extends Dispatcher implements \ArrayAccess
         
         $this->notify(new EndEvent($this, $context));
         if ($context->getResponse() instanceof Response) {
-            $context->getResponse()->send();
-        }
+            return $response;
+        } 
+        
+        return $context->getResult();
     }
     
     /**

@@ -79,4 +79,9 @@ $services->set(
 );
 
 // execute
-$app->run();
+$response = $app->run();
+if ($response instanceof \Symfony\Component\HttpFoundation\Response) {
+    $response->send();
+} else {
+    echo $response;
+}
