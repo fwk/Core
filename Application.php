@@ -2,7 +2,6 @@
 namespace Fwk\Core;
 
 use Fwk\Core\ActionProxy;
-use Fwk\Core\Exceptions\InvalidAction;
 use Fwk\Events\Dispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Fwk\Di\Container;
@@ -82,12 +81,12 @@ class Application extends Dispatcher implements \ArrayAccess
      * @param string $actionName Name of the action
      * 
      * @return Application
-     * @throws InvalidAction if action is not registered
+     * @throws Exception if action is not registered
      */
     public function unregister($actionName)
     {
         if (!array_key_exists($actionName, $this->actions)) {
-            throw new InvalidAction("$actionName is not a registered Action");
+            throw new Exception("$actionName is not a registered Action");
         }
         
         unset($this->actions[$actionName]);
@@ -101,12 +100,12 @@ class Application extends Dispatcher implements \ArrayAccess
      * @param string $actionName name of the action
      * 
      * @return ActionProxy the proxy instance to the action
-     * @throws InvalidAction if action is not registered
+     * @throws Exception if action is not registered
      */
     public function get($actionName)
     {
         if (!array_key_exists($actionName, $this->actions)) {
-            throw new InvalidAction("$actionName is not a registered Action");
+            throw new Exception("$actionName is not a registered Action");
         }
         
         return $this->actions[$actionName];
@@ -208,13 +207,13 @@ class Application extends Dispatcher implements \ArrayAccess
 
             if (!$context->isReady()) {
                 if (null === $this->defaultAction || $context->isError()) {
-                    throw new Exceptions\InvalidAction('No action found');
+                    throw new Exception('No action found');
                 }
                 $context->setActionName($this->defaultAction);
             }
 
             if (!$this->exists($context->getActionName())) {
-                throw new Exceptions\InvalidAction('Unregistered action "'. $context->getActionName() .'"');
+                throw new Exception('Unregistered action "'. $context->getActionName() .'"');
             }
 
             $proxy = $this->get($context->getActionName());

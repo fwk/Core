@@ -46,7 +46,7 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase {
     /**
      */
     public function testUnregisterInvalidAction() {
-        $this->setExpectedException('Fwk\Core\Exceptions\InvalidAction');
+        $this->setExpectedException('Fwk\Core\Exception');
         $this->object->unregister('TestAction');
     }
     
@@ -62,7 +62,7 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase {
     /**
      */
     public function testGetInvalidAction() {
-        $this->setExpectedException('Fwk\Core\Exceptions\InvalidAction');
+        $this->setExpectedException('Fwk\Core\Exception');
         $this->object->get('TestAction');
     }
 

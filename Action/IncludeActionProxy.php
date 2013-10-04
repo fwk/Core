@@ -5,7 +5,7 @@ namespace Fwk\Core\Action;
 use Fwk\Core\ActionProxy;
 use Fwk\Core\Application;
 use Fwk\Core\Context;
-use Fwk\Core\Exceptions\InvalidAction;
+use Fwk\Core\Exception;
 use Fwk\Di\Container;
 
 class IncludeActionProxy implements ActionProxy
@@ -27,9 +27,9 @@ class IncludeActionProxy implements ActionProxy
     public function execute(Application $app, Context $context)
     {
         if (!is_file($this->file)) {
-            throw new InvalidAction('Unable to include file: '. $this->file . ' (not found)');
+            throw new Exception('Unable to include file: '. $this->file . ' (not found)');
         } elseif (!is_readable($this->file)) {
-            throw new InvalidAction('Unable to include file: '. $this->file . ' (not readable)');
+            throw new Exception('Unable to include file: '. $this->file . ' (not readable)');
         }
         
         $this->context = $context;
