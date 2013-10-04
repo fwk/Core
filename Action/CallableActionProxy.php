@@ -26,14 +26,17 @@ class CallableActionProxy implements ActionProxy
         if ($this->callable instanceof \Closure) {
             $refFunc = new \ReflectionFunction($this->callable);
 
-            $params = array();
+            $params  = array();
+            $request = $context->getRequest();
             foreach ($refFunc->getParameters() as $param) {
                 if ($param->getName() == self::PARAM_CONTEXT_NAME) {
                     $params[] = $context;
                 }
                 elseif ($param->getName() == self::PARAM_SERVICES_NAME) {
                     $params[] = $app->getServices();
-                } 
+                }  else {
+                    $params[] = $request->get($param->getName(), null);
+                }
             }
             
             $result = call_user_func_array($this->callable, $params);

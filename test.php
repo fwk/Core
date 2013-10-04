@@ -19,6 +19,16 @@ class TestController
     }
 }
 
+// hello controller
+class HelloController
+{
+    public $name;
+    public function show()
+    {
+        return 'Hello (controller) '. (empty($this->name) ? 'World' : $this->name);
+    }
+}
+
 // app
 $app = Application::factory("myApp")
 ->addListener(new Components\RequestMatcher\RequestMatcherListener('requestMatcher'))
@@ -35,11 +45,15 @@ $app = Application::factory("myApp")
 ->register('TestClosure', ProxyFactory::factory(function() {
     return "coucou from closure";
 }))
+->register('Hello', ProxyFactory::factory(function($name = null) {
+    return "Hello ". (empty($name) ? 'World' : $name);
+}))
 ->register('TestClosureResponse', ProxyFactory::factory(function() {
     return new RedirectResponse('http://www.example.org');
 }))
 ->register('TestInclude', ProxyFactory::factory('+'. __DIR__ . DIRECTORY_SEPARATOR . 'test_incl_proxy.php'))
 ->register('TestController', ProxyFactory::factory('Fwk\\Core\\TestController:show'))
+->register('HelloController', ProxyFactory::factory('Fwk\\Core\\HelloController:show'))
 ->register('TestCtxClosure', ProxyFactory::factory(function(Context $context) {
     return "coucou from ContextAware closure";
 }))
