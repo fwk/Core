@@ -37,9 +37,4 @@ class ResponseEvent extends CoreEvent
     {
         return $this->response;
     }
-
-    public function setResponse(Response $response)
-    {
-        $this->response = $response;
-    }
 }

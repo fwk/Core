@@ -30,9 +30,4 @@ class BeforeActionEvent extends CoreEvent
     {
         return $this->actionProxy;
     }
-
-    public function setActionProxy(ActionProxy $actionProxy)
-    {
-        $this->actionProxy = $actionProxy;
-    }
 }
