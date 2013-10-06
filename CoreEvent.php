@@ -79,9 +79,4 @@ class CoreEvent extends Event
     {
         return $this->context;
     }
-    
-    public function __toString()
-    {
-        return get_class($this);
-    }
 }

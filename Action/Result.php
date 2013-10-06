@@ -48,14 +48,4 @@ final class Result
     const FORM          = 'form';
     const FORM_ERROR    = 'form_error';
     const REDIRECT      = 'redirect';
-    
-    /**
-     * Private contructor: this class should not be instanciated
-     * 
-     * @return void
-     */
-    private function __construct()
-    {
-        // this class should not be instanciated
-    }
 }

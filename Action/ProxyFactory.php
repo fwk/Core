@@ -90,11 +90,6 @@ class ProxyFactory
                         $method
                     );
                 }
-                throw new Exception(
-                    sprintf(
-                        'Invalid ActionProxy shortcut: '. $callableOrShortcut
-                    )
-                );
             } elseif (strpos($callableOrShortcut, ':') !== false) {
                 list($className, $method) = explode(':', $callableOrShortcut);
                 return new ControllerActionProxy($className, $method);

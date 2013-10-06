@@ -102,15 +102,11 @@ class IncludeActionProxy implements ActionProxy
      */
     public function execute(Application $app, Context $context)
     {
-        if (!is_file($this->file)) {
+        if (!is_file($this->file) || !is_readable($this->file)) {
             throw new Exception(
-                'Unable to include file: '. $this->file . ' (not found)'
+                'Unable to include file: '. $this->file . ' (not found/readable)'
             );
-        } elseif (!is_readable($this->file)) {
-            throw new Exception(
-                'Unable to include file: '. $this->file . ' (not readable)'
-            );
-        }
+        } 
         
         $this->context  = $context;
         $this->services = $app->getServices();
