@@ -120,8 +120,17 @@ class BasicRuntimeTest extends \PHPUnit_Framework_TestCase
     public function testDefaultAction()
     {
         $this->object->setDefaultAction('TestContextAwareClosure');
+        $this->assertEquals('TestContextAwareClosure', $this->object->getDefaultAction());
         $request = Request::create('');
         $resp = $this->object->run($request);
+        $this->assertInstanceOf('Fwk\Core\Context', $resp);
+    }
+    
+    public function testDefaultRequest()
+    {
+        $this->object->setDefaultAction('TestContextAwareClosure');
+        $this->assertEquals('TestContextAwareClosure', $this->object->getDefaultAction());
+        $resp = $this->object->run();
         $this->assertInstanceOf('Fwk\Core\Context', $resp);
     }
     
@@ -200,5 +209,17 @@ class BasicRuntimeTest extends \PHPUnit_Framework_TestCase
         $request = Request::create('/TestServicesAwareClosure.action');
         $response = $this->object->run($request);
         $this->assertInstanceOf('Fwk\Di\Container', $response);
+    }
+    
+    public function testDirectResponse()
+    {
+        $rsp = new \Symfony\Component\HttpFoundation\Response();
+        $this->object->register('TestDirectResponse', ProxyFactory::factory(function() use ($rsp) { 
+            return $rsp;
+        }));
+        $request = Request::create('/TestDirectResponse.action');
+        $response = $this->object->run($request);
+        $this->assertEquals($rsp, $response);
+        
     }
 }

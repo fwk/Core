@@ -224,6 +224,7 @@ class Application extends Dispatcher implements \ArrayAccess
             
             $this->notify(new AfterActionEvent($proxy, $this, $context));
             
+            $response = null;
             if (!$context->isDone()) {
                 if ($result instanceof Response) {
                     $response = $result;
@@ -232,8 +233,6 @@ class Application extends Dispatcher implements \ArrayAccess
                     $response = new Response($result);
                     $context->setResponse($response);
                 }
-            } else {
-                $response = $context->getResponse();
             }
             
             if ($response instanceof Response) {
@@ -292,6 +291,10 @@ class Application extends Dispatcher implements \ArrayAccess
     
     public function offsetSet($actionName, $proxy)
     {
+        if (!$proxy instanceof ActionProxy) {
+            $proxy = Action\ProxyFactory::factory($proxy);
+        }
+        
         return $this->register($actionName, $proxy);
     }
     

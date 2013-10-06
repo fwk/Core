@@ -89,4 +89,14 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals($this->object, $this->object->setServices($container));
         $this->assertEquals($container, $this->object->getServices());
     }
+    
+    public function testMagicMethods()
+    {
+        $this->assertFalse(isset($this->object['TestAction']));
+        $this->object['TestAction'] = function() { return 'closure controller'; };
+        $this->assertTrue(isset($this->object['TestAction']));
+        $this->assertInstanceOf('Fwk\Core\ActionProxy', $this->object['TestAction']);
+        unset($this->object['TestAction']);
+        $this->assertFalse(isset($this->object['TestAction']));
+    }
 }
