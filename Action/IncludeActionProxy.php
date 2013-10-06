@@ -74,6 +74,12 @@ class IncludeActionProxy implements ActionProxy
     protected $context;
     
     /**
+     *
+     * @var array
+     */
+    protected $actionData = array();
+    
+    /**
      * Constructor
      * 
      * @param string $file Path to the PHP file to be included
@@ -132,5 +138,15 @@ class IncludeActionProxy implements ActionProxy
     public function getContext()
     {
         return $this->context;
+    }
+    
+    public function getActionData()
+    {
+        return $this->actionData;
+    }
+    
+    public function setActionData(array $data)
+    {
+        $this->actionData = $data;
     }
 }

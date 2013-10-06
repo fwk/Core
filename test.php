@@ -42,6 +42,7 @@ $app = Application::factory("myApp")
     'snippet_num_lines' => 10
 ))) 
 ->addListener(new Components\SessionListener())
+->addListener(new Components\ResultType\ResultTypeListener('resultTypeService'))
 ->register('TestClosure', ProxyFactory::factory(function() {
     return "coucou from closure";
 }))
@@ -77,7 +78,13 @@ $services->set(
     }, 
     true
 );
-
+$services->set(
+    'resultTypeService', 
+    new ClassDefinition(
+        'Fwk\\Core\\Components\\ResultType\\ResultTypeService'
+    ), 
+    true
+);
 // execute
 $response = $app->run();
 if ($response instanceof \Symfony\Component\HttpFoundation\Response) {

@@ -58,6 +58,12 @@ class CallableActionProxy implements ActionProxy
     protected $callable;
     
     /**
+     *
+     * @var array
+     */
+    protected $actionData = array();
+    
+    /**
      * Constructor
      * 
      * @param mixed $callable Closure or Callable
@@ -104,6 +110,20 @@ class CallableActionProxy implements ActionProxy
             $result = call_user_func($this->callable);
         }
         
+        if (is_array($result)) {
+            $this->actionData = $result;
+        }
+        
         return $result;
+    }
+    
+    public function getActionData()
+    {
+        return $this->actionData;
+    }
+    
+    public function setActionData(array $data)
+    {
+        $this->actionData = $data;
     }
 }

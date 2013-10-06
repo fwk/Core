@@ -224,7 +224,7 @@ class Application extends Dispatcher implements \ArrayAccess
             
             $this->notify(new AfterActionEvent($proxy, $this, $context));
             
-            $response = null;
+            $response = $context->getResponse();
             if (!$context->isDone()) {
                 if ($result instanceof Response) {
                     $response = $result;

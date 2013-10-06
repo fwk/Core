@@ -55,6 +55,12 @@ class ServiceActionProxy implements ActionProxy
     protected $serviceName;
     
     /**
+     *
+     * @var array
+     */
+    protected $actionData = array();
+    
+    /**
      * Constructor
      * 
      * @param string $serviceName Service name
@@ -84,6 +90,22 @@ class ServiceActionProxy implements ActionProxy
      */
     public function execute(Application $app, Context $context)
     {
-        return $app->getServices()->get($this->serviceName);
+        $result = $app->getServices()->get($this->serviceName);
+        
+        if (is_array($result)) {
+            $this->actionData = $result;
+        }
+        
+        return $result;
+    }
+    
+    public function getActionData()
+    {
+        return $this->actionData;
+    }
+    
+    public function setActionData(array $data)
+    {
+        $this->actionData = $data;
     }
 }

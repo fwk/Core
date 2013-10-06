@@ -19,6 +19,9 @@
     "require-dev": {
         "joseph-lenton/php-error": "dev-master"
     },
+    "suggest": {
+        "twig/twig": "Required to use Fwk\\Core\\Components\\ResultType\\TwigResultType"
+    },
     "autoload": {
         "psr-0": {
             "Fwk\\Core": ""

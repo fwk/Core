@@ -52,6 +52,8 @@ use Fwk\Core\Accessor;
  */
 abstract class AbstractControllerActionProxy implements ActionProxy
 {
+    protected $actionData = array();
+    
     /**
      * Instantiates the controller class (must be overriden)
      * 
@@ -122,6 +124,21 @@ abstract class AbstractControllerActionProxy implements ActionProxy
         $this->populate($instance, $context->getRequest());
         $this->populateCoreInterfaces($instance, $app, $context);
         
-        return call_user_func(array($instance, $this->method));
+        $return = call_user_func(array($instance, $this->method));
+        
+        $accessor = new Accessor($instance);
+        $this->actionData = $accessor->toArray();
+        
+        return $return;
+    }
+    
+    public function getActionData()
+    {
+        return $this->actionData;
+    }
+    
+    public function setActionData(array $data)
+    {
+        $this->actionData = $data;
     }
 }
