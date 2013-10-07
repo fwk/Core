@@ -43,7 +43,7 @@ namespace Fwk\Core\Components\ViewHelper;
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link       http://www.fwk.pw
  */
-interface ViewHelperAware
+interface ViewHelperServiceAware
 {
     /**
      * Defines the View Helper Service
