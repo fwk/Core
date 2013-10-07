@@ -33,12 +33,7 @@
  */
 namespace Fwk\Core\Components\UrlRewriter;
 
-use Fwk\Core\CoreEvent,
-    Fwk\Core\Application,
-    Fwk\Core\ActionProxy;
-
-use Fwk\Core\Events\BootEvent, 
-    Fwk\Core\Events\DispatchEvent;
+use Fwk\Core\Events\DispatchEvent;
 
 /**
  * This Listener allows URLs to be customized the mod_rewrite way
@@ -52,30 +47,21 @@ use Fwk\Core\Events\BootEvent,
  */
 class UrlRewriterListener
 {
-    protected $rewriter;
-
-    public function onBoot(BootEvent $event)
+    protected $serviceName;
+    
+    public function __construct($serviceName)
     {
-        $app    = $event->getApplication();
-        $rw     = $this->getRewriter($app);
-
-        if ($this->rewriter instanceof Rewriter) {
-            $this->rewriter->addRoutes($rw->getRoutes());
-        } else {
-            $this->rewriter = $rw;
-        }
+        $this->serviceName = $serviceName;
     }
 
     public function onDispatch(DispatchEvent $event)
     {
-        $context    = $event->getContext();
-        $request    = $context->getRequest();
-
-        $baseUri     = $request->getBaseUrl();
-        $uri         = $request->getRequestUri();
+        $request = $event->getContext()->getRequest();
+        $baseUri = $request->getBaseUrl();
+        $uri     = $request->getRequestUri();
 
         if(!empty($baseUri) && \strpos($uri, $baseUri) === 0) {
-            $uri    = \substr($uri, strlen($baseUri));
+            $uri = \substr($uri, strlen($baseUri));
         }
         
         if (strpos($uri, '?') !== false) {
@@ -84,100 +70,24 @@ class UrlRewriterListener
             $uri = '/';
         }
         
-        $route      = $this->rewriter->getRoute($uri);
-        if(!$route instanceof Route) {
+        $route = $event->getApplication()
+                ->getServices()
+                ->get($this->serviceName)
+                ->getRoute($uri);
+        
+        if (!$route instanceof Route) {
             return;
         }
 
-        $descriptor = $event->getApplication()->getDescriptor();
         $actionName = $route->getActionName();
-        if (!$descriptor->hasAction($actionName)) {
-            throw new InvalidAction(sprintf("Unknown action '%s'", $actionName));
+        if (!$event->getApplication()->exists($actionName)) {
+            throw new Exception(sprintf("Unknown action '%s'", $actionName));
         }
 
         foreach ($route->getParameters() as $param) {
             $request->query->set($param->getName(), $param->getValue());
         }
 
-        $actions = $descriptor->getActions();
-        $proxy = new Proxy($actionName, $actions[$actionName]);
-        $proxy->setContext($context);
-        $context->setActionProxy($proxy);
-    }
-
-    /**
-     *
-     * @param Event $event
-     */
-    public function onAppLoaded(CoreEvent $event) {
-        $loaded     = $event->loaded;
-        $rw         = $this->getRewriter($loaded);
-
-        if ($this->rewriter instanceof Rewriter) {
-            $this->rewriter->addRoutes($rw->getRoutes());
-        } else {
-            $this->rewriter = $rw;
-        }
-    }
-
-    /**
-     *
-     * @param CoreEvent $event
-     */
-    public function onViewHelperRegistered(CoreEvent $event)
-    {
-        $vh = $event->viewHelper;
-        $vh->set('rewriter', $this->rewriter);
-    }
-
-    protected function getRewriter(Application $app) {
-        $descriptor = $app->getDescriptor();
-        $rw         = new Rewriter();
-        $result     = self::getRewritesXmlMap()->execute($descriptor);
-        if(!is_array($result['rewrites'])) {
-            return $rw;
-        }
-
-        $it = 0;
-        foreach ($result['rewrites'] as $url) {
-            $it++;
-            $route  = $url['route'];
-            $action = $url['action'];
-
-            if (empty($route)) {
-                throw new \RuntimeException(sprintf('Url #%u [app: %s] has no route defined.', $it, $descriptor->getId()));
-            }
-
-            if(empty($action)) {
-                throw new \RuntimeException(sprintf('Url #%u [app: %s] has no action defined.', $it, $descriptor->getId()));
-            }
-
-            $roote  = new Route($route);
-            $roote->setActionName($action);
-
-            foreach($url['params'] as $paramName => $param) {
-                $required   = $param['required'];
-                $regex      = $param['regex'];
-                $default    = $param['value'];
-
-                if(empty($paramName)) {
-                    throw new \RuntimeException(sprintf('Url #%u [app: %s] has a nameless param.', $it, $descriptor->getId()));
-                }
-
-                if ($required == 'true' || $required == '1' || empty($required)) {
-                    $required = true;
-                } elseif ($required == 'false' || $required == '0') {
-                    $required =  false;
-                } else {
-                    throw new \RuntimeException(sprintf('Url #%u [app: %s] has an unknown required value (%s).', $it, $descriptor->getId(), $required));
-                }
-
-                $roote->addParameter(new RouteParameter($paramName, $default, $regex, $required));
-            }
-
-            $rw->addRoute($roote);
-        }
-
-        return $rw;
+        $event->getContext()->setActionName($actionName);
     }
 }

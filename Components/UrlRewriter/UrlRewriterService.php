@@ -52,30 +52,11 @@ class UrlRewriterService
      *
      * @param Route $route The Route
      *
-     * @return Rewriter
+     * @return UrlRewriterService
      */
     public function addRoute(Route $route)
     {
         $this->routes[] = $route;
-
-        return $this;
-    }
-
-    /**
-     * Removes a Route
-     *
-     * @param Route $route The Route
-     *
-     * @return Rewriter
-     */
-    public function removeRoute(Route $route)
-    {
-        foreach ($this->routes as $idx => $rte) {
-            if ($route === $rte) {
-                unset($this->routes[$idx]);
-                break;
-            }
-        }
 
         return $this;
     }
@@ -93,6 +74,8 @@ class UrlRewriterService
                 return $route;
             }
         }
+        
+        return null;
     }
 
     /**
@@ -109,12 +92,12 @@ class UrlRewriterService
      *
      * @param array $routes
      *
-     * @return Rewriter
+     * @return UrlRewriterService
      */
     public function addRoutes(array $routes)
     {
         foreach ($routes as $route) {
-            $this->routes[] = $route;
+            $this->addRoute($route);
         }
 
         return $this;

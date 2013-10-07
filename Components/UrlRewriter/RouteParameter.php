@@ -121,4 +121,9 @@ class RouteParameter
     {
         return (isset($this->value) ? $this->value : $this->default);
     }
+    
+    public function setValue($value)
+    {
+        $this->value = $value;
+    }
 }

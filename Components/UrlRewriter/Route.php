@@ -55,7 +55,7 @@ class Route
      * 
      * @var array
      */
-    protected $parameters;
+    protected $parameters = array();
 
     /**
      *
@@ -80,7 +80,9 @@ class Route
     {
         $this->uri          = $uri;
         $this->actionName   = $actionName;
-        $this->parameters   = $parameters;
+        foreach ($parameters as $param) {
+            $this->addParameter($param);
+        }
     }
 
     /**
@@ -91,7 +93,7 @@ class Route
      */
     public function addParameter(RouteParameter $param)
     {
-        $this->params[$param->getName()] = $param;
+        $this->parameters[$param->getName()] = $param;
         
         return $this;
     }
@@ -157,7 +159,7 @@ class Route
                             $reg    .= '?';
 
                         $regex  = str_replace(':'. $paramName, $reg, $regex);
-                    } catch(\RuntimeException $e) {
+                    } catch(Exception $e) {
                     }
                 }
             }
@@ -177,7 +179,7 @@ class Route
     public function getParameter($name)
     {
         if(!isset($this->parameters[$name])) {
-            throw new \RuntimeException(
+            throw new Exception(
                 sprintf('Undefined route parameter "%s"', $name)
             );
         }
@@ -187,43 +189,13 @@ class Route
 
     /**
      *
-     * @param string         $name
-     * @param RouteParameter $paramValue 
-     * 
-     * @return Route
-     */
-    public function setParameter($name, RouteParameter $paramValue)
-    {
-        $this->parameters[$name] = $paramValue;
-        
-        return $this;
-    }
-    /**
-     *
-     * @return array<RouteParameter>
+     * @return array
      */
     public function getParameters()
     {
         return $this->parameters;
     }
 
-    /**
-     *
-     * @param string $name
-     * 
-     * @return Route
-     */
-    public function removeParameter($name) {
-        if (!isset($this->parameters[$name])) {
-            throw new \RuntimeException(
-                sprintf('Undefined route parameter "%s"', $name)
-            );
-        }
-        
-        unset($this->parameters[$name]);
-        
-        return $this;
-    }
 
     /**
      *
