@@ -22,16 +22,21 @@ class ResultTypeApplicationTest extends \PHPUnit_Framework_TestCase {
     protected function setUp() {
         $service = new ResultTypeService();
         $service->addType('json', new JsonResultType());
-        $service->addType('php', new PhpTemplateResultType());
+        $service->addType('php', new PhpTemplateResultType(array('templatesDir' => TEST_RESOURCES_DIR)));
         $service->addType('redirect', new RedirectResultType());
         
         $service->register('TestAction', \Fwk\Core\Action\Result::SUCCESS, 'json');
+        $service->register('TestAction', \Fwk\Core\Action\Result::REDIRECT, 'redirect', array('uri' => '/'));
+        $service->register('TestAction', 'template', 'php', array('file' => 'phptemplate_resulttype.php'));
         
         $app = \Fwk\Core\Application::factory('testApp')
                 ->addListener(new \Fwk\Core\Components\RequestMatcher\RequestMatcherListener('requestMatcher'))
                 ->addListener(new ResultTypeListener('resultTypeService'));
         $app['TestAction'] = function($result) {
             return $result;
+        };
+        $app['TestActionObj'] = function() {
+            return new \stdClass();
         };
         $app->getServices()->set(
             'requestMatcher', 
@@ -52,5 +57,30 @@ class ResultTypeApplicationTest extends \PHPUnit_Framework_TestCase {
         
         $this->assertInstanceOf('\Symfony\Component\HttpFoundation\JsonResponse', $result);
     }
-
+    
+    public function testRedirectResultType()
+    {
+        $req = Request::create('/TestAction.action?result=redirect');
+        $result = $this->object->run($req);
+        
+        $this->assertInstanceOf('\Symfony\Component\HttpFoundation\RedirectResponse', $result);
+        $this->assertEquals('/', $result->getTargetUrl());
+    }
+    
+    public function testPhpTemplateResultType()
+    {
+        $req = Request::create('/TestAction.action?result=template');
+        $result = $this->object->run($req);
+        
+        $this->assertInstanceOf('\Symfony\Component\HttpFoundation\Response', $result);
+        $this->assertEquals('I\'m a PHP template :)', $result->getContent());
+    }
+    
+    public function testActionReturnsAnObject()
+    {
+        $req = Request::create('/TestActionObj.action');
+        $result = $this->object->run($req);
+        
+        $this->assertInstanceOf('\stdClass', $result);
+    }
 }
