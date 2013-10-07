@@ -29,18 +29,4 @@ class RequestEvent extends CoreEvent
     {
         return $this->request;
     }
-
-    /**
-     * Defines the Request 
-     * 
-     * @param Request $request Request instance
-     * 
-     * @return RequestEvent 
-     */
-    public function setRequest(Request $request)
-    {
-        $this->request = $request;
-        
-        return $this;
-    }
 }

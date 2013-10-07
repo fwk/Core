@@ -57,7 +57,7 @@ class PhpTemplateResultType implements ResultType
     ) {
         if(!isset($params['file']) || empty($params['file'])) {
             if (!isset($params['template'])) {
-                throw new \RuntimeException(
+                throw new Exception(
                     sprintf('Missing template "file" parameter')
                 );
             }

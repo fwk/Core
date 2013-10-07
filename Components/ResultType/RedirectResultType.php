@@ -38,6 +38,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Fwk\Core\Components\ViewHelper\ViewHelperAware;
 use Fwk\Core\Components\UrlRewriter\UrlViewHelper;
 use Fwk\Core\Components\ViewHelper\ViewHelper;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
  * Redirect
@@ -87,7 +88,13 @@ class RedirectResultType implements ResultType
             throw new Exception('Missing parameter "action" or "uri"');
         }
         
-        $response   = new Response(null, 302);
+        $httpStatus = (isset($params['http.status']) ?
+            (int)$params['http.status'] :
+            302
+        );
+        
+        unset($params['http.status']);
+        
         $params     = $this->inflectParameters($actionData, $params);
         
         if (isset($params['uri']) && !empty($params['uri'])) {
@@ -95,9 +102,7 @@ class RedirectResultType implements ResultType
             unset($params['uri']);
             
             if (!count($params)) {
-                $response->headers->set('Location', $final);
-                
-                return $response;
+                return new RedirectResponse($final, $httpStatus);
             }
             
             $final     .= '?';
@@ -107,12 +112,11 @@ class RedirectResultType implements ResultType
             }
             
             $final     .= implode('&', $fparams);
-            $response->headers->set('Location', $final);
-            
-            return $response;
+            return new RedirectResponse($final, $httpStatus);
         }
         
         // create a UrlViewHelper instead of assuming it's already loaded
+        /* 
         $helper     = new UrlViewHelper();
         $helper->setViewHelper($this->viewHelper);
         $actionName = $params['action'];
@@ -122,8 +126,8 @@ class RedirectResultType implements ResultType
             $actionName,
             $params
         )));
-        
-        return $response;
+        */
+        return new RedirectResponse('/', $httpStatus);
     }
     
     /**
