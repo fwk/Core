@@ -111,7 +111,7 @@ class CallableActionProxy implements ActionProxy
         }
         
         if (is_array($result)) {
-            $this->actionData = $result;
+            $this->actionData = array_merge($result, $this->actionData);
         }
         
         return $result;

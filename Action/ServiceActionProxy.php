@@ -93,7 +93,7 @@ class ServiceActionProxy implements ActionProxy
         $result = $app->getServices()->get($this->serviceName);
         
         if (is_array($result)) {
-            $this->actionData = $result;
+            $this->actionData = array_merge($result, $this->actionData);
         }
         
         return $result;

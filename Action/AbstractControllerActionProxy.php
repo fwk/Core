@@ -127,7 +127,10 @@ abstract class AbstractControllerActionProxy implements ActionProxy
         $return = call_user_func(array($instance, $this->method));
         
         $accessor = new Accessor($instance);
-        $this->actionData = $accessor->toArray();
+        $this->actionData = array_merge(
+            $accessor->toArray(),
+            $this->actionData
+        );
         
         return $return;
     }

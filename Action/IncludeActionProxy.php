@@ -149,4 +149,17 @@ class IncludeActionProxy implements ActionProxy
     {
         $this->actionData = $data;
     }
+    
+    public function __get($name) 
+    {
+        return (array_key_exists($name, $this->actionData) ? 
+            $this->actionData[$name] : 
+            false
+        );
+    }
+    
+    public function __isset($name)
+    {
+        return array_key_exists($name, $this->actionData);
+    }
 }
