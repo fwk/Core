@@ -138,13 +138,14 @@ class Application extends Dispatcher implements \ArrayAccess
      * Instanciates a new Application 
      * (useful for chaining)
      * 
-     * @param string $name Application name
+     * @param string    $name     Application name
+     * @param Container $services Services Container
      * 
      * @return Application App instance
      */
-    public static function factory($name)
+    public static function factory($name, Container $services = null)
     {
-        return new self($name);
+        return new self($name, $services);
     }
     
     /**
