@@ -2,6 +2,7 @@
 namespace Fwk\Core\Components\ResultType;
 
 use Fwk\Core\Events\AfterActionEvent;
+use Fwk\Core\Components\Descriptor\DescriptorLoadedEvent;
 use Symfony\Component\HttpFoundation\Response;
 
 class ResultTypeListener
@@ -35,5 +36,12 @@ class ResultTypeListener
             }
         } catch(Exception $exception) {
         }
+    }
+    
+    public function onDescriptorLoaded(DescriptorLoadedEvent $event)
+    {
+        /**
+         * @todo register result types from descriptor
+         */
     }
 }

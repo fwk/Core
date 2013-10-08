@@ -22,7 +22,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * PHP Version 5.3
- *
+ * 
  * @category   Core
  * @package    Fwk\Core
  * @subpackage Components
@@ -31,57 +31,33 @@
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link       http://www.fwk.pw
  */
-namespace Fwk\Core\Components\ViewHelper;
+namespace Fwk\Core\Components\Descriptor;
 
-use Fwk\Core\Events\BeforeActionEvent;
-use Fwk\Core\Components\Descriptor\DescriptorLoadedEvent;
+use Fwk\Core\CoreEvent;
+use Fwk\Core\Application;
+use Fwk\Core\Context;
 
-/**
- * This Listener adds a ViewHelper available in templates when rendering
- * an action.
- *
- * @category   Utilities
- * @package    Fwk\Core
- * @subpackage Components
- * @author     Julien Ballestracci <julien@nitronet.org>
- * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link       http://www.fwk.pw
- */
-class ViewHelperListener
+class DescriptorLoadedEvent extends CoreEvent
 {
-    protected $serviceName;
+    const EVENT_NAME = 'descriptorLoaded';
     
-    public function __construct($serviceName)
-    {
-        $this->serviceName = $serviceName;
+    public function __construct(Descriptor $descriptor, array $data = array(), 
+        Application $app = null, Context $context = null
+    ) {
+        parent::__construct(
+            self::EVENT_NAME, 
+            array_merge(array('descriptor' => $descriptor), $data), 
+            $app, 
+            $context
+        );
     }
     
     /**
      *
-     * @param BeforeActionEvent $event
-     *
-     * @return void
+     * @return Descriptor
      */
-    public function onBeforeAction(BeforeActionEvent $event)
+    public function getDescriptor()
     {
-        $helper = $event->getApplication()
-                ->getServices()
-                ->get($this->serviceName);
-        
-        if (!$helper instanceof ViewHelperService) {
-            throw new Exception('Service is not a ViewHelperService');
-        }
-        
-        $helper->setContext($event->getContext());
-        $data = $event->getActionProxy()->getActionData();
-        $data[$helper->getPropName()] = $helper;
-        $event->getActionProxy()->setActionData($data);
-    }
-    
-    public function onDescriptorLoaded(DescriptorLoadedEvent $event)
-    {
-        /**
-         * @todo register view helpers from descriptor
-         */
+        return $this->descriptor;
     }
 }

@@ -34,6 +34,7 @@
 namespace Fwk\Core\Components\UrlRewriter;
 
 use Fwk\Core\Events\DispatchEvent;
+use Fwk\Core\Components\Descriptor\DescriptorLoadedEvent;
 
 /**
  * This Listener allows URLs to be customized the mod_rewrite way
@@ -89,5 +90,12 @@ class UrlRewriterListener
         }
 
         $event->getContext()->setActionName($actionName);
+    }
+    
+    public function onDescriptorLoaded(DescriptorLoadedEvent $event)
+    {
+        /**
+         * @todo register routes from descriptor
+         */
     }
 }
