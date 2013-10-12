@@ -10,12 +10,17 @@
         <param name="serviceName">:viewHelperService</param>
     </listener>
     
+    <result-types>
+        <result-type
+            name="json"
+            class="Fwk\Core\Components\ResultType\JsonResultType">
+            <param name="templatesDir">:packageDir/templates</param>
+        </result-type>
+    </result-types>
+    
     <actions>
-        <action name="Home" class="TestApp\actions\Homepage" method="show">
-            <result name="welcome">
-                <param name="pwet">coucou</param>
-                <param name="template">hello.phtml</param>
-            </result>
+        <action name="Home" class="Fwk\Core\Components\ResultType\TestController" method="show">
+            <result name="success" type="json" />
         </action>
 
         <action name="Hello" class="TestApp\actions\Hello" method="show">

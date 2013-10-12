@@ -45,7 +45,7 @@ class Descriptor
 {
     protected $sources      = array();
     protected $properties   = array();
-    protected $sourcesXml  = array();
+    protected $sourcesXml   = array();
     
     /**
      * Constructor
@@ -253,7 +253,7 @@ class Descriptor
      */
     public function getSourcesXml()
     {
-        return $this->_sourcesXml;
+        return $this->sourcesXml;
     }
     
     /**

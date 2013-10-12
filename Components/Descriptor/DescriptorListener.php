@@ -58,12 +58,4 @@ class DescriptorListener
             )
         );
     }
-    
-    /**
-     * @return Descriptor
-     */
-    public function getDescriptor()
-    {
-        return $this->descriptor;
-    }
 }
