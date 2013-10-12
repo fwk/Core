@@ -35,12 +35,17 @@ namespace Fwk\Core\Components\Descriptor;
 
 use Fwk\Core\Application;
 use Fwk\Di\Container;
+use Fwk\Xml\Map;
+use Fwk\Xml\XmlFile;
+use Fwk\Xml\Path;
+use Fwk\Di\ClassDefinition;
+use Fwk\Core\Action\ProxyFactory;
 
 class Descriptor
 {
     protected $sources      = array();
     protected $properties   = array();
-    protected $xmlFile;
+    protected $sourcesXml  = array();
     
     /**
      * Constructor
@@ -69,10 +74,8 @@ class Descriptor
     
     public function iniProperties($iniFile, $category = 'fwk')
     {
-        if (!is_file($iniFile)) {
-            throw new Exception('INI file not found: '. $iniFile);
-        } elseif (!is_readable($iniFile)) {
-            throw new Exception('INI file not readable: '. $iniFile);
+        if (!is_file($iniFile) || !is_readable($iniFile)) {
+            throw new Exception('INI file not found/readable: '. $iniFile);
         }
         
         $props = parse_ini_file($iniFile, true);
@@ -82,7 +85,7 @@ class Descriptor
             throw new Exception("No properties found in: $iniFile [$category]");
         }
         
-        foreach ($props as $key => $value) {
+        foreach ($props[$category] as $key => $value) {
             $props[$key] = $this->propertizeString($value);
         }
         
@@ -134,13 +137,34 @@ class Descriptor
         return array_key_exists($propName, $this->properties);
     }
     
+    public function setAll(array $properties)
+    {
+        $this->properties = array_merge($this->properties, $properties);
+        
+        return $this;
+    }
+    
     /**
      * @return Application
      */
-    public function execute(Container $services)
+    public function execute($appName, Container $services = null)
     {
-        $app = Application::factory('', $services);
+        $this->sources = array_reverse($this->sources);
+        
+        $app = Application::factory($appName, $services);
+        if (null === $services) {
+            $services = $app->getServices();
+        }
+        
         $app->addListener(new DescriptorListener($this));
+        
+        foreach ($this->loadListeners($services) as $listener) {
+            $app->addListener($listener);
+        }
+        
+        foreach ($this->loadActions() as $actionName => $str) {
+            $app->register($actionName, ProxyFactory::factory($str));
+        }
         
         return $app;
     }
@@ -160,22 +184,133 @@ class Descriptor
             }
         }
         
-        return str_replace(array_keys($replaces), array_values($replaces), $str);
+        return str_replace(
+            array_keys($replaces), 
+            array_values($replaces), 
+            $str
+        );
+    }
+    
+    public function loadListeners(Container $container)
+    {
+        $listeners  = array();
+        $xml        = array();
+        $map        = $this->xmlListenersMapFactory();
+        foreach ($this->sources as $source) {
+            $parse  = $map->execute($this->getSourceXml($source));
+            $res    = $parse['listeners'];
+            $xml    = array_merge($xml, $res);
+        }
+        
+        foreach ($xml as $className => $data) {
+            $finalParams = array();
+            foreach ($data['params'] as $paramData) {
+                $finalParams[$paramData['name']] = $paramData['value'];
+            }
+            
+            $def = new ClassDefinition(
+                $this->propertizeString($className), 
+                $finalParams
+            );
+            $listeners[] = $def->invoke($container);
+        }
+        
+        return $listeners;
+    }
+    
+    public function loadActions()
+    {
+        $actions    = array();
+        $xml        = array();
+        $map        = $this->xmlActionMapFactory();
+        foreach ($this->sources as $source) {
+            $parse  = $map->execute($this->getSourceXml($source));
+            $res    = $parse['actions'];
+            $xml    = array_merge($xml, $res);
+        }
+        
+        foreach ($xml as $actionName => $data) {
+            $actionName = $this->propertizeString($actionName);
+            if (isset($data['class']) && isset($data['method'])) {
+                $actionStr = implode(':', array(
+                    $this->propertizeString($data['class']), 
+                    $this->propertizeString($data['method'])
+                ));
+            } elseif (isset($data['shortcut'])) {
+                $actionStr = $this->propertizeString($data['shortcut']);
+            }
+            
+            $actions[$actionName] = $actionStr;
+        }
+        
+        return $actions;
     }
     
     /**
      *
-     * @return Descriptor 
+     * 
+     * @return array
      */
-    public function reset()
+    public function getSourcesXml()
     {
-        $this->properties = array();
-        
-        return $this;
+        return $this->_sourcesXml;
     }
     
-    public function loadSourcesXml()
+    /**
+     *
+     * @param string $source
+     * 
+     * @return XmlFile
+     */
+    public function getSourceXml($source)
     {
+        if (!isset($this->sourcesXml[$source])) {
+            $this->sourcesXml[$source] = new XmlFile($source);
+        }
         
+        return $this->sourcesXml[$source];
+    }
+    
+    /**
+     * Builds an XML Map used to parse listeners from an XML source
+     * 
+     * @return Map
+     */
+    protected function xmlListenersMapFactory()
+    {
+        $map = new Map();
+        $map->add(
+            Path::factory('/fwk/listener', 'listeners')
+            ->loop(true, '@class')
+            ->attribute('class')
+            ->addChildren(
+                Path::factory('param', 'params')
+                ->attribute('name')
+                ->filter(array($this, 'propertizeString'))
+                ->value('value')
+                ->loop(true)
+             )
+        );
+        
+        return $map;
+    }
+    
+    /**
+     * Builds an XML Map used to parse Actions from an XML source
+     * 
+     * @return Map
+     */
+    protected function xmlActionMapFactory()
+    {
+        $map = new Map();
+        $map->add(
+            Path::factory('/fwk/actions/action', 'actions')
+            ->loop(true, '@name')
+            ->attribute('class')
+            ->attribute('method')
+            ->attribute('shortcut')
+        );
+        
+        return $map;
     }
 }

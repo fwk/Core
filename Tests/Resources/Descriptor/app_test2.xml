@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fwk id="TestApp" version="1.0-dev">
+    <listener class="Fwk\Core\Components\RequestMatcher\RequestMatcherListener">
+        <param>:requestMatcherService</param>
+    </listener>
+    <listener class="Fwk\Core\Components\ResultType\ResultTypeListener">
+        <param>:resultTypeService</param>
+    </listener>
+    <listener class="Fwk\Core\Components\ViewHelper\ViewHelperListener">
+        <param name="serviceName">:viewHelperService</param>
+    </listener>
+    <listener class="Fwk\Core\Components\UrlRewriter\UrlRewriterListener">
+        <param>:urlRewriterService</param>
+    </listener>
+    
+    <actions>
+        <action name="Home" class="TestApp\actions\Homepage" method="show">
+            <result name="welcome">
+                <param name="pwet">coucou</param>
+                <param name="template">hello.phtml</param>
+            </result>
+        </action>
+
+        <action name="Hello" class="TestApp\actions\Hello" method="show">
+            <result name="success" type="template">
+                 <param name="file">hello.phtml</param>
+            </result>
+            <result name="error" type="template">
+                 <param name="file">hello.phtml</param>
+            </result>
+        </action>
+
+        <action name="NewAction">
+            <result name="success" type="template">
+                <param name="file">newactionExtends.phtml</param>
+            </result>
+        </action>
+    </actions>
+</fwk>
