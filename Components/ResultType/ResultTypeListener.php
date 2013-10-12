@@ -63,7 +63,7 @@ class ResultTypeListener
         $map    = $this->xmlResultsTypesMapFactory();
         foreach ($event->getDescriptor()->getSourcesXml() as $xml) {
             $parse  = $map->execute($xml);
-            $res    = $parse['types'];
+            $res    = (isset($parse['types']) ? $parse['types'] : array());
             $types  = array_merge($types, $res);
         }
         
@@ -91,7 +91,7 @@ class ResultTypeListener
         $map        = $this->xmlActionResultsXmlMapFactory($actionName);
         foreach ($this->descriptor->getSourcesXml() as $xml) {
             $parse      = $map->execute($xml);
-            $res        = $parse['results'];
+            $res        = (isset($parse['results']) ? $parse['results'] : array());
             $results    = array_merge($results, $res);
         }
         

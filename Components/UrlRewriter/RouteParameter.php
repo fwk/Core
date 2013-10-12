@@ -45,7 +45,7 @@ namespace Fwk\Core\Components\UrlRewriter;
  */
 class RouteParameter
 {
-    const DEFAULT_REGEX               = '.[^/\.]{0,}';
+    const DEFAULT_REGEX = '.[^/\.]{0,}';
     
     /**
      *

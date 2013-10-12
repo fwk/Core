@@ -198,7 +198,7 @@ class Descriptor
         $map        = $this->xmlListenersMapFactory();
         foreach ($this->sources as $source) {
             $parse  = $map->execute($this->getSourceXml($source));
-            $res    = $parse['listeners'];
+            $res    = (isset($parse['listeners']) ? $parse['listeners'] : array());
             $xml    = array_merge($xml, $res);
         }
         
@@ -225,7 +225,7 @@ class Descriptor
         $map        = $this->xmlActionMapFactory();
         foreach ($this->sources as $source) {
             $parse  = $map->execute($this->getSourceXml($source));
-            $res    = $parse['actions'];
+            $res    = (isset($parse['actions']) ? $parse['actions'] : array());
             $xml    = array_merge($xml, $res);
         }
         

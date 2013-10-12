@@ -35,6 +35,8 @@ namespace Fwk\Core\Components\UrlRewriter;
 
 use Fwk\Core\Events\DispatchEvent;
 use Fwk\Core\Components\Descriptor\DescriptorLoadedEvent;
+use Fwk\Core\Components\Descriptor\Descriptor;
+use Fwk\Xml\Map, Fwk\Xml\Path;
 
 /**
  * This Listener allows URLs to be customized the mod_rewrite way
@@ -94,8 +96,66 @@ class UrlRewriterListener
     
     public function onDescriptorLoaded(DescriptorLoadedEvent $event)
     {
-        /**
-         * @todo register routes from descriptor
-         */
+        $results    = array();
+        $map        = $this->xmlRewritesMapFactory($event->getDescriptor());
+        foreach ($event->getDescriptor()->getSourcesXml() as $xml) {
+            $parse      = $map->execute($xml);
+            $res        = (isset($parse['rewrites']) ? $parse['rewrites'] : array());
+            $results    = array_merge($results, $res);
+        }
+        
+        $rewriter   = $event->getApplication()
+                ->getServices()
+                ->get($this->serviceName);
+        
+        $it = 0;
+        foreach ($results as $url) {
+            $it++;
+            $roote  = new Route(
+                $event->getDescriptor()->propertizeString($url['action']), 
+                $event->getDescriptor()->propertizeString($url['route'])
+            );
+
+            foreach($url['params'] as $paramName => $param) {
+                $required   = $param['required'];
+                $regex      = $param['regex'];
+                $default    = $param['value'];
+
+                if ($required == 'true' || $required == '1' || empty($required)) {
+                    $required = true;
+                } elseif ($required == 'false' || $required == '0') {
+                    $required =  false;
+                } 
+
+                $roote->addParameter(new RouteParameter($paramName, $default, $regex, $required));
+            }
+
+            $rewriter->addRoute($roote);
+        }
+    }
+    
+    /**
+     *
+     * @return Map
+     */
+    protected function xmlRewritesMapFactory(Descriptor $desc)
+    {
+        $map = new Map();
+        $map->add(
+            Path::factory('/fwk/url-rewrite/url', 'rewrites')
+            ->loop(true)
+            ->attribute('route')
+            ->attribute('action')
+            ->addChildren(
+                Path::factory('param', 'params')
+                ->loop(true, '@name')
+                ->attribute('required')
+                ->attribute('regex')
+                ->filter(array($desc, 'propertizeString'))
+                ->value('value')
+            )
+        );
+
+        return $map;
     }
 }

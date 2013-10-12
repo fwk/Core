@@ -23,19 +23,9 @@
             <result name="success" type="json" />
         </action>
 
-        <action name="Hello" class="TestApp\actions\Hello" method="show">
-            <result name="success" type="template">
-                 <param name="file">hello.phtml</param>
-            </result>
-            <result name="error" type="template">
-                 <param name="file">hello.phtml</param>
-            </result>
-        </action>
-
-        <action name="Shortcutted"  shortcut="MyController:method">
-            <result name="success" type="template">
-                <param name="file">newaction.phtml</param>
-            </result>
+        <action name="Hello" shortcut="@helloActionService">
+            <result name="success" type="json" />
+            <result name="error" type="json" />
         </action>
     </actions>
 </fwk>

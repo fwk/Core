@@ -13,27 +13,9 @@
         <param>:urlRewriterService</param>
     </listener>
     
-    <actions>
-        <action name="Home" class="TestApp\actions\Homepage" method="show">
-            <result name="welcome">
-                <param name="pwet">coucou</param>
-                <param name="template">hello.phtml</param>
-            </result>
-        </action>
-
-        <action name="Hello" class="TestApp\actions\Hello" method="show">
-            <result name="success" type="template">
-                 <param name="file">hello.phtml</param>
-            </result>
-            <result name="error" type="template">
-                 <param name="file">hello.phtml</param>
-            </result>
-        </action>
-
-        <action name="NewAction">
-            <result name="success" type="template">
-                <param name="file">newactionExtends.phtml</param>
-            </result>
-        </action>
-    </actions>
+     <url-rewrite>
+        <url route="/hello/:name" action="Hello">
+            <param name="name" />
+        </url>
+    </url-rewrite>
 </fwk>
