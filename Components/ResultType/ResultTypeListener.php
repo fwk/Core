@@ -7,7 +7,7 @@ use Fwk\Core\Components\Descriptor\DescriptorLoadedEvent;
 use Symfony\Component\HttpFoundation\Response;
 use Fwk\Xml\Map, Fwk\Xml\Path;
 use Fwk\Di\ClassDefinition, Fwk\Di\Container;
-    
+
 class ResultTypeListener
 {
     protected $serviceName;
@@ -39,16 +39,14 @@ class ResultTypeListener
             $service
         );
         
-        try {
-            $response = $service->execute($result, 
-                $event->getContext(), 
-                $event->getActionProxy()->getActionData()
-            );
-            
-            if ($response instanceof Response) {
-                $event->getContext()->setResponse($response);
-            }
-        } catch(Exception $exception) {
+        $response = $service->execute($result, 
+            $event->getContext(), 
+            $event->getActionProxy()->getActionData(),
+            $event->getApplication()
+        );
+
+        if ($response instanceof Response) {
+            $event->getContext()->setResponse($response);
         }
     }
     
@@ -70,7 +68,7 @@ class ResultTypeListener
         foreach ($types as $typeName => $type) {
             $def = new ClassDefinition(
                 $event->getDescriptor()->propertizeString($type['class']), 
-                $type['params']
+                array($type['params'])
             );
             
             $service->addType(

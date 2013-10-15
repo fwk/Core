@@ -2,6 +2,8 @@
 namespace Fwk\Core\Components\ResultType;
 
 use Fwk\Core\Context;
+use Fwk\Core\Application;
+use Fwk\Core\ServicesAware, Fwk\Core\ContextAware;
 
 class ResultTypeService
 {
@@ -79,21 +81,31 @@ class ResultTypeService
      * @param Context $context
      * @param array $actionData
      * 
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return mixed
      * @throws Exception if no ResultType found for this result
      */
     public function execute($result, Context $context, 
-        array $actionData = array()
+        array $actionData = array(), Application $app
     ) {
         $rule = $this->find($result, $context);
         if (false === $rule) {
-            throw new Exception(
-                sprintf('No ResultType found for result:'. $result)
-            );
+            return $result;
         }
         
-        return $this->getType($rule['typeName'])
-                ->getResponse($actionData, $rule['parameters']);
+        $type = $this->getType($rule['typeName']);
+        if ($type instanceof ContextAware) {
+            $type->setContext($context);
+        }
+
+        if ($type instanceof ServicesAware) {
+            $type->setServices($app->getServices());
+        }
+        
+        if ($type instanceof ApplicationAware) {
+            $type->setApplication($app);
+        }
+            
+        return $type->getResponse($actionData, $rule['parameters']);
     }
     
     public function addType($typeName, ResultType $type)

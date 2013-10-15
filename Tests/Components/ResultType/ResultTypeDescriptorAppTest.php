@@ -40,6 +40,9 @@ class ResultTypeDescriptorAppTest extends \PHPUnit_Framework_TestCase {
         );
         $services->set('viewHelper', new \Fwk\Core\Components\ViewHelper\ViewHelperService(), true);
         $services->set('resultTypeService', $service, true);
+        $services->set('helloActionService', function() {
+            return 'hello';
+        });
         
         $desc = new \Fwk\Core\Components\Descriptor\Descriptor(
                 TEST_RESOURCES_DIR . DIRECTORY_SEPARATOR . 'Descriptor' .
@@ -51,9 +54,17 @@ class ResultTypeDescriptorAppTest extends \PHPUnit_Framework_TestCase {
         $this->app = $desc->execute('testApp', $services);
     }
     
-    public function testJsonResultType()
+    public function notestJsonResultType()
     {
         $req = Request::create('/Home.action?result=success');
+        $result = $this->app->run($req);
+        
+        $this->assertInstanceOf('\Symfony\Component\HttpFoundation\JsonResponse', $result);
+    }
+    
+    public function testChainResultType()
+    {
+        $req = Request::create('/HomeChain.action');
         $result = $this->app->run($req);
         
         $this->assertInstanceOf('\Symfony\Component\HttpFoundation\JsonResponse', $result);

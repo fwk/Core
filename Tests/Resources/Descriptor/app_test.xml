@@ -12,10 +12,18 @@
     
     <result-types>
         <result-type
-            name="json"
-            class="Fwk\Core\Components\ResultType\JsonResultType">
+            name="php"
+            class="Fwk\Core\Components\ResultType\PhpTemplateResultType">
             <param name="templatesDir">:packageDir/templates</param>
         </result-type>
+        <result-type
+            name="json"
+            class="Fwk\Core\Components\ResultType\JsonResultType"
+        />
+        <result-type
+            name="chain"
+            class="Fwk\Core\Components\ResultType\ChainResultType"
+        />
     </result-types>
     
     <actions>
@@ -25,7 +33,13 @@
 
         <action name="Hello" shortcut="@helloActionService">
             <result name="success" type="json" />
-            <result name="error" type="json" />
+            <result name="hello" type="json" />
+        </action>
+        
+        <action name="HomeChain" class="Fwk\Core\Components\ResultType\TestController" method="show">
+            <result name="success" type="chain">
+                <param name="actionName">Hello</param>
+            </result>
         </action>
     </actions>
 </fwk>

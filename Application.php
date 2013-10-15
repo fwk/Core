@@ -198,7 +198,6 @@ class Application extends Dispatcher implements \ArrayAccess
         }
         
         $context = new Context($request);
-        
         try {
             $this->notify(new RequestEvent($request, $this, $context));
 
@@ -213,31 +212,24 @@ class Application extends Dispatcher implements \ArrayAccess
                 $context->setActionName($this->defaultAction);
             }
 
-            if (!$this->exists($context->getActionName())) {
-                throw new Exception('Unregistered action "'. $context->getActionName() .'"');
-            }
-
-            $proxy = $this->get($context->getActionName());
-            $this->notify(new BeforeActionEvent($proxy, $this, $context));
-
-            $result = $response = $proxy->execute($this, $context);
-            $context->setResult($result);
+            $result = $this->runAction($context);
             
-            $this->notify(new AfterActionEvent($proxy, $this, $context));
-            
-            $response = $context->getResponse();
             if (!$context->isDone()) {
                 if ($result instanceof Response) {
-                    $response = $result;
-                    $context->setResponse($response);
+                    $context->setResponse($result);
                 } elseif (is_string($result)) {
-                    $response = new Response($result);
-                    $context->setResponse($response);
+                    $context->setResponse(new Response($result));
                 }
-            }
+             }
             
-            if ($response instanceof Response) {
-                $this->notify(new ResponseEvent($response, $this, $context));
+            if ($context->getResponse() instanceof Response) {
+                $this->notify(
+                    new ResponseEvent(
+                        $context->getResponse(), 
+                        $this, 
+                        $context
+                    )
+                );
             }
         } catch(\Exception $exp) {
             $event = new ErrorEvent($exp, $this, $context);
@@ -250,10 +242,35 @@ class Application extends Dispatcher implements \ArrayAccess
         
         $this->notify(new EndEvent($this, $context));
         if ($context->getResponse() instanceof Response) {
-            return $response;
+            return $context->getResponse();
         } 
         
         return $context->getResult();
+    }
+    
+    /**
+     *
+     * @param Context $context
+     * 
+     * @return mixed
+     */
+    public function runAction(Context $context)
+    {
+        if (!$context->isReady()) {
+            throw new Exception('Context is not ready (i.e. no action defined)');
+        }
+        
+        if (!$this->exists($context->getActionName())) {
+            throw new Exception('Unregistered action "'. $context->getActionName() .'"');
+        }
+        
+        $proxy = $this->get($context->getActionName());
+        $this->notify(new BeforeActionEvent($proxy, $this, $context));
+        $result = $proxy->execute($this, $context);
+        $context->setResult($result);
+        $this->notify(new AfterActionEvent($proxy, $this, $context));
+        
+        return $result;
     }
     
     /**
