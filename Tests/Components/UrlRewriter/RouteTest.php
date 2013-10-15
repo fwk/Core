@@ -38,7 +38,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase {
     /**
      */
     public function testMatch() {
-        $this->assertTrue($this->object->match('/test/joebarrrrr'));
+        $this->assertTrue($this->object->match('/test/thisIsAName'));
         $this->assertFalse($this->object->match('/not/matching'));
         $this->assertFalse($this->object->match('/test/matching/not'));
     }

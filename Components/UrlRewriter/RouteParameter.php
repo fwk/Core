@@ -88,12 +88,12 @@ class RouteParameter
      * @return void
      */
     public function __construct($name, $default = null, 
-        $regex = self::DEFAULT_REGEX, $required = true, $value = null
+        $regex = null, $required = true, $value = null
     ) {
         $this->name     = (string)$name;
         $this->default  = (string)$default;
         $this->required = (bool)$required;
-        $this->regex    = $regex;
+        $this->regex    = (empty($regex) ? self::DEFAULT_REGEX : $regex);
         $this->value    = $value;
     }
 

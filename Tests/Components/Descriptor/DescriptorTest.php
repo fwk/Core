@@ -77,7 +77,6 @@ class DescriptorTest extends \PHPUnit_Framework_TestCase {
         $this->assertInstanceOf('Fwk\Core\Application', $app);
         $this->assertTrue($app->exists('Home'));
         $this->assertTrue($app->exists('Hello'));
-        $this->assertTrue($app->exists('Shortcutted'));
     }
     
     /**

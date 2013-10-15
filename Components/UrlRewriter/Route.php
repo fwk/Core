@@ -150,13 +150,13 @@ class Route
             if(preg_match_all('#:([a-zA-Z0-9_]+)#', $this->uri, $matches)) {
                 foreach($matches[1] as $paramName) {
                     try {
-                        $param = $this->getParameter($paramName);
-
+                        $param      = $this->getParameter($paramName);
                         $required   = $param->isRequired();
                         $reg        = '('. $param->getRegex() .')';
 
-                        if(!$required)
+                        if (!$required) {
                             $reg    .= '?';
+                        }
 
                         $regex  = str_replace(':'. $paramName, $reg, $regex);
                     } catch(Exception $e) {

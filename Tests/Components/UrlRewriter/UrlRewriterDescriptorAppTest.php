@@ -33,8 +33,8 @@ class UrlRewriterDescriptorAppTest extends \PHPUnit_Framework_TestCase {
         $services->set('viewHelper', new \Fwk\Core\Components\ViewHelper\ViewHelperService(), true);
         $services->set('resultTypeService', new \Fwk\Core\Components\ResultType\ResultTypeService(), true);
         $services->set('urlRewriter', $service, true);
-        $services->set('helloActionService', function($name) {
-            return 'hello '. $name;
+        $services->set('helloActionService', function() {
+            return 'hello';
         });
         
         $desc = new \Fwk\Core\Components\Descriptor\Descriptor(
@@ -55,6 +55,6 @@ class UrlRewriterDescriptorAppTest extends \PHPUnit_Framework_TestCase {
         $req = Request::create('/hello/joe');
         $result = $this->app->run($req);
         
-        $this->assertEquals('hello joe', $result->getContent());
+        $this->assertEquals('hello', $result->getContent());
     }
 }
