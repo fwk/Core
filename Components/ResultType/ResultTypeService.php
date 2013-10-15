@@ -60,19 +60,17 @@ class ResultTypeService
     protected function find($result, Context $context)
     {
         $actionName = $context->getActionName();
-        if (!isset($this->rules[$actionName])) {
-            return false;
-        }
         
         if ($context->getRequest()->isXmlHttpRequest() 
             && isset($this->rules[$actionName]['ajax:'. $result])
         ) {
             return $this->rules[$actionName]['ajax:'. $result];
-        } elseif (isset($this->rules[$actionName][$result])) {
-            return $this->rules[$actionName][$result];
-        }
+        } 
         
-        return false;
+        return (isset($this->rules[$actionName][$result]) ? 
+            $this->rules[$actionName][$result] : 
+            false
+        );
     }
     
     /**

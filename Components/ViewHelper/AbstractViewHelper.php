@@ -33,7 +33,7 @@
  */
 namespace Fwk\Core\Components\ViewHelper;
 
-abstract class AbstractViewHelper
+abstract class AbstractViewHelper implements ViewHelperServiceAware
 {
     /**
      *
