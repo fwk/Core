@@ -34,6 +34,7 @@
 namespace Fwk\Core\Components\ViewHelper;
 
 use Fwk\Core\Context;
+use Fwk\Core\Application;
 
 /**
  * This is the View Helper
@@ -78,6 +79,13 @@ class ViewHelperService
      */
     protected $propName = self::DEFAULT_PROP_NAME;
 
+    /**
+     * The running Application
+     * 
+     * @var Application
+     */
+    protected $application;
+    
     /**
      * Constructor
      * 
@@ -257,4 +265,28 @@ class ViewHelperService
         
         return $this;
     }
+    
+    /**
+     * 
+     * @return Application
+     */
+    public function getApplication()
+    {
+        return $this->application;
+    }
+
+    /**
+     * 
+     * @param Application $application
+     * 
+     * @return ViewHelperService
+     */
+    public function setApplication(Application $application)
+    {
+        $this->application = $application;
+        
+        return $this;
+    }
+
+
 }

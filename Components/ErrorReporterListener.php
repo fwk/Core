@@ -1,7 +1,7 @@
 <?php
 namespace Fwk\Core\Components;
 
-use Fwk\Core\Events\BootEvent;
+use Fwk\Core\Events\ErrorEvent;
 
 class ErrorReporterListener
 {
@@ -12,8 +12,9 @@ class ErrorReporterListener
         $this->options = $handlerOptions;
     }
     
-    public function onError()
+    public function onError(ErrorEvent $event)
     {
+        header('X-Error-Message: '. $event->getException()->getMessage(), true, 500);
         $handler = new \php_error\ErrorHandler($this->options);
         $handler->turnOn();
     }

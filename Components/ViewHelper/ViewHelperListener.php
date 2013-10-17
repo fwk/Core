@@ -72,6 +72,7 @@ class ViewHelperListener
             throw new Exception('Service is not a ViewHelperService');
         }
         
+        $helper->setApplication($event->getApplication());
         $helper->setContext($event->getContext());
         $data = $event->getActionProxy()->getActionData();
         $data[$helper->getPropName()] = $helper;

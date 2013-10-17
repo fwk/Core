@@ -1,8 +1,6 @@
 <?php
 namespace Fwk\Core;
 
-use Fwk\Core\Action\ControllerActionProxy;
-use Fwk\Core\Action\CallableActionProxy;
 use Fwk\Di\ClassDefinition;
 use Fwk\Core\Context;
 use Symfony\Component\HttpFoundation\RedirectResponse;
