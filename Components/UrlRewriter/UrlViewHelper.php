@@ -41,9 +41,7 @@ class UrlViewHelper extends ViewHelperBase
             return parent::execute($arguments);
         }
         
-        return rtrim($baseUrl, '/') 
-             . $this->getRequestMatcher()
-                ->reverse($actionName, $parameters, $escapeAmp);
+        return $route;
     }
     
     /**
