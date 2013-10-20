@@ -67,6 +67,10 @@ class ResultTypeService
             && isset($this->rules[$actionName]['ajax:'. $result])
         ) {
             return $this->rules[$actionName]['ajax:'. $result];
+        } elseif ($context->hasParent() 
+            && isset($this->rules[$actionName]['embed:'. $result])
+        ) {
+            return $this->rules[$actionName]['embed:'. $result];
         } 
         
         return (isset($this->rules[$actionName][$result]) ? 

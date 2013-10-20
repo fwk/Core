@@ -39,4 +39,14 @@ class RequestMatcher
         
         return $actionName;
     }
+    
+    public function reverse($actionName, array $params = array(), 
+        $escapeAmp = false
+    ) {
+        return sprintf(
+            '/%s.action%s', 
+            $actionName, 
+            (!count($params) ? null : '?' . http_build_query($params, '', ($escapeAmp === true ? '&amp;' : '&')))
+        );
+    }
 }
