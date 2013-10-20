@@ -110,8 +110,9 @@ class UrlRewriterService
      *
      * @return string
      */
-    public function reverse($actionName, array $params = array())
-    {
+    public function reverse($actionName, array $params = array(), 
+        $escapeAmp = false
+    ) {
         $possibles = array();
         foreach ($this->routes as $x => $route) {
             if ($route->getActionName() != $actionName) {
@@ -129,7 +130,7 @@ class UrlRewriterService
         ksort($possibles);
         
         foreach ($possibles as $route) {
-            $reverse = $route->getReverse($params);
+            $reverse = $route->getReverse($params, $escapeAmp);
             if ($reverse !== false) {
                 return $reverse;
             }

@@ -203,7 +203,7 @@ class Route
      * 
      * @return string
      */
-    public function getReverse(array $params = array())
+    public function getReverse(array $params = array(), $escapeAmp = false)
     {
         $finalParams    = array();
         $regs           = array();
@@ -240,12 +240,7 @@ class Route
         $cleanUpUri = \ltrim(\rtrim($this->uri,'$'), '^');
         $final      = preg_replace($regs, $finalParams, $cleanUpUri);
         if (count($params)) {
-            $paramsStr = "?";
-            foreach ($params as $key => $value) {
-                $paramsStr .= urlencode($key) ."=". urlencode($value) ."&";
-            }
-            
-            $final .= rtrim($paramsStr, '&');
+            $final .= '?'. http_build_query($params, '', ($escapeAmp === false ? '' : '&amp;'));
         }
         
         return $final;

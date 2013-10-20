@@ -36,7 +36,7 @@ class UrlViewHelper extends ViewHelperBase
         }
         
         $rewriter = $this->getUrlRewriterService();
-        $route    = $rewriter->reverse($actionName, $parameters);
+        $route    = $rewriter->reverse($actionName, $parameters, $escapeAmp);
         if (false === $route) {
             return parent::execute($arguments);
         }
