@@ -88,8 +88,8 @@ class ResultTypeService
      * @return mixed
      * @throws Exception if no ResultType found for this result
      */
-    public function execute($result, Context $context, 
-        array $actionData = array(), Application $app
+    public function execute($result, Context $context, Application $app,
+        array $actionData = array()
     ) {
         $rule = $this->find($result, $context);
         if (false === $rule) {
@@ -152,6 +152,6 @@ class ResultTypeService
             throw new Exception(sprintf('Unknown type: "%s"', $typeName));
         }
         
-        return $this->types[$typeName];
+        return clone $this->types[$typeName];
     }
 }

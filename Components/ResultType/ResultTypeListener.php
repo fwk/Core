@@ -41,15 +41,12 @@ class ResultTypeListener
         
         $response = $service->execute($result, 
             $event->getContext(), 
-            $event->getActionProxy()->getActionData(),
-            $event->getApplication()
+            $event->getApplication(),
+            $event->getActionProxy()->getActionData()
         );
 
         if ($response instanceof Response) {
             $event->getContext()->setResponse($response);
-            if ($event->getContext()->hasParent()) {
-                $response->sendContent();
-            }
         }
     }
     

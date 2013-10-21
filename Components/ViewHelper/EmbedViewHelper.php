@@ -23,8 +23,14 @@ class EmbedViewHelper extends AbstractViewHelper implements ViewHelper
             $context->getRequest()->query->set($key, $value);
         }
         
-        return $this->getViewHelperService()
+        $result = $this->getViewHelperService()
                     ->getApplication()
                     ->runAction($context);
+        
+        if ($context->getResponse() instanceof \Symfony\Component\HttpFoundation\Response) {
+            return $context->getResponse()->getContent();
+        }
+        
+        return $result;
     }
 }
