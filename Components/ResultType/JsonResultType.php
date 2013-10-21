@@ -93,7 +93,6 @@ class JsonResultType implements ResultType
             }
         }
         
-        
         return new JsonResponse($actionData, $httpStatus);
     }
 }

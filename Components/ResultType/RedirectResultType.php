@@ -84,7 +84,7 @@ class RedirectResultType implements ResultType
     public function getResponse(array $actionData = array(), 
         array $params = array()
     ) {
-        if (!isset($params['action']) && !isset($params['uri'])) {
+        if (!isset($params['actionName']) && !isset($params['uri'])) {
             throw new Exception('Missing parameter "action" or "uri"');
         }
         
@@ -119,7 +119,7 @@ class RedirectResultType implements ResultType
         /* 
         $helper     = new UrlViewHelper();
         $helper->setViewHelper($this->viewHelper);
-        $actionName = $params['action'];
+        $actionName = $params['actionName'];
         unset($params['action']);
         
         $response->headers->set('Location', $helper->execute(array(
