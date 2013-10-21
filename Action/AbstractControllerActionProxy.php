@@ -127,8 +127,20 @@ abstract class AbstractControllerActionProxy implements ActionProxy
         $return = call_user_func(array($instance, $this->method));
         
         $accessor = new Accessor($instance);
+        $data = $accessor->toArray();
+        
+        // unset services and context from action data
+        // to avoid having them in the view
+        if ($instance instanceof ServicesAware) {
+            unset($data['services']);
+        } 
+        
+        if ($instance instanceof ContextAware) {
+            unset($data['context']);
+        } 
+        
         $this->actionData = array_merge(
-            $accessor->toArray(),
+            $data,
             $this->actionData
         );
         

@@ -224,24 +224,26 @@ class Descriptor
         $xml        = array();
         $map        = $this->xmlActionMapFactory();
         foreach ($this->sources as $source) {
+            $this->set('packageDir', dirname($this->getSourceXml($source)->getRealPath()));
             $parse  = $map->execute($this->getSourceXml($source));
             $res    = (isset($parse['actions']) ? $parse['actions'] : array());
-            $xml    = array_merge($xml, $res);
+            foreach ($res as $actionName => $data) {
+                $actionName = $this->propertizeString($actionName);
+                if (isset($data['class']) && isset($data['method'])) {
+                    $actionStr = implode(':', array(
+                        $this->propertizeString($data['class']), 
+                        $this->propertizeString($data['method'])
+                    ));
+                } elseif (isset($data['shortcut'])) {
+                    $str        = $data['shortcut'];
+                    $actionStr  = $this->propertizeString($str);
+                }
+
+                $actions[$actionName] = $actionStr;
+            }
         }
         
-        foreach ($xml as $actionName => $data) {
-            $actionName = $this->propertizeString($actionName);
-            if (isset($data['class']) && isset($data['method'])) {
-                $actionStr = implode(':', array(
-                    $this->propertizeString($data['class']), 
-                    $this->propertizeString($data['method'])
-                ));
-            } elseif (isset($data['shortcut'])) {
-                $actionStr = $this->propertizeString($data['shortcut']);
-            }
-            
-            $actions[$actionName] = $actionStr;
-        }
+        $this->set('packageDir', null);
         
         return $actions;
     }

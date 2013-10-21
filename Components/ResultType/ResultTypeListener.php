@@ -47,6 +47,9 @@ class ResultTypeListener
 
         if ($response instanceof Response) {
             $event->getContext()->setResponse($response);
+            if ($event->getContext()->hasParent()) {
+                $response->sendContent();
+            }
         }
     }
     
@@ -60,6 +63,7 @@ class ResultTypeListener
         $types  = array();
         $map    = $this->xmlResultsTypesMapFactory();
         foreach ($event->getDescriptor()->getSourcesXml() as $xml) {
+            $this->descriptor->set('packageDir', dirname($xml->getRealPath()));
             $parse  = $map->execute($xml);
             $res    = (isset($parse['types']) ? $parse['types'] : array());
             $types  = array_merge($types, $res);
@@ -76,6 +80,8 @@ class ResultTypeListener
                 $def->invoke($event->getApplication()->getServices())
             );
         }
+        
+        $this->descriptor->set('packageDir', null);
     }
     
     protected function loadActionResultTypes($actionName, 
@@ -88,6 +94,7 @@ class ResultTypeListener
         $results    = array();
         $map        = $this->xmlActionResultsXmlMapFactory($actionName);
         foreach ($this->descriptor->getSourcesXml() as $xml) {
+            $this->descriptor->set('packageDir', dirname($xml->getRealPath()));
             $parse      = $map->execute($xml);
             $res        = (isset($parse['results']) ? $parse['results'] : array());
             $results    = array_merge($results, $res);
@@ -100,6 +107,8 @@ class ResultTypeListener
                 $data['params']
             );
         }
+        
+        $this->descriptor->set('packageDir', null);
     }
     
     /**
