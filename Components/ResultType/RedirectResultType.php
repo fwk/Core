@@ -133,7 +133,6 @@ class RedirectResultType implements ResultType, ServicesAware, ContextAware
         $action = $params['actionName'];
         unset($params['actionName']);
         
-        die($this->calculateRedirectUri($action, $params));
         return new RedirectResponse($this->calculateRedirectUri($action, $params), $httpStatus);
     }
     
