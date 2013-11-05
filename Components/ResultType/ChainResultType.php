@@ -74,11 +74,10 @@ class ChainResultType implements ResultType, ApplicationAware, ContextAware
         }
         
         $this->context->setActionName($actionName);
-        $final = array();
         foreach ($params as $key => $value) {
             if (!empty($value) 
                 && strpos($value, ':', 0) !== false
-                && isset($actionData[substr($value, 1)])
+                && array_key_exists(substr($value, 1), $actionData)
             ) {
                 $value = $actionData[substr($value, 1)];
             }
