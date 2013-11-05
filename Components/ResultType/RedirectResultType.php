@@ -35,10 +35,13 @@ namespace Fwk\Core\Components\ResultType;
 
 use Fwk\Core\Components\ResultType\ResultType;
 use Symfony\Component\HttpFoundation\Response;
-use Fwk\Core\Components\ViewHelper\ViewHelperAware;
-use Fwk\Core\Components\UrlRewriter\UrlViewHelper;
-use Fwk\Core\Components\ViewHelper\ViewHelper;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Fwk\Core\ServicesAware;
+use Fwk\Di\Container;
+use Fwk\Core\Components\UrlRewriter\UrlRewriterService;
+use Fwk\Core\Components\RequestMatcher\RequestMatcher;
+use Fwk\Core\ContextAware;
+use Fwk\Core\Context;
 
 /**
  * Redirect
@@ -70,8 +73,20 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link       http://www.fwk.pw
  */
-class RedirectResultType implements ResultType
+class RedirectResultType implements ResultType, ServicesAware, ContextAware
 {
+    protected $requestMatcher;
+    protected $urlRewriter;
+    
+    protected $services;
+    protected $context;
+    
+    public function __construct(array $params = array())
+    {
+        $this->requestMatcher = (isset($params['requestMatcher']) ? $params['requestMatcher'] : null);
+        $this->urlRewriter = (isset($params['urlRewriter']) ? $params['urlRewriter'] : null);
+    }
+    
     /**
      * Sends an HTTP Redirection
      * 
@@ -85,7 +100,7 @@ class RedirectResultType implements ResultType
         array $params = array()
     ) {
         if (!isset($params['actionName']) && !isset($params['uri'])) {
-            throw new Exception('Missing parameter "action" or "uri"');
+            throw new Exception('Missing parameter "actionName" or "uri"');
         }
         
         $httpStatus = (isset($params['http.status']) ?
@@ -115,19 +130,11 @@ class RedirectResultType implements ResultType
             return new RedirectResponse($final, $httpStatus);
         }
         
-        // create a UrlViewHelper instead of assuming it's already loaded
-        /* 
-        $helper     = new UrlViewHelper();
-        $helper->setViewHelper($this->viewHelper);
-        $actionName = $params['actionName'];
-        unset($params['action']);
+        $action = $params['actionName'];
+        unset($params['actionName']);
         
-        $response->headers->set('Location', $helper->execute(array(
-            $actionName,
-            $params
-        )));
-        */
-        return new RedirectResponse('/', $httpStatus);
+        die($this->calculateRedirectUri($action, $params));
+        return new RedirectResponse($this->calculateRedirectUri($action, $params), $httpStatus);
     }
     
     /**
@@ -161,5 +168,61 @@ class RedirectResultType implements ResultType
         }
         
         return $return;
+    }
+    
+    protected function calculateRedirectUri($actionName, array $params = array())
+    {
+        $uri = false;
+        if (null !== $this->urlRewriter) {
+            $service = $this->getServices()->get($this->urlRewriter);
+            if (!$service instanceof UrlRewriterService) {
+                throw new Exception(
+                    sprintf(
+                        '"%s" is not an UrlRewriterService instance', 
+                        $this->urlRewriter
+                    )
+                );
+            }
+            
+            $uri = $service->reverse($actionName, $params, false);
+        } 
+        
+        if ($uri === false && null !== $this->requestMatcher) {
+            $service = $this->getServices()->get($this->requestMatcher);
+            if (!$service instanceof RequestMatcher) {
+                throw new Exception(
+                    sprintf(
+                        '"%s" is not an RequestMatcher instance', 
+                        $this->requestMatcher
+                    )
+                );
+            }
+            
+            $uri = $service->reverse($actionName, $params, false);
+        } else {
+            throw new Exception('You must specify at least a RequestMatcher Service');
+        }
+        
+        return rtrim($this->getContext()->getRequest()->getBaseUrl(), '/'). $uri;
+    }
+    
+    public function getServices()
+    {
+        return $this->services;
+    }
+    
+    public function setServices(Container $container) 
+    {
+        $this->services = $container;
+    }
+    
+    public function getContext()
+    {
+        return $this->context;
+    }
+
+    public function setContext(Context $context)
+    {
+        $this->context = $context;
     }
 }
