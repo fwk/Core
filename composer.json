@@ -21,7 +21,7 @@
         "joseph-lenton/php-error": "dev-master"
     },
     "suggest": {
-        "twig/twig": "Required to use Fwk\\Core\\Components\\ResultType\\TwigResultType"
+        "symfony/console": "Required to use the Console Component"
     },
     "autoload": {
         "psr-0": {
