@@ -6,7 +6,7 @@ class EmbedViewHelper extends AbstractViewHelper implements ViewHelper
     public function execute(array $arguments)
     {
         $actionName = (isset($arguments[0]) ? $arguments[0] : null);
-        $parameters = (isset($arguments[1]) ? $arguments[1] : null);
+        $parameters = (isset($arguments[1]) ? $arguments[1] : array());
         
         if (empty($actionName)) {
             throw new Exception(sprintf('Empty action name'));
