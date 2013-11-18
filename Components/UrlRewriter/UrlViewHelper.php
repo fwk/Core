@@ -24,7 +24,7 @@ class UrlViewHelper extends ViewHelperBase
                     ->getBaseUrl();
         
         if (false === $actionName) {
-            return $baseUrl;
+            return (empty($baseUrl) ? '/' : $baseUrl);
         }
         
         if (empty($actionName)) {
