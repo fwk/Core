@@ -57,33 +57,25 @@ class AppEvents
     const DISPATCH       = 'dispatch';
   
     /**
-     * notified when app is ready to load action class
+     * notified before action's execution
      */
-    const INIT           = 'init';
+    const BEFORE_ACTION           = 'beforeAction';
+   
     /**
-     * notified when action class is loaded
+     * notified after action has been executed
      */
-    const ACTION_LOADED  = 'actionLoaded';
-    /**
-     * notified when action class is executed successfuly
-     */
-    const ACTION_SUCCESS = 'actionSuccess';
-    /**
-     * notified when result is set
-     */
-    const RESULT         = 'result';
+    const AFTER_ACTION = 'afterAction';
+    
     /**
      * notified when response is set
      */
     const RESPONSE       = 'response';
-    /**
-     * triggered just before sending the final response
-     */
-    const FINAL_RESPONSE = 'finalResponse';
+    
     /**
      * notified when the response is sent to the client
      */
     const END            = 'end';
+    
     /**
      *  notified when an error occurs
      */

@@ -2,7 +2,7 @@
 /**
  * Fwk
  *
- * Copyright (c) 2011-2012, Julien Ballestracci <julien@nitronet.org>.
+ * Copyright (c) 2011-2014, Julien Ballestracci <julien@nitronet.org>.
  * All rights reserved.
  *
  * For the full copyright and license information, please view the LICENSE
@@ -27,17 +27,14 @@
  * @package    Fwk\Core
  * @subpackage Components
  * @author     Julien Ballestracci <julien@nitronet.org>
- * @copyright  2011-2012 Julien Ballestracci <julien@nitronet.org>
+ * @copyright  2011-2014 Julien Ballestracci <julien@nitronet.org>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link       http://www.phpfwk.com
+ * @link       http://www.fwk.pw
  */
 namespace Fwk\Core\Components\ViewHelper;
 
-use Fwk\Core\CoreEvent,
-    Fwk\Xml\Map,
-    Fwk\Xml\Path,
-    Fwk\Core\Application,
-    Fwk\Core\Components\ComponentsEvents;
+use Fwk\Core\Events\BeforeActionEvent;
+use Fwk\Core\Components\Descriptor\DescriptorLoadedEvent;
 
 /**
  * This Listener adds a ViewHelper available in templates when rendering
@@ -48,88 +45,44 @@ use Fwk\Core\CoreEvent,
  * @subpackage Components
  * @author     Julien Ballestracci <julien@nitronet.org>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link       http://www.phpfwk.com
+ * @link       http://www.fwk.pw
  */
 class ViewHelperListener
 {
-    /**
-     * @var ViewHelper
-     */
-    protected static $helper;
-
+    protected $serviceName;
+    
+    public function __construct($serviceName)
+    {
+        $this->serviceName = $serviceName;
+    }
+    
     /**
      *
-     * @param CoreEvent $event
+     * @param BeforeActionEvent $event
      *
      * @return void
      */
-    public function onBoot(CoreEvent $event)
+    public function onBeforeAction(BeforeActionEvent $event)
     {
-        if (!isset(self::$helper)) {
-            self::$helper   = new ViewHelper($event->getContext());
+        $helper = $event->getApplication()
+                ->getServices()
+                ->get($this->serviceName);
+        
+        if (!$helper instanceof ViewHelperService) {
+            throw new Exception('Service is not a ViewHelperService');
         }
-
-        $app            = $event->getApplication();
-        $desc           = $app->getDescriptor();
-        $results        = self::getViewHelpersXmlMap()->execute($desc);
-
-        $helpers    = (is_array($results['helpers']) ?
-            $results['helpers'] :
-            array()
-        );
-
-        foreach ($helpers as $name => $infos) {
-            $params = (isset($infos['params']) && is_array($infos['params']) ?
-                        $infos['params'] :
-                        array()
-                      );
-
-            $helper = new $infos['class']($params);
-
-            self::$helper->add($name, $helper);
-        }
-
-        $app->notify(
-            new CoreEvent(
-                ComponentsEvents::VIEWHELPER_REGISTERED,
-                array('viewHelper' => self::$helper),
-                $app,
-                $event->getContext()
-            )
-        );
+        
+        $helper->setApplication($event->getApplication());
+        $helper->setContext($event->getContext());
+        $data = $event->getActionProxy()->getActionData();
+        $data[$helper->getPropName()] = $helper;
+        $event->getActionProxy()->setActionData($data);
     }
-
-
-    /**
-     *
-     * @param CoreEvent $event
-     *
-     * @return void
-     */
-    public function onActionLoaded(CoreEvent $event)
+    
+    public function onDescriptorLoaded(DescriptorLoadedEvent $event)
     {
-        self::$helper->setContext($event->getContext());
-    }
-
-    /**
-     *
-     * @return Map
-     */
-    private static function getViewHelpersXmlMap()
-    {
-        $map = new Map();
-        $map->add(
-            Path::factory('/fwk/view-helper/helper', 'helpers')
-            ->loop(true, '@name')
-            ->attribute('name')
-            ->attribute('class')
-            ->addChildren(
-                Path::factory('param', 'params')
-                ->loop(true, '@name')
-                ->value('value')
-            )
-        );
-
-        return $map;
+        /**
+         * @todo register view helpers from descriptor
+         */
     }
 }

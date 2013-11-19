@@ -2,7 +2,7 @@
 /**
  * Fwk
  *
- * Copyright (c) 2011-2012, Julien Ballestracci <julien@nitronet.org>.
+ * Copyright (c) 2013-2014, Julien Ballestracci <julien@nitronet.org>.
  * All rights reserved.
  *
  * For the full copyright and license information, please view the LICENSE
@@ -26,41 +26,42 @@
  * @category  Core
  * @package   Fwk\Core
  * @author    Julien Ballestracci <julien@nitronet.org>
- * @copyright 2011-2012 Julien Ballestracci <julien@nitronet.org>
+ * @copyright 2013-2014 Julien Ballestracci <julien@nitronet.org>
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://www.phpfwk.com
+ * @link      http://www.fwk.pw
  */
 namespace Fwk\Core\Action;
 
 use Fwk\Core\ServicesAware, 
     Fwk\Core\ContextAware,
-    Fwk\Core\Context;
+    Fwk\Core\Context,
+    Fwk\Di\Container;
 
 /**
  * Simple utility/shortcut base class for Actions.
  *
- * @category   Utilities
- * @package    Fwk\Core
- * @author     Julien Ballestracci <julien@nitronet.org>
- * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link       http://www.phpfwk.com
+ * @category Utilities
+ * @package  Fwk\Core
+ * @author   Julien Ballestracci <julien@nitronet.org>
+ * @license  http://www.opensource.org/licenses/bsd-license.php  BSD License
+ * @link     http://www.fwk.pw
  */
 abstract class Controller implements ContextAware, ServicesAware
 {
     /**
-     * @var mixed
+     * @var Container
      */
-    private $services;
+    protected $services;
     
     /**
      * @var Context 
      */
-    private $context;
+    protected $context;
     
     /**
      * Get the Services Container
      * 
-     * @return mixed
+     * @return Container
      */
     public function getServices()
     {
@@ -70,9 +71,11 @@ abstract class Controller implements ContextAware, ServicesAware
     /**
      * Sets the Services Container
      *  
-     * @param mixed $container Services Container
+     * @param Container $container Services Container
+     * 
+     * @return void
      */
-    public function setServices($container)
+    public function setServices(Container $container)
     {
         $this->services = $container;
     }

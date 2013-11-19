@@ -44,18 +44,4 @@ class ErrorEvent extends CoreEvent
     {
         return $this->exception;
     }
-
-    /**
-     * Defines the Exception
-     * 
-     * @param \Exception $exception 
-     * 
-     * @return ErrorEvent
-     */
-    public function setException(\Exception $exception)
-    {
-        $this->exception = $exception;
-        
-        return $this;
-    }
 }

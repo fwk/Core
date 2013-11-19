@@ -26,7 +26,7 @@ TODO
 Fwk is licensed under the 3-clauses BSD license. Please read CREDITS and LICENSE for full details.
 
 ```
-Copyright (c) 2012-2013, Julien Ballestracci <julien@nitronet.org>.
+Copyright (c) 2012-2014, Julien Ballestracci <julien@nitronet.org>.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

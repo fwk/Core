@@ -72,58 +72,11 @@ class CoreEvent extends Event
     }
 
     /**
-     *
-     * @param Application $application 
-     * 
-     * @return CoreEvent
-     */
-    public function setApplication(Application $application)
-    {
-        $this->application = $application;
-        
-        return $this;
-    }
-
-    /**
      * 
      * @return Context 
      */
     public function getContext()
     {
         return $this->context;
-    }
-
-    /**
-     *
-     * @param Context $context
-     * 
-     * @return CoreEvent 
-     */
-    public function setContext(Context $context)
-    {
-        $this->context = $context;
-        
-        return $this;
-    }
-    
-    /**
-     *
-     * @param type        $name
-     * @param array       $data
-     * @param Application $app
-     * @param Context     $context
-     * 
-     * @return CoreEvent 
-     */
-    public static function factory($name, array $data = array(), 
-        Application $app = null, Context $context = null
-    ) {
-        $event = new self($name, $data, $app, $context);
-        return $event;
-    }
-    
-    public function __toString()
-    {
-        return get_class($this);
     }
 }

@@ -1,7 +1,6 @@
-vendor
-/phpunit.xml
-/hljs/
-/test.php
-/build/
-/app
+/vendor/
 /composer.lock
+/build.xml
+/build/
+/phpunit.xml
+/test.php

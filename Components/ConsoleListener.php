@@ -2,7 +2,7 @@
 /**
  * Fwk
  *
- * Copyright (c) 2011-2012, Julien Ballestracci <julien@nitronet.org>.
+ * Copyright (c) 2011-2014, Julien Ballestracci <julien@nitronet.org>.
  * All rights reserved.
  *
  * For the full copyright and license information, please view the LICENSE
@@ -22,61 +22,36 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * PHP Version 5.3
- *
+ * 
  * @category   Core
  * @package    Fwk\Core
  * @subpackage Components
  * @author     Julien Ballestracci <julien@nitronet.org>
- * @copyright  2011-2012 Julien Ballestracci <julien@nitronet.org>
+ * @copyright  2011-2014 Julien Ballestracci <julien@nitronet.org>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link       http://www.phpfwk.com
+ * @link       http://www.fwk.pw
  */
 namespace Fwk\Core\Components;
 
+use Fwk\Core\Events\BootEvent;
+use Fwk\Di\Container;
+use Fwk\Xml\Path, Fwk\Xml\Map;
+use Fwk\Core\Components\Descriptor\DescriptorLoadedEvent;
+use Fwk\Core\ContextAware;
+use Fwk\Core\ServicesAware;
+use Fwk\Core\Preparable;
+use Fwk\Di\ClassDefinition;
+use Fwk\Core\Events\DispatchEvent;
 
-use Fwk\Core\CoreEvent,
-    Fwk\Core\Application,
-    Fwk\Xml\Map,
-    Fwk\Xml\Path,
-    \Symfony\Component\Console\Application as CliApplication,
-    Fwk\Core\ContextAware,
-    Fwk\Core\ServicesAware;
-
-/**
- *
- * @category   Utilities
- * @package    Fwk\Core
- * @subpackage Components
- * @author     Julien Ballestracci <julien@nitronet.org>
- * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link       http://www.phpfwk.com
- */
 class ConsoleListener
 {
-    /**
-     *
-     * @var CliApplication
-     */
-    protected static $app;
-
-    /**
-     * Function triggered when main Application boot
-     *
-     * @param CoreEvent $event Event object
-     *
-     * @see AppEvents::BOOT
-     * @return void
-     */
-    public function onBoot(CoreEvent $event)
+    protected $serviceName;
+    
+    public function __construct($serviceName)
     {
-        if (!self::isCLI()) {
-            return;
-        }
-
-        $desc = $event->getApplication()->getDescriptor();
-        self::consoleApp($desc->getId(), $desc->getVersion());
+        $this->serviceName = $serviceName;
     }
-
+    
     /**
      *
      * @param CoreEvent $event
@@ -84,19 +59,28 @@ class ConsoleListener
      * @see AppEvents::DISPATCH
      * @return void
      */
-    public function onDispatch(CoreEvent $event)
+    public function onDescriptorLoaded(DescriptorLoadedEvent $event)
     {
-        if (!self::isCLI()) {
+        if (!$this->isCli()) {
             return;
         }
         
-        $desc       = $event->getApplication()->getDescriptor();
-        $result     = self::getCommandsXmlMap()->execute($desc);
-        $commands   = array_keys($result['commands']);
-        $app        = self::$app;
+        $commands   = array();
+        $map        = $this->getCommandsXmlMap();
+        foreach ($event->getDescriptor()->getSourcesXml() as $xml) {
+            $parse  = $map->execute($xml);
+            $res    = (isset($parse['commands']) ? $parse['commands'] : array());
+            $commands  = array_merge($commands, $res);
+        }
 
-        foreach ($commands as $command) {
-            $cmd = new $command;
+        $app = $this->getConsoleApplication($event->getApplication()->getServices());
+        foreach ($commands as $name => $command) {
+            $def = new ClassDefinition(
+                $event->getDescriptor()->propertizeString($command['class']), 
+                array($name)
+            );
+            
+            $cmd = $def->invoke($event->getApplication()->getServices());
 
             if ($cmd instanceof ContextAware) {
                 $cmd->setContext($event->getContext());
@@ -106,48 +90,50 @@ class ConsoleListener
                 $cmd->setServices($event->getApplication()->getServices());
             }
 
+            if ($cmd instanceof Preparable) {
+                call_user_func_array(array($cmd, Preparable::PREPARE_METHOD));
+            }
+            
             $app->add($cmd);
         }
-
-        exit(self::consoleApp()->run());
     }
-
-    /**
-     *
-     * @return boolean
-     */
-    public static function isCLI()
+    
+    public function onDispatch(DispatchEvent $event)
+    {
+        if (!$this->isCli()) {
+            return;
+        }
+        
+        exit($this->getConsoleApplication($event->getApplication()->getServices())->run());
+    }
+    
+    protected function isCli()
     {
         return (php_sapi_name() === "cli");
     }
-
-
+    
     /**
-     *
-     * @param type $appName
-     * @param type $version
-     *
-     * @return CliApplication
+     * 
+     * @param \Fwk\Di\Container $container
+     * 
+     * @return 
      */
-    protected static function consoleApp($appName = null, $version = null)
+    protected function getConsoleApplication(Container $container)
     {
-        if (!isset(self::$app)) {
-            self::$app = new CliApplication($appName, $version);
-        }
-
-        return self::$app;
+        return $container->get($this->serviceName);
     }
-
+    
     /**
      *
      * @return Map
      */
-    private static function getCommandsXmlMap()
+    private function getCommandsXmlMap()
     {
         $map = new Map();
         $map->add(
             Path::factory('/fwk/commands/command', 'commands')
-            ->loop(true, '@class')
+            ->loop(true, '@name')
+            ->attribute('class')
         );
 
         return $map;

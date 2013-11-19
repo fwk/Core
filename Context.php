@@ -32,11 +32,8 @@
  */
 namespace Fwk\Core;
 
-use Fwk\Core\Object,
-    Fwk\Core\ActionProxy, 
-    Symfony\Component\HttpFoundation\Request,
-    Symfony\Component\HttpFoundation\Response, 
-    Fwk\Events\Event;
+use Symfony\Component\HttpFoundation\Request,
+    Symfony\Component\HttpFoundation\Response;
 
 /**
  * Action Context
@@ -56,13 +53,13 @@ use Fwk\Core\Object,
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link       http://www.phpfwk.com
  */
-class Context extends Object
+class Context
 {
+    const STATE_ERROR       = -1;
     const STATE_INIT        = 0;
     const STATE_READY       = 1;
-    const STATE_ERROR       = 2;
-    const STATE_EXECUTED    = 3;
-    const STATE_DONE        = 4;
+    const STATE_EXECUTED    = 2;
+    const STATE_DONE        = 3;
 
     /**
      * Client request
@@ -77,13 +74,6 @@ class Context extends Object
      * @var Response
      */
     protected $response;
-    
-    /**
-     * Running Action Proxy
-     * 
-     * @var string
-     */
-    protected $actionProxy;
     
     /**
      * Current state
@@ -113,6 +103,13 @@ class Context extends Object
      * @var Context
      */
     protected $parent;
+    
+    /**
+     * The action name
+     * 
+     * @var string
+     */
+    protected $actionName;
     
     /**
      * Constructor
@@ -148,39 +145,6 @@ class Context extends Object
         return $this->response;
     }
 
-    
-    /**
-     * Returns Action Proxy
-     * 
-     * @return Action\Proxy 
-     */
-    public function getActionProxy()
-    {
-        return $this->actionProxy;
-    }
-    
-    /**
-     * Defines action proxy and toggle context state to READY
-     * 
-     * @return void
-     */
-    public function setActionProxy(Action\Proxy $proxy)
-    {
-        $this->actionProxy   = $proxy;
-        $this->state         = self::STATE_READY;
-        
-        $this->notify(
-            new ContextEvent(
-                ContextEvents::PROXY_READY,
-                array(
-                    'proxy' => $proxy
-                ),
-                $this
-            )
-        );
-    }
-
-    
     /**
      * Returns parent context (if any)
      * 
@@ -246,7 +210,6 @@ class Context extends Object
      */
     public function isError()
     {
-
         return ($this->state === self::STATE_ERROR);
     }
 
@@ -283,13 +246,6 @@ class Context extends Object
     {
         $this->error    = $description;
         $this->state    = self::STATE_ERROR;
-        
-        $this->notify(
-            new Event(
-                ContextEvents::ERROR, 
-                array('errorDesc' => $description)
-            )
-        );
     }
 
     /**
@@ -300,62 +256,6 @@ class Context extends Object
     public function getError()
     {
         return $this->error;
-    }
-
-    /**
-     * Returns the action proxy if actionName is defined.
-     * Toggle error state otherwise
-     * 
-     * $bundle MUST be defined on first call
-     * 
-     * @param Bundle $bundle The running bundle
-     * 
-     * @see ContextEvents::PROXY_READY
-     * @return Proxy
-     */
-    public function getProxy(Bundle $bundle = null)
-    {
-        if (isset($this->proxy)) {
-            
-                return $this->proxy;
-        }
-        
-        if (null === $bundle) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    'You cannot call getProxy without a Bundle'.
-                    ' for the first time.'
-                )
-            );
-        }
-        
-        if (!$this->isReady()) {
-            $this->setError('Context not ready - action is not defined.');
-
-            return null;
-        }
-
-        $actions    = $bundle->getDescriptor()->getActions();
-        if (!isset($actions[$this->action])) {
-            $this->setError(
-                sprintf('Action "%s" does not exist.', $this->action)
-            );
-
-            return null;
-        }
-
-        $this->proxy        = new ActionProxy($actions[$this->action]);
-        $this->proxy->setContext($this);
-        $this->setMulti($bundle->rawGetAll());
-
-        $this->notify(
-            new Event(
-                ContextEvents::PROXY_READY, 
-                array('proxy' => $this->proxy)
-            )
-        );
-
-        return $this->proxy;
     }
 
     /**
@@ -370,16 +270,6 @@ class Context extends Object
     {
         $this->state    = self::STATE_EXECUTED;
         $this->result   = $result;
-        
-        $this->notify(
-            new ContextEvent(
-                ContextEvents::EXECUTED,
-                array(
-                    'result' => $result
-                ),
-                $this
-            )
-         );
     }
 
     /**
@@ -394,16 +284,6 @@ class Context extends Object
     {
         $this->state    = self::STATE_DONE;
         $this->response = $response;
-        
-        $this->notify(
-            new ContextEvent(
-                ContextEvents::RESPONSE,
-                array(
-                    'response' => $response
-                ),
-                $this
-            )
-         );
     }
     
     /**
@@ -422,5 +302,22 @@ class Context extends Object
     public function getResult()
     {
         return $this->result;
+    }
+    
+    public function getActionName()
+    {
+        return $this->actionName;
+    }
+
+    public function setActionName($actionName)
+    {
+        if ($actionName !== false) {
+            $this->actionName = $actionName;
+            if (!empty($actionName)) {
+                $this->state = self::STATE_READY;
+            }
+        } else {
+            $this->setError('No action found');
+        }
     }
 }

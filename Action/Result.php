@@ -26,12 +26,21 @@
  * @category  Core
  * @package   Fwk\Core
  * @author    Julien Ballestracci <julien@nitronet.org>
- * @copyright 2011-2012 Julien Ballestracci <julien@nitronet.org>
+ * @copyright 2011-2014 Julien Ballestracci <julien@nitronet.org>
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://www.phpfwk.com
+ * @link      http://www.fwk.pw
  */
 namespace Fwk\Core\Action;
 
+/**
+ * Utility class to group Action's frequents results
+ *
+ * @category Utilities
+ * @package  Fwk\Core
+ * @author   Julien Ballestracci <julien@nitronet.org>
+ * @license  http://www.opensource.org/licenses/bsd-license.php  BSD License
+ * @link     http://www.fwk.pw
+ */
 final class Result
 {
     const SUCCESS       = 'success';
@@ -39,9 +48,4 @@ final class Result
     const FORM          = 'form';
     const FORM_ERROR    = 'form_error';
     const REDIRECT      = 'redirect';
-    
-    private function __construct()
-    {
-        // this class should not be instanciated
-    }
 }

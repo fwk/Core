@@ -7,3 +7,5 @@ wget http://getcomposer.org/composer.phar
 php composer.phar install
 ");
 }
+
+define("TEST_RESOURCES_DIR", __DIR__ . DIRECTORY_SEPARATOR . 'Resources');

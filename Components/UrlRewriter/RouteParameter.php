@@ -2,7 +2,7 @@
 /**
  * Fwk
  *
- * Copyright (c) 2011-2012, Julien Ballestracci <julien@nitronet.org>.
+ * Copyright (c) 2011-2014, Julien Ballestracci <julien@nitronet.org>.
  * All rights reserved.
  *
  * For the full copyright and license information, please view the LICENSE
@@ -27,9 +27,9 @@
  * @package    Fwk\Core
  * @subpackage Components
  * @author     Julien Ballestracci <julien@nitronet.org>
- * @copyright  2011-2012 Julien Ballestracci <julien@nitronet.org>
+ * @copyright  2011-2014 Julien Ballestracci <julien@nitronet.org>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link       http://www.phpfwk.com
+ * @link       http://www.fwk.pw
  */
 namespace Fwk\Core\Components\UrlRewriter;
 
@@ -45,7 +45,7 @@ namespace Fwk\Core\Components\UrlRewriter;
  */
 class RouteParameter
 {
-    const DEFAULT_REGEX               = '.[^/\.]{0,}';
+    const DEFAULT_REGEX = '.[^/\.]{0,}';
     
     /**
      *
@@ -77,54 +77,53 @@ class RouteParameter
      */
     protected $value;
 
-    public function __construct($name, $default = null, $regex = null, $required = true) {
+    /**
+     * 
+     * @param type $name
+     * @param type $default
+     * @param type $regex
+     * @param type $required
+     * @param type $value
+     * 
+     * @return void
+     */
+    public function __construct($name, $default = null, 
+        $regex = null, $required = true, $value = null
+    ) {
         $this->name     = (string)$name;
         $this->default  = (string)$default;
         $this->required = (bool)$required;
-        $this->setRegex($regex);
+        $this->regex    = (empty($regex) ? self::DEFAULT_REGEX : $regex);
+        $this->value    = $value;
     }
 
-    public function getName() {
-
+    public function getName()
+    {
         return $this->name;
     }
 
-    public function isRequired() {
-
+    public function isRequired()
+    {
         return $this->required;
     }
 
     public function getRegex()
     {
-        return (!empty($this->regex) ? $this->regex : self::DEFAULT_REGEX);
+        return $this->regex;
     }
 
-    public function getDefault() {
+    public function getDefault()
+    {
         return $this->default;
     }
 
-    public function getValue() {
-
+    public function getValue()
+    {
         return (isset($this->value) ? $this->value : $this->default);
     }
-
-    public function setValue($value) {
+    
+    public function setValue($value)
+    {
         $this->value = $value;
-    }
-
-    public function setName($name) {
-        $this->name = $name;
-    }
-
-    public function setRequired($bool) {
-        $this->required = (bool)$bool;
-    }
-
-    public function setRegex($regex) {
-        $this->regex = \trim($regex, '()');
-    }
-
-    public function setDefault($default) {
-        $this->default = $default;
     }
 }

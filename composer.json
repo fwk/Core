@@ -12,17 +12,22 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "fwk/Events": "dev-master",
+        "fwk/events": "dev-master",
+        "fwk/di": "dev-master",
         "fwk/xml": "dev-master",
         "symfony/http-foundation": "dev-master"
     },
+    "require-dev": {
+        "joseph-lenton/php-error": "dev-master"
+    },
     "suggest": {
-        "symfony/console": "Allows a Core app to run as a CLI Application"
+        "symfony/console": "Required to use the Console Component"
     },
     "autoload": {
         "psr-0": {
             "Fwk\\Core": ""
         }
     },
+    "minimum-stability": "dev",
     "target-dir": "Fwk/Core"
 }

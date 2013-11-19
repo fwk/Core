@@ -2,7 +2,7 @@
 /**
  * Fwk
  *
- * Copyright (c) 2011-2012, Julien Ballestracci <julien@nitronet.org>.
+ * Copyright (c) 2011-2014, Julien Ballestracci <julien@nitronet.org>.
  * All rights reserved.
  *
  * For the full copyright and license information, please view the LICENSE
@@ -27,9 +27,9 @@
  * @package    Fwk\Core
  * @subpackage Components
  * @author     Julien Ballestracci <julien@nitronet.org>
- * @copyright  2011-2012 Julien Ballestracci <julien@nitronet.org>
+ * @copyright  2011-2014 Julien Ballestracci <julien@nitronet.org>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link       http://www.phpfwk.com
+ * @link       http://www.fwk.pw
  */
 namespace Fwk\Core\Components\ResultType;
 
@@ -42,7 +42,7 @@ use Fwk\Core\Exception as ExceptionBase;
  * @package  Fwk\Core
  * @author   Julien Ballestracci <julien@nitronet.org>
  * @license  http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link     http://www.phpfwk.com
+ * @link     http://www.fwk.pw
  */
 class Exception extends ExceptionBase
 {

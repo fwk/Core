@@ -45,6 +45,8 @@ namespace Fwk\Core;
  */
 interface Preparable
 {
+    const PREPARE_METHOD = 'prepare';
+    
     /**
      * Executed after action instanciation.
      * Useful to initialize things...

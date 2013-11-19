@@ -1,7 +1,4 @@
 Symfony/Http-Foundation
-Symfony/Console
-
-fwk/Core is using Symfony2 Http-Foundation & Console Components by Fabien Potencier.
 
 Copyright (c) 2004-2012 Fabien Potencier
 

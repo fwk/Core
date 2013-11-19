@@ -2,7 +2,7 @@
 /**
  * Fwk
  *
- * Copyright (c) 2011-2012, Julien Ballestracci <julien@nitronet.org>.
+ * Copyright (c) 2011-2014, Julien Ballestracci <julien@nitronet.org>.
  * All rights reserved.
  *
  * For the full copyright and license information, please view the LICENSE
@@ -27,9 +27,9 @@
  * @package    Fwk\Core
  * @subpackage Components
  * @author     Julien Ballestracci <julien@nitronet.org>
- * @copyright  2011-2012 Julien Ballestracci <julien@nitronet.org>
+ * @copyright  2011-2014 Julien Ballestracci <julien@nitronet.org>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link       http://www.phpfwk.com
+ * @link       http://www.fwk.pw
  */
 namespace Fwk\Core\Components\UrlRewriter;
 
@@ -41,7 +41,7 @@ namespace Fwk\Core\Components\UrlRewriter;
  * @subpackage Components
  * @author     Julien Ballestracci <julien@nitronet.org>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link       http://www.phpfwk.com
+ * @link       http://www.fwk.pw
  */
 class Route
 {
@@ -55,7 +55,7 @@ class Route
      * 
      * @var array
      */
-    protected $params;
+    protected $parameters = array();
 
     /**
      *
@@ -76,10 +76,13 @@ class Route
      * 
      * @return void
      */
-    public function __construct($uri)
+    public function __construct($actionName, $uri, array $parameters = array())
     {
-        $this->uri      = $uri;
-        $this->params   = array();
+        $this->uri          = $uri;
+        $this->actionName   = $actionName;
+        foreach ($parameters as $param) {
+            $this->addParameter($param);
+        }
     }
 
     /**
@@ -90,20 +93,7 @@ class Route
      */
     public function addParameter(RouteParameter $param)
     {
-        $this->params[$param->getName()] = $param;
-        
-        return $this;
-    }
-
-    /**
-     *
-     * @param string $actionName 
-     * 
-     * @return Route
-     */
-    public function setActionName($actionName)
-    {
-        $this->actionName   = $actionName;
+        $this->parameters[$param->getName()] = $param;
         
         return $this;
     }
@@ -130,19 +120,6 @@ class Route
      *
      * @param string $uri
      * 
-     * @return Route 
-     */
-    public function setUri($uri)
-    {
-        $this->uri  = $uri;
-        
-        return $this;
-    }
-
-    /**
-     *
-     * @param string $uri
-     * 
      * @return boolean 
      */
     public function match($url) {
@@ -152,7 +129,7 @@ class Route
         }
 
         $i = 0;
-        foreach ($this->params as $param) {
+        foreach ($this->parameters as $param) {
             $i++;
             $result = (isset($matches[$i][0]) ? $matches[$i][0] : null);
             $param->setValue($result);
@@ -173,16 +150,16 @@ class Route
             if(preg_match_all('#:([a-zA-Z0-9_]+)#', $this->uri, $matches)) {
                 foreach($matches[1] as $paramName) {
                     try {
-                        $param = $this->getParameter($paramName);
-
+                        $param      = $this->getParameter($paramName);
                         $required   = $param->isRequired();
                         $reg        = '('. $param->getRegex() .')';
 
-                        if(!$required)
+                        if (!$required) {
                             $reg    .= '?';
+                        }
 
                         $regex  = str_replace(':'. $paramName, $reg, $regex);
-                    } catch(\RuntimeException $e) {
+                    } catch(Exception $e) {
                     }
                 }
             }
@@ -201,54 +178,24 @@ class Route
      */
     public function getParameter($name)
     {
-        if(!isset($this->params[$name])) {
-            throw new \RuntimeException(
+        if(!isset($this->parameters[$name])) {
+            throw new Exception(
                 sprintf('Undefined route parameter "%s"', $name)
             );
         }
         
-        return $this->params[$name];
+        return $this->parameters[$name];
     }
 
     /**
      *
-     * @param string         $name
-     * @param RouteParameter $paramValue 
-     * 
-     * @return Route
-     */
-    public function setParameter($name, RouteParameter $paramValue)
-    {
-        $this->params[$name] = $paramValue;
-        
-        return $this;
-    }
-    /**
-     *
-     * @return array<RouteParameter>
+     * @return array
      */
     public function getParameters()
     {
-        return $this->params;
+        return $this->parameters;
     }
 
-    /**
-     *
-     * @param string $name
-     * 
-     * @return Route
-     */
-    public function removeParameter($name) {
-        if (!isset($this->params[$name])) {
-            throw new \RuntimeException(
-                sprintf('Undefined route parameter "%s"', $name)
-            );
-        }
-        
-        unset($this->params[$name]);
-        
-        return $this;
-    }
 
     /**
      *
@@ -256,7 +203,7 @@ class Route
      * 
      * @return string
      */
-    public function getReverse(array $params = array())
+    public function getReverse(array $params = array(), $escapeAmp = false)
     {
         $finalParams    = array();
         $regs           = array();
@@ -293,12 +240,7 @@ class Route
         $cleanUpUri = \ltrim(\rtrim($this->uri,'$'), '^');
         $final      = preg_replace($regs, $finalParams, $cleanUpUri);
         if (count($params)) {
-            $paramsStr = "?";
-            foreach ($params as $key => $value) {
-                $paramsStr .= urlencode($key) ."=". urlencode($value) ."&";
-            }
-            
-            $final .= rtrim($paramsStr, '&');
+            $final .= '?'. http_build_query($params, '', ($escapeAmp === false ? '' : '&amp;'));
         }
         
         return $final;

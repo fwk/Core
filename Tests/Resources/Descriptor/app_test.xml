@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fwk id="TestApp" version="1.0-dev">
+    <listener class="Fwk\Core\Components\RequestMatcher\RequestMatcherListener">
+        <param>:requestMatcherService</param>
+    </listener>
+    <listener class="Fwk\Core\Components\ResultType\ResultTypeListener">
+        <param>:resultTypeService</param>
+    </listener>
+    <listener class="Fwk\Core\Components\ViewHelper\ViewHelperListener">
+        <param name="serviceName">:viewHelperService</param>
+    </listener>
+    
+    <result-types>
+        <result-type
+            name="php"
+            class="Fwk\Core\Components\ResultType\PhpTemplateResultType">
+            <param name="templatesDir">:packageDir/templates</param>
+        </result-type>
+        <result-type
+            name="json"
+            class="Fwk\Core\Components\ResultType\JsonResultType"
+        />
+        <result-type
+            name="chain"
+            class="Fwk\Core\Components\ResultType\ChainResultType"
+        />
+    </result-types>
+    
+    <actions>
+        <action name="Home" class="Fwk\Core\Components\ResultType\TestController" method="show">
+            <result name="success" type="json" />
+        </action>
+
+        <action name="Hello" shortcut="@helloActionService">
+            <result name="success" type="json" />
+            <result name="hello" type="json" />
+        </action>
+        
+        <action name="HomeChain" class="Fwk\Core\Components\ResultType\TestController" method="show">
+            <result name="success" type="chain">
+                <param name="actionName">Hello</param>
+            </result>
+        </action>
+    </actions>
+</fwk>

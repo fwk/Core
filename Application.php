@@ -1,223 +1,323 @@
 <?php
-/**
- * Fwk
- *
- * Copyright (c) 2011-2012, Julien Ballestracci <julien@nitronet.org>.
- * All rights reserved.
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
- * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- *
- * PHP Version 5.3
- *
- * @category  Core
- * @package   Fwk\Core
- * @author    Julien Ballestracci <julien@nitronet.org>
- * @copyright 2011-2012 Julien Ballestracci <julien@nitronet.org>
- * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://www.phpfwk.com
- */
 namespace Fwk\Core;
 
-use Symfony\Component\HttpFoundation\Request, 
-    Symfony\Component\HttpFoundation\Response;
-use Fwk\Core\Exceptions\Runtime as RuntimeException;
-use Fwk\Core\Events\ErrorEvent, 
-    Fwk\Core\Events\RequestEvent, 
-    Fwk\Core\Events\DispatchEvent,
-    Fwk\Core\Events\BootEvent,
-    Fwk\Core\Events\EndEvent;
+use Fwk\Core\ActionProxy;
+use Fwk\Events\Dispatcher;
+use Symfony\Component\HttpFoundation\Request;
+use Fwk\Di\Container;
+use Fwk\Core\Events\RequestEvent;
+use Fwk\Core\Events\DispatchEvent;
+use Fwk\Core\Events\BeforeActionEvent;
+use Fwk\Core\Events\AfterActionEvent;
+use Fwk\Core\Events\EndEvent;
+use Fwk\Core\Events\BootEvent;
+use Fwk\Core\Events\ErrorEvent;
+use Fwk\Core\Events\ResponseEvent;
+use Symfony\Component\HttpFoundation\Response;
 
-/**
- * Application
- *
- * The main Application class
- *
- * @category Library
- * @package  Fwk\Core
- * @author   Julien Ballestracci <julien@nitronet.org>
- * @license  http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link     http://www.phpfwk.com
- */
-class Application extends Object
+class Application extends Dispatcher implements \ArrayAccess
 {
     /**
-     * App descriptor 
-     * 
-     * @var Descriptor
+     * Application name
+     * @var string
      */
-    protected $descriptor;
+    protected $name;
     
     /**
-     * Services Container
-     * 
-     * @var mixed
+     * List of registered actions
+     * @var array
+     */
+    protected $actions = array();
+    
+    /**
+     * Services container (Di)
+     * @var Container
      */
     protected $services;
     
     /**
+     * The default action (i.e the "homepage")
+     * @var string
+     */
+    protected $defaultAction;
+    
+    /**
      * Constructor
      * 
-     * @param Descriptor Descriptor App descriptor
+     * @param string    $name     Application name
+     * @param Container $services Services Container (di)
      * 
      * @return void
      */
-    public function __construct(Descriptor $descriptor)
+    public function __construct($name, Container $services = null)
     {
-        $this->descriptor   = $descriptor;
-        $this->services     = new Object();
+        $this->name = $name;
         
-        // this can cause a problem if we try to add a listener
-        // outside of any Loader registered namespace...
-        foreach($descriptor->getListeners() as $listener)
-        {
-            $class  = (isset($listener['class']) ? $listener['class'] : null);
-            $params = (isset($listener['params']) ? $listener['params'] : array());
-            
-            if(empty($class)) {
-                throw new \InvalidArgumentException(
-                    "Empty listener class",
-                    $class
-                );
-            }
-            
-            $this->addListener(new $class($params));
-        }
-    }
-
-    /**
-     * Returns the descriptor
-     * 
-     * @return Descriptor
-     */
-    public function getDescriptor()
-    {
-        return $this->descriptor;
-    }
-
-    /**
-     * Notify the "Boot" event
-     *
-     * @return void
-     */
-    public function boot(Application $app = null)
-    {
-        $event = new BootEvent($this, $app);
-
-        $this->notify($event);
-    }
-
-    /**
-     * Runs the App according the request
-     * 
-     * @param Request $request The request
-     * 
-     * @return Application
-     */
-    public function run(Request $request = null)
-    {
-        if (null === $request) {
-            $request = Request::createFromGlobals();
+        if (null === $services) {
+            $services = new Container();
         }
         
-        $context = new Context($request);
-        
-        try {
-            $this->boot();
-            $this->notify(new RequestEvent($request, $this, $context));
-            
-            if (!$context->isReady()) {
-                $this->notify(new DispatchEvent($this, $context));
-            }
-
-            if (!$context->isReady()) {
-                throw new Exceptions\InvalidAction('No action found');
-            }
-
-            $proxy  = $context->getActionProxy();
-            
-            $this->notify(
-                 new CoreEvent(
-                     AppEvents::INIT,
-                     array(
-                         'request'  => $request,
-                         'proxy'    => $proxy
-                     ),
-                     $this, 
-                     $context
-                 )
-             );
-            
-            if ($context->isDone()) {
-                return $this;
-            }
-            
-            $context->setResult($result = $proxy->execute());
-
-            if (!$context->isDone()) {
-                $this->notify(new EndEvent($result, $this, $context));
-            }
-            
-        } catch(\Exception $exp) {
-            $this->notify($event = new ErrorEvent($exp, $this, $context));
-            if (!$event->isStopped()) {
-                throw new RuntimeException(null, null, $exp);
-            }
-        }
+        $this->services = $services;
+    }
+    
+    /**
+     * Registers an action 
+     * 
+     * @param string      $actionName Name of the action
+     * @param ActionProxy $proxy      Proxy instance to the action
+     * 
+     * @return Application 
+     */
+    public function register($actionName, ActionProxy $proxy)
+    {
+        $this->actions[$actionName] = $proxy;
         
         return $this;
     }
-
+    
     /**
-     * Try to run an Application with defaults
+     * Unregisters an action
      * 
-     * @param Descriptor $descriptor Application Descriptor
-     * @param string     $baseUrl    Base URI
+     * @param string $actionName Name of the action
      * 
      * @return Application
+     * @throws Exception if action is not registered
      */
-    public static function autorun(Descriptor $descriptor, $baseUrl = null)
+    public function unregister($actionName)
     {
-        $app        = new self($descriptor);
-        $request    = Request::createFromGlobals();
+        if (!array_key_exists($actionName, $this->actions)) {
+            throw new Exception("$actionName is not a registered Action");
+        }
         
-        return $app->run($request);
-    }
-
-    /**
-     * Defines a Services Container
-     *
-     * @param mixed $services Services container
-     * 
-     * @return Application
-     */
-    public function setServices($services)
-    {
-        $this->services     = $services;
-
+        unset($this->actions[$actionName]);
+        
         return $this;
+    }
+    
+    /**
+     * Returns the ActionProxy of a registered action
+     * 
+     * @param string $actionName name of the action
+     * 
+     * @return ActionProxy the proxy instance to the action
+     * @throws Exception if action is not registered
+     */
+    public function get($actionName)
+    {
+        if (!array_key_exists($actionName, $this->actions)) {
+            throw new Exception("$actionName is not a registered Action");
+        }
+        
+        return $this->actions[$actionName];
+    }
+    
+    /**
+     * Tells if an action is registered
+     * 
+     * @param string $actionName Name of the action
+     * 
+     * @return boolean
+     */
+    public function exists($actionName)
+    {
+        return array_key_exists($actionName, $this->actions);
+    }
+    
+    /**
+     * Returns the list (array) of all registered actions (keys) and their 
+     * according ActionProxy (values)
+     * 
+     * @return array
+     */
+    public function getActions()
+    {
+        return $this->actions;
+    }
+    
+    /**
+     * Instanciates a new Application 
+     * (useful for chaining)
+     * 
+     * @param string    $name     Application name
+     * @param Container $services Services Container
+     * 
+     * @return Application App instance
+     */
+    public static function factory($name, Container $services = null)
+    {
+        return new self($name, $services);
+    }
+    
+    /**
+     * Returns the Application name
+     * 
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
     }
 
     /**
      * Returns the Services Container
      * 
-     * @return mixed
+     * @return Container
      */
     public function getServices()
     {
         return $this->services;
+    }
+
+    /**
+     * Defines a Services Container
+     * 
+     * @param Container $services Services Container (Di)
+     * 
+     * @return Application
+     */
+    public function setServices(Container $services)
+    {
+        $this->services = $services;
+        
+        return $this;
+    }
+    
+    /**
+     * Runs the Application for a defined (or new) HTTP request
+     * 
+     * @param Request $request The HTTP request (optional)
+     * 
+     * @return mixed
+     */
+    public function run(Request $request = null)
+    {
+        $this->notify(new BootEvent($this));
+        
+        if (null === $request) {
+           $request = Request::createFromGlobals();
+        }
+        
+        $context = new Context($request);
+        try {
+            $this->notify(new RequestEvent($request, $this, $context));
+
+            if (!$context->isReady()) {
+                $this->notify(new DispatchEvent($this, $context));
+            }
+
+            if (!$context->isReady()) {
+                if (null === $this->defaultAction || $context->isError()) {
+                    throw new Exception('No action found');
+                }
+                $context->setActionName($this->defaultAction);
+            }
+
+            $result = $this->runAction($context);
+            
+            if (!$context->isDone()) {
+                if ($result instanceof Response) {
+                    $context->setResponse($result);
+                } elseif (is_string($result)) {
+                    $context->setResponse(new Response($result));
+                }
+             }
+            
+            if ($context->getResponse() instanceof Response) {
+                $this->notify(
+                    new ResponseEvent(
+                        $context->getResponse(), 
+                        $this, 
+                        $context
+                    )
+                );
+            }
+        } catch(\Exception $exp) {
+            $event = new ErrorEvent($exp, $this, $context);
+            $this->notify($event);
+            
+            if (!$event->isStopped()) {
+                throw $exp;
+            }
+        }
+        
+        $this->notify(new EndEvent($this, $context));
+        if ($context->getResponse() instanceof Response) {
+            return $context->getResponse();
+        } 
+        
+        return $context->getResult();
+    }
+    
+    /**
+     *
+     * @param Context $context
+     * 
+     * @return mixed
+     */
+    public function runAction(Context $context)
+    {
+        if (!$context->isReady()) {
+            throw new Exception('Context is not ready (i.e. no action defined)');
+        }
+        
+        if (!$this->exists($context->getActionName())) {
+            throw new Exception('Unregistered action "'. $context->getActionName() .'"');
+        }
+        
+        $proxy = $this->get($context->getActionName());
+        $this->notify(new BeforeActionEvent($proxy, $this, $context));
+        $result = $proxy->execute($this, $context);
+        $context->setResult($result);
+        $this->notify(new AfterActionEvent($proxy, $this, $context));
+        
+        return $result;
+    }
+    
+    /**
+     * Returns the default action name (if any)
+     * 
+     * @return string
+     */
+    public function getDefaultAction()
+    {
+        return $this->defaultAction;
+    }
+
+    /**
+     * Defines a default action. Basically the one which answers on /
+     * 
+     * @param string $defaultAction Default action name
+     * 
+     * @return Application 
+     */
+    public function setDefaultAction($defaultAction)
+    {
+        $this->defaultAction = $defaultAction;
+        
+        return $this;
+    }
+
+    public function offsetExists($actionName)
+    {
+        return $this->exists($actionName);
+    }
+    
+    public function offsetGet($actionName)
+    {
+        return $this->get($actionName);
+    }
+    
+    public function offsetSet($actionName, $proxy)
+    {
+        if (!$proxy instanceof ActionProxy) {
+            $proxy = Action\ProxyFactory::factory($proxy);
+        }
+        
+        return $this->register($actionName, $proxy);
+    }
+    
+    public function offsetUnset($actionName)
+    {
+        return $this->unregister($actionName);
     }
 }
