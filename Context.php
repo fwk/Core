@@ -187,7 +187,7 @@ class Context
      */
     public function newParent()
     {
-        $ctx = new self($this->request, $this->response);
+        $ctx = new self($this->request);
         $ctx->setParent($this);
         
         return $ctx;
