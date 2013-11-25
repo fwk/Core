@@ -266,6 +266,9 @@ class Application extends Dispatcher implements \ArrayAccess
         
         $proxy = $this->get($context->getActionName());
         $this->notify(new BeforeActionEvent($proxy, $this, $context));
+        if ($context->isDone()) {
+            return $context->getResult();
+        }
         $result = $proxy->execute($this, $context);
         $context->setResult($result);
         $this->notify(new AfterActionEvent($proxy, $this, $context));
