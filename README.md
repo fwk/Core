@@ -21,7 +21,7 @@ to your ```include_path``` [PSR-0 compatible](https://github.com/php-fig/fig-sta
 
 Core can be used diffently depending on your application needs and how you plan to maintain and make it evolves in time. There is no directory-structure dependencies nor "recommended pattern". Knowing how to configure PHP 5.3+ on your environment is the only prerequisite.
 
-A Request to an Application calls an Action (Controller) which sometimes uses Services (Model) to return a Result (View). Fwk\Core let you use any type of Action (callable, controller, service ...) thanks to ActionProxies. An object containing the Request (and the Response) is shared during the runtime, it is the Context. The runtime creates events emitted by the Application that can be used by Listeners to extends its behavior. 
+A Request to an _Application_ calls an _Action_ (Controller) which sometimes uses _Services_ (Model) to return a _Result_ (View). Fwk\Core let you use any type of Action thanks to _ActionProxies_. An object containing the _Request_ (and the _Response_) is shared during the runtime, it is the _Context_. The runtime creates _Events_ emitted by the Application that can be used by _Listeners_ to extends its behavior. 
 
 Included ActionProxies are:
 
@@ -43,14 +43,14 @@ $app->register('Hello', ProxyFactory::factory('@service:method')); // ServiceCon
 
 ### Hello World Application
 
-This is probably the simplest example ever:
+This is probably the simplest example:
 
 ``` php
 <?php
 namespace HelloWorld;
 
 // we're index.php in the 'public' http folder (the doc_root)
-require __DIR__ .'/vendor/autoload.php';
+require __DIR__ .'/../vendor/autoload.php';
 
 $app = new \Fwk\Core\Application('helloWorld');
 
@@ -73,10 +73,15 @@ $app->register(
 $app->setDefaultAction('Hello');
 
 // execute
-$result = $app->run();
+$response = $app->run();
+if ($response instanceof \Symfony\Component\HttpFoundation\Response) {
+    $response->send();
+} else {
+    echo $response;
+}
 ```
 
-Thats it. Now open your browser to http://localhost/wherever/index.php or http://localhost/wherever/index.php?name=John+Doe !
+That's it! Now open your browser to http://localhost/wherever/index.php or http://localhost/wherever/index.php?name=John+Doe !
 
 More documentation on its way...
 
