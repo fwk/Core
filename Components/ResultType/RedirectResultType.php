@@ -184,9 +184,7 @@ class RedirectResultType implements ResultType, ServicesAware, ContextAware
             }
             
             $uri = $service->reverse($actionName, $params, false);
-        } 
-        
-        if ($uri === false && null !== $this->requestMatcher) {
+        } elseif ($uri === false && null !== $this->requestMatcher) {
             $service = $this->getServices()->get($this->requestMatcher);
             if (!$service instanceof RequestMatcher) {
                 throw new Exception(

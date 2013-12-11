@@ -41,7 +41,7 @@ class UrlViewHelper extends ViewHelperBase
             return parent::execute($arguments);
         }
         
-        return $route;
+        return $baseUrl . $route;
     }
     
     /**
