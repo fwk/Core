@@ -32,6 +32,10 @@ class RequestMatcher
             return null;
         }
         
+        if (strpos($uri, '?') > 0) {
+            list($uri,) = explode('?', $uri);
+        }
+        
         $actionName  = false;
         if (\preg_match($this->actionRegex, $uri, $matches)) {
             $actionName = $matches[1];
