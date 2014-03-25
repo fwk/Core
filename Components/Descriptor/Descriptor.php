@@ -40,9 +40,12 @@ use Fwk\Xml\XmlFile;
 use Fwk\Xml\Path;
 use Fwk\Di\ClassDefinition;
 use Fwk\Core\Action\ProxyFactory;
+use Fwk\Di\Xml\ContainerBuilder;
 
 class Descriptor
 {
+    const DEFAULT_CATEGORY  = "fwk";
+    
     protected $sources      = array();
     protected $properties   = array();
     protected $sourcesXml   = array();
@@ -72,10 +75,14 @@ class Descriptor
         return $this;
     }
     
-    public function iniProperties($iniFile, $category = 'fwk')
+    public function iniProperties($iniFile, $category = null)
     {
         if (!is_file($iniFile) || !is_readable($iniFile)) {
             throw new Exception('INI file not found/readable: '. $iniFile);
+        }
+        
+        if (null === $category) {
+            $category = self::DEFAULT_CATEGORY;
         }
         
         $props = parse_ini_file($iniFile, true);
@@ -158,6 +165,9 @@ class Descriptor
         
         $app->addListener(new DescriptorListener($this));
         
+        $this->loadIniFiles();
+        $this->loadServices($services);
+        
         foreach ($this->loadListeners($services) as $listener) {
             $app->addListener($listener);
         }
@@ -189,6 +199,65 @@ class Descriptor
             array_values($replaces), 
             $str
         );
+    }
+    
+    public function loadServices(Container $container)
+    {
+        $services   = array();
+        $xml        = array();
+        $map        = $this->xmlServicesMapFactory();
+        foreach ($this->sources as $source) {
+            $parse  = $map->execute($this->getSourceXml($source));
+            $res    = (isset($parse['services']) ? $parse['services'] : array());
+            $xml[dirname($this->getSourceXml($source)->getRealPath())] = $res;
+        }
+        
+        foreach ($xml as $baseDir => $data) {
+            $this->set('baseDir', $baseDir);
+            foreach ($data as $xmlFile => $infos) {
+                $xmlMapClass = (!empty($infos['xmlMap']) ? 
+                    $this->propertizeString($infos['xmlMap']) : 
+                    null
+                );
+                
+                if (null !== $xmlMapClass) {
+                    $def = new ClassDefinition($xmlMapClass);
+                    $mapObj = $def->invoke($container);
+                } else {
+                    $mapObj = null;
+                }
+                
+                $builder = new ContainerBuilder($mapObj);
+                $builder->execute(
+                    $this->propertizeString($xmlFile), 
+                    $container
+                );
+            }
+            $this->set('baseDir', null);
+        }
+    }
+    
+    protected function loadIniFiles()
+    {
+        $xml        = array();
+        $map        = $this->xmlIniMapFactory();
+        foreach ($this->sources as $source) {
+            $parse  = $map->execute($this->getSourceXml($source));
+            $res    = (isset($parse['ini']) ? $parse['ini'] : array());
+            $xml[dirname($this->getSourceXml($source)->getRealPath())] = $res;
+        }
+        
+        foreach ($xml as $baseDir => $data) {
+            $this->set('baseDir', $baseDir);
+            foreach ($data as $infos) {
+                $cat = $this->propertizeString($infos['category']);
+                $this->iniProperties(
+                    $this->propertizeString($infos['value']), 
+                    (empty($cat) ? null : $cat)
+                );
+            }
+            $this->set('baseDir', null);
+        }
     }
     
     public function loadListeners(Container $container)
@@ -311,6 +380,41 @@ class Descriptor
             ->attribute('class')
             ->attribute('method')
             ->attribute('shortcut')
+        );
+        
+        return $map;
+    }
+    
+    /**
+     * Builds an XML Map used to parse .ini includes
+     * 
+     * @return Map
+     */
+    protected function xmlIniMapFactory()
+    {
+        $map = new Map();
+        $map->add(
+            Path::factory('/fwk/ini', 'ini', array())
+            ->loop(true)
+            ->attribute('category')
+            ->value('value')
+        );
+        
+        return $map;
+    }
+    
+    /**
+     * Builds an XML Map used to parse services includes (xml)
+     * 
+     * @return Map
+     */
+    protected function xmlServicesMapFactory()
+    {
+        $map = new Map();
+        $map->add(
+            Path::factory('/fwk/services', 'services', array())
+            ->loop(true, '@xml')
+            ->attribute('xmlMap')
         );
         
         return $map;

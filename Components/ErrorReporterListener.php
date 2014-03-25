@@ -14,11 +14,16 @@ class ErrorReporterListener
         $request = $event->getContext()->getRequest();
         $handler = new \Whoops\Handler\PrettyPageHandler;
         $event->getContext()->getActionName();
+        $prev    = $event->getException()->getPrevious();
         $handler->addDataTable('Fwk\Core Informations', array(
             'Application name'  => $event->getApplication()->getName(),
             'Action name'       => $event->getContext()->getActionName(),
             'Context state'     => $event->getContext()->getState(),
-            'Context error'     => $event->getContext()->getError()
+            'Context error'     => $event->getContext()->getError(),
+            'Parent Exception'  => ($prev instanceof \Exception ? 
+                get_class($prev) .": ". $prev->getMessage() : 
+                '<none>'
+            )
         ));
         
         $handler->addDataTable('Request Informations', array(
