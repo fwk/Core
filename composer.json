@@ -18,7 +18,7 @@
         "symfony/http-foundation": "dev-master"
     },
     "require-dev": {
-        "joseph-lenton/php-error": "dev-master"
+        "filp/whoops": "dev-master"
     },
     "suggest": {
         "symfony/console": "Required to use the Console Component"

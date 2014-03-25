@@ -1,6 +1,14 @@
-# Fwk Core
+# Fwk\Core (Application Framework)
 
-Core is a zero-configuration PHP application framework that makes developers happy.
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/fwk/Core/badges/quality-score.png?s=a670a13e6ce2ed3ab8f8258b3a627576b29bbf61)](https://scrutinizer-ci.com/g/fwk/Core/)
+[![Build Status](https://secure.travis-ci.org/fwk/Core.png?branch=master)](http://travis-ci.org/fwk/Core)
+[![Code Coverage](https://scrutinizer-ci.com/g/fwk/Core/badges/coverage.png?s=1343ad093d37329f0c9de4a76ecde25fa5a2f20e)](https://scrutinizer-ci.com/g/fwk/Core/)
+[![Latest Stable Version](https://poser.pugx.org/fwk/core/v/stable.png)](https://packagist.org/packages/fwk/core) 
+[![Total Downloads](https://poser.pugx.org/fwk/core/downloads.png)](https://packagist.org/packages/fwk/core) 
+[![Latest Unstable Version](https://poser.pugx.org/fwk/core/v/unstable.png)](https://packagist.org/packages/fwk/core) 
+[![License](https://poser.pugx.org/fwk/core/license.png)](https://packagist.org/packages/fwk/core)
+
+Core is a zero-configuration application framework that makes developers happy :)
 
 ## Installation
 
@@ -84,6 +92,11 @@ if ($response instanceof \Symfony\Component\HttpFoundation\Response) {
 That's it! Now open your browser to http://localhost/wherever/index.php or http://localhost/wherever/index.php?name=John+Doe !
 
 More documentation on its way...
+
+## Contributions / Community
+
+- Issues on Github: https://github.com/fwk/Events/issues
+- Follow *Fwk* on Twitter: [@phpfwk](https://twitter.com/phpfwk)
 
 ## Legal 
 
