@@ -5,17 +5,37 @@ use Fwk\Core\Events\ErrorEvent;
 
 class ErrorReporterListener
 {
-    protected $options = array();
-    
-    public function __construct(array $handlerOptions = array())
-    {
-        $this->options = $handlerOptions;
-    }
-    
     public function onError(ErrorEvent $event)
     {
         header('X-Error-Message: '. $event->getException()->getMessage(), true, 500);
-        $handler = new \php_error\ErrorHandler($this->options);
-        $handler->turnOn();
+        
+        $whoops = new \Whoops\Run;
+        
+        $request = $event->getContext()->getRequest();
+        $handler = new \Whoops\Handler\PrettyPageHandler;
+        $event->getContext()->getActionName();
+        $handler->addDataTable('Fwk\Core Informations', array(
+            'Application name'  => $event->getApplication()->getName(),
+            'Action name'       => $event->getContext()->getActionName(),
+            'Context state'     => $event->getContext()->getState(),
+            'Context error'     => $event->getContext()->getError()
+        ));
+        
+        $handler->addDataTable('Request Informations', array(
+            'URI'         => $request->getUri(),
+            'Request URI' => $request->getRequestUri(),
+            'Path Info'   => $request->getPathInfo(),
+            'Query String'=> $request->getQueryString() ?: '<none>',
+            'HTTP Method' => $request->getMethod(),
+            'Script Name' => $request->getScriptName(),
+            'Base Path'   => $request->getBasePath(),
+            'Base URL'    => $request->getBaseUrl(),
+            'Scheme'      => $request->getScheme(),
+            'Port'        => $request->getPort(),
+            'Host'        => $request->getHost(),
+        ));
+        
+        $whoops->pushHandler($handler);
+        $whoops->register();
     }
 }
