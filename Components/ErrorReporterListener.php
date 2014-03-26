@@ -15,16 +15,19 @@ class ErrorReporterListener
         $handler = new \Whoops\Handler\PrettyPageHandler;
         $event->getContext()->getActionName();
         $prev    = $event->getException()->getPrevious();
-        $handler->addDataTable('Fwk\Core Informations', array(
+        
+        $fwkTable = array(
             'Application name'  => $event->getApplication()->getName(),
             'Action name'       => $event->getContext()->getActionName(),
             'Context state'     => $event->getContext()->getState(),
             'Context error'     => $event->getContext()->getError(),
-            'Parent Exception'  => ($prev instanceof \Exception ? 
-                get_class($prev) .": ". $prev->getMessage() : 
-                '<none>'
-            )
-        ));
+        );
+        $parents = $this->getParentExceptionsMessage($event->getException());
+        foreach ($parents as $idx => $exp) {
+            $fwkTable['Parent Exception #'. $idx] = $exp;
+        }
+        
+        $handler->addDataTable('Fwk\Core Informations', $fwkTable);
         
         $handler->addDataTable('Request Informations', array(
             'URI'         => $request->getUri(),
@@ -42,5 +45,16 @@ class ErrorReporterListener
         
         $whoops->pushHandler($handler);
         $whoops->register();
+    }
+    
+    protected function getParentExceptionsMessage(\Exception $exp) 
+    {
+        $message = array(); 
+        while($exp->getPrevious() instanceof \Exception) {
+            $exp = $exp->getPrevious();
+            $message[] = get_class($exp) .": ". $exp->getMessage();
+        }
+        
+        return (empty($message) ? '<none>' : $message);
     }
 }
