@@ -271,17 +271,23 @@ class Descriptor
             $xml    = array_merge($xml, $res);
         }
         
-        foreach ($xml as $className => $data) {
+        foreach ($xml as $data) {
             $finalParams = array();
             foreach ($data['params'] as $paramData) {
                 $finalParams[$paramData['name']] = $paramData['value'];
             }
             
-            $def = new ClassDefinition(
-                $this->propertizeString($className), 
-                $finalParams
-            );
-            $listeners[] = $def->invoke($container);
+            if (isset($data['class']) && !empty($data['class'])) {
+                $def = new ClassDefinition(
+                    $this->propertizeString($data['class']), 
+                    $finalParams
+                );
+                $listeners[] = $def->invoke($container);
+            } elseif (isset($data['service']) && !empty($data['service'])) {
+                $listeners[] = $container->get($data['service']);
+            } else {
+                throw new Exception('You must specify attribute"class" or "service" for listener');
+            }
         }
         
         return $listeners;
@@ -352,8 +358,9 @@ class Descriptor
         $map = new Map();
         $map->add(
             Path::factory('/fwk/listener', 'listeners')
-            ->loop(true, '@class')
+            ->loop(true)
             ->attribute('class')
+            ->attribute('service')
             ->addChildren(
                 Path::factory('param', 'params')
                 ->attribute('name')
