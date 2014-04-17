@@ -94,6 +94,6 @@ class DescriptorTest extends \PHPUnit_Framework_TestCase {
             DIRECTORY_SEPARATOR . 'app_test2.xml'
         ));
         $this->assertTrue(is_array($this->object->loadListeners(new \Fwk\Di\Container())));
-        $this->assertEquals(4, count($this->object->loadListeners(new \Fwk\Di\Container())));
+        $this->assertEquals(7, count($this->object->loadListeners(new \Fwk\Di\Container())));
     }
 }

@@ -124,14 +124,13 @@ class Route
      */
     public function match($url) {
         $regex      = $this->toRegularExpr();
+        
         if (!\preg_match_all($regex, $url, $matches)) {
             return false;
         }
-
-        $i = 0;
+        
         foreach ($this->parameters as $param) {
-            $i++;
-            $result = (isset($matches[$i][0]) ? $matches[$i][0] : null);
+            $result = (isset($matches[$param->getName()]) ? $matches[$param->getName()][0] : null);
             $param->setValue($result);
         }
 
@@ -152,7 +151,7 @@ class Route
                     try {
                         $param      = $this->getParameter($paramName);
                         $required   = $param->isRequired();
-                        $reg        = '('. $param->getRegex() .')';
+                        $reg        = '(?P<'. $paramName .'>'. $param->getRegex() .')';
 
                         if (!$required) {
                             $reg    .= '?';
