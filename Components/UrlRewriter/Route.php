@@ -125,16 +125,7 @@ class Route
     public function match($url) {
         $regex      = $this->toRegularExpr();
         
-        if (!\preg_match_all($regex, $url, $matches)) {
-            return false;
-        }
-        
-        foreach ($this->parameters as $param) {
-            $result = (isset($matches[$param->getName()]) ? $matches[$param->getName()][0] : null);
-            $param->setValue($result);
-        }
-
-        return true;
+        return (preg_match_all($regex, $url) > 0);
     }
 
     /**
@@ -211,13 +202,17 @@ class Route
             $paramName  = $param->getName();
             $required   = $param->isRequired();
             $regex      = $param->getRegex();
-            $default    = $param->getDefault();
+            $value      = $param->getValue();
 
             if (isset($params[$paramName])) {
                 $fValue = $params[$paramName];
                 unset($params[$paramName]);
             } else {
-                $fValue = $default;
+                $fValue = $param->getValueOrDefault();
+            }
+            
+            if (!empty($value) && $fValue !== $value) {
+                return false;
             }
             
             if(empty($fValue) && $required) {
@@ -225,10 +220,11 @@ class Route
             }
             
             if(!\preg_match(sprintf('#(%s)#', $regex), (string)$fValue)) {
-                if($required)
+                if ($required) {
                     return false;
-                else
+                } else {
                     $fValue = null;
+                }
             }
 
             $finalParams[]  = $fValue;
@@ -243,5 +239,12 @@ class Route
         }
         
         return $final;
+    }
+    
+    public function __clone()
+    {
+        foreach ($this->parameters as &$param) {
+            $param = clone $param;
+        };
     }
 }

@@ -66,6 +66,31 @@ class RouteTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals('/test/joe', $this->object->getReverse(array('name' => 'joe')));
         $this->assertEquals('/test/joe?unknown=param', $this->object->getReverse(array('name' => 'joe', 'unknown' => 'param')));
         $this->assertFalse($this->object->getReverse(array('name' => null)));
+    }
+    
+    /**
+     */
+    public function testGetReverseWithPredefinedParams() {
+        $route1 = new Route('Test', '/test/:package', array(
+            new RouteParameter('page', 'fwk/intro', null, true, 'fwk/intro'),
+            new RouteParameter('package', null, null, true)
+        ));
         
+        $route2 = new Route('Test', '/test/:package/api', array(
+            new RouteParameter('page', 'fwk/api', null, true, 'fwk/api'),
+            new RouteParameter('package', null, null, true)
+        ));
+        
+        $route3 = new Route('Test', '/:page', array(
+            new RouteParameter('page', null, null, false, null),
+        ));
+        
+        $service = new UrlRewriterService();
+        $service->addRoutes(array($route1, $route2, $route3));
+        
+        $this->assertEquals('/test/Core/api', $service->reverse('Test', array('page' => 'fwk/api', 'package' => 'Core')));
+        $this->assertEquals('/test/Core', $service->reverse('Test', array('page' => 'fwk/intro', 'package' => 'Core')));
+        $this->assertEquals('/yop', $service->reverse('Test', array('page' => 'yop')));
+        $this->assertEquals('/', $service->reverse('Test', array()));
     }
 }

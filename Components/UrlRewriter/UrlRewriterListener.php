@@ -88,7 +88,7 @@ class UrlRewriterListener
         }
 
         foreach ($route->getParameters() as $param) {
-            $request->query->set($param->getName(), $param->getValue());
+            $request->query->set($param->getName(), $param->getValueOrDefault());
         }
 
         $event->getContext()->setActionName($actionName);

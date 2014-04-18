@@ -71,7 +71,17 @@ class UrlRewriterService
     {
         foreach ($this->routes as $route) {
             if ($route->match($url)) {
-                return $route;
+                $regex = $route->toRegularExpr();
+                $route2 = clone $route;
+                
+                if (\preg_match_all($regex, $url, $matches)) {
+                    foreach ($route2->getParameters() as $param) {
+                        $result = (isset($matches[$param->getName()]) ? $matches[$param->getName()][0] : null);
+                        $param->setValue($result);
+                    }
+                }
+
+                return $route2;
             }
         }
         

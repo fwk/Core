@@ -117,7 +117,7 @@ class RouteParameter
         return $this->default;
     }
 
-    public function getValue()
+    public function getValueOrDefault()
     {
         return (isset($this->value) ? $this->value : $this->default);
     }
@@ -125,5 +125,10 @@ class RouteParameter
     public function setValue($value)
     {
         $this->value = $value;
+    }
+    
+    public function getValue()
+    {
+        return $this->value;
     }
 }
