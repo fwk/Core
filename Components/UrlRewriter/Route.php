@@ -125,7 +125,7 @@ class Route
     public function match($url) {
         $regex      = $this->toRegularExpr();
         
-        return (preg_match_all($regex, $url) > 0);
+        return (preg_match($regex, $url) > 0);
     }
 
     /**
