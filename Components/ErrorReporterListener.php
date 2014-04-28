@@ -7,6 +7,10 @@ class ErrorReporterListener
 {
     public function onError(ErrorEvent $event)
     {
+        if (php_sapi_name() == "cli") {
+            return;
+        }
+        
         header('X-Error-Message: '. $event->getException()->getMessage(), true, 500);
         
         $whoops = new \Whoops\Run;
@@ -23,6 +27,10 @@ class ErrorReporterListener
             'Context error'     => $event->getContext()->getError(),
         );
         $parents = $this->getParentExceptionsMessage($event->getException());
+        if (!is_array($parents)) {
+            $parents = array();
+        }
+        
         foreach ($parents as $idx => $exp) {
             $fwkTable['Parent Exception #'. $idx] = $exp;
         }
