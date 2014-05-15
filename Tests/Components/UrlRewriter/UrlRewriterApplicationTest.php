@@ -58,7 +58,7 @@ class UrlRewriterApplicationTest extends \PHPUnit_Framework_TestCase {
     {
         $req = Request::create('/test/success');
         $result = $this->object->run($req);
-        
+
         $this->assertEquals('success', $result->getContent());
     }
     

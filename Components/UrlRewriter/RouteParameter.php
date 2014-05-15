@@ -91,7 +91,7 @@ class RouteParameter
         $regex = null, $required = true, $value = null
     ) {
         $this->name     = (string)$name;
-        $this->default  = (string)$default;
+        $this->default  = $default;
         $this->required = (bool)$required;
         $this->regex    = (empty($regex) ? self::DEFAULT_REGEX : $regex);
         $this->value    = $value;
@@ -119,7 +119,7 @@ class RouteParameter
 
     public function getValueOrDefault()
     {
-        return (isset($this->value) ? $this->value : $this->default);
+        return (!empty($this->value) ? $this->value : $this->default);
     }
     
     public function setValue($value)
