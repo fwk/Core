@@ -97,7 +97,7 @@ class Accessor
         $getter     = "get". ucfirst($key);
 
         if (\method_exists($obj, $getter) && \is_callable(array($obj, $getter))) {
-            return \call_user_func(array($obj, $getter));
+            return $obj->{$getter}();
         } elseif ($obj instanceof \stdClass && isset($obj->{$key})) {
             return  $obj->{$key};
         } elseif ($obj instanceof \ArrayAccess && $obj->offsetExists($key)) {
@@ -136,20 +136,17 @@ class Accessor
         $setter     = "set". ucfirst($key);
 
         if (\method_exists($obj, $setter) && \is_callable(array($obj, $setter))) {
-            \call_user_func(array($obj, $setter), $value);
-
+            $obj->{$setter}($value);
             return true;
         }
 
         if ($obj instanceof \stdClass) {
             $obj->{$key}    = $value;
-
             return true;
         }
 
         if ($obj instanceof \ArrayAccess) {
             $obj->offsetSet($key, $value);
-
             return true;
         }
 

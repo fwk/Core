@@ -70,6 +70,12 @@ class Route
     protected $regex;
 
     /**
+     * Cached reverses of this route
+     * @var array<string>
+     */
+    protected $reverseCache = array();
+
+    /**
      * Constructor
      * 
      * @param string $uri 
@@ -195,6 +201,11 @@ class Route
      */
     public function getReverse(array $params = array(), $escapeAmp = false)
     {
+        $cacheKey = $this->getCacheKey($params, $escapeAmp);
+        if (isset($this->reverseCache[$cacheKey])) {
+            return $this->reverseCache[$cacheKey];
+        }
+
         $finalParams    = array();
         $regs           = array();
 
@@ -212,15 +223,18 @@ class Route
             }
             
             if (!empty($value) && $fValue !== $value) {
+                $this->reverseCache[$cacheKey] = false;
                 return false;
             }
             
             if(empty($fValue) && $required) {
+                $this->reverseCache[$cacheKey] = false;
                 return false;
             }
             
             if(!\preg_match(sprintf('#(%s)#', $regex), (string)$fValue)) {
                 if ($required) {
+                    $this->reverseCache[$cacheKey] = false;
                     return false;
                 } else {
                     $fValue = null;
@@ -237,10 +251,28 @@ class Route
         if (count($params)) {
             $final .= '?'. http_build_query($params, '', ($escapeAmp === false ? '' : '&amp;'));
         }
-        
+
+        $this->reverseCache[$cacheKey] = $final;
+
         return $final;
     }
-    
+
+    public function getCacheKey(array $arguments, $escapeAmp)
+    {
+        $final = "";
+        foreach ($arguments as $arg) {
+            if (is_scalar($arg)) {
+                $final .= (string)$arg;
+            } else {
+                $final .= serialize($arg);
+            }
+        }
+
+        $final .= (string)$escapeAmp;
+
+        return crc32($final);
+    }
+
     public function __clone()
     {
         foreach ($this->parameters as &$param) {
