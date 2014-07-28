@@ -6,7 +6,7 @@ use Fwk\Core\Components\RequestMatcher\UrlViewHelper as ViewHelperBase;
 class UrlViewHelper extends ViewHelperBase
 {
     protected $rewriterService;
-    
+
     public function __construct($requestMatcherServiceName, $rewriterServiceName)
     {
         parent::__construct($requestMatcherServiceName);
@@ -18,6 +18,7 @@ class UrlViewHelper extends ViewHelperBase
         $actionName = (isset($arguments[0]) ? $arguments[0] : false);
         $parameters = (isset($arguments[1]) ? $arguments[1] : array());
         $escapeAmp  = (isset($arguments[2]) ? (bool)$arguments[2] : false);
+
         $baseUrl    = $this->getViewHelperService()
                     ->getContext()
                     ->getRequest()
@@ -37,13 +38,10 @@ class UrlViewHelper extends ViewHelperBase
         
         $rewriter = $this->getUrlRewriterService();
         $route    = $rewriter->reverse($actionName, $parameters, $escapeAmp);
-        if (false === $route) {
-            return parent::execute($arguments);
-        }
-        
-        return $baseUrl . $route;
+
+        return (false === $route ? parent::execute($arguments) : $baseUrl . $route);
     }
-    
+
     /**
      *
      * @return UrlRewriterService

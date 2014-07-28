@@ -48,6 +48,7 @@ class Descriptor
     
     protected $sources      = array();
     protected $properties   = array();
+    protected $propertiesMap = array();
     protected $sourcesXml   = array();
     
     /**
@@ -65,7 +66,7 @@ class Descriptor
         }
         
         $this->sources      = $sources;
-        $this->properties   = $properties;
+        $this->setAll($properties);
     }
     
     public function import($sourceFile)
@@ -93,10 +94,9 @@ class Descriptor
         }
         
         foreach ($props[$category] as $key => $value) {
-            $props[$key] = $this->propertizeString($value);
+            $this->properties[$key] = $this->propertizeString($value);
+            $this->propertiesMap[$key] = ":". $key;
         }
-        
-        $this->properties = array_merge($this->properties, $props);
         
         return $this;
     }
@@ -112,8 +112,10 @@ class Descriptor
     {
         if (is_null($value)) {
             unset($this->properties[$propName]);
+            unset($this->propertiesMap[$propName]);
         } else {
             $this->properties[$propName] = $value;
+            $this->propertiesMap[$propName] = ":". $propName;
         }
         
         return $this;
@@ -146,8 +148,10 @@ class Descriptor
     
     public function setAll(array $properties)
     {
-        $this->properties = array_merge($this->properties, $properties);
-        
+        foreach ($this->properties as $key => $value) {
+            $this->set($key, $value);
+        }
+
         return $this;
     }
     
@@ -187,16 +191,9 @@ class Descriptor
      */
     public function propertizeString($str)
     {
-        $replaces = array();
-        foreach ($this->properties as $key => $val) {
-            if (is_string($val)) {
-                $replaces[':'. $key] = $val;
-            }
-        }
-        
         return str_replace(
-            array_keys($replaces), 
-            array_values($replaces), 
+            array_values($this->propertiesMap),
+            array_values($this->properties),
             $str
         );
     }
