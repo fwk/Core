@@ -12,34 +12,40 @@ class UrlViewHelper extends ViewHelperBase
         parent::__construct($requestMatcherServiceName);
         $this->rewriterService = $rewriterServiceName;
     }
-    
+
     public function execute(array $arguments)
     {
         $actionName = (isset($arguments[0]) ? $arguments[0] : false);
         $parameters = (isset($arguments[1]) ? $arguments[1] : array());
         $escapeAmp  = (isset($arguments[2]) ? (bool)$arguments[2] : false);
+        $includeHostScheme = (isset($arguments[3]) ? (bool)$arguments[3] : false);
 
         $baseUrl    = $this->getViewHelperService()
-                    ->getContext()
-                    ->getRequest()
-                    ->getBaseUrl();
-        
+            ->getContext()
+            ->getRequest()
+            ->getBaseUrl();
+
         if (false === $actionName) {
             return (empty($baseUrl) ? '/' : $baseUrl);
         }
-        
+
         if (empty($actionName)) {
             throw new Exception(sprintf('Empty action name'));
         }
-        
+
         if (!is_array($parameters)) {
             throw new Exception(sprintf('Parameters should be an array'));
         }
-        
+
         $rewriter = $this->getUrlRewriterService();
         $route    = $rewriter->reverse($actionName, $parameters, $escapeAmp);
 
-        return (false === $route ? parent::execute($arguments) : $baseUrl . $route);
+        $hostScheme = $this->getViewHelperService()->getContext()->getRequest()->getSchemeAndHttpHost();
+
+        return (false === $route ?
+            parent::execute($arguments) :
+            ($includeHostScheme ? $hostScheme : null) . $baseUrl . $route
+        );
     }
 
     /**
