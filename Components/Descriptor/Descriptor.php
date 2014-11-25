@@ -171,11 +171,16 @@ class Descriptor
         
         $this->loadIniFiles();
         $this->loadServices($services);
-        
+
+
         foreach ($this->loadListeners($services) as $listener) {
             $app->addListener($listener);
         }
-        
+
+        foreach ($this->loadPlugins($services) as $plugin) {
+            $app->plugin($plugin);
+        }
+
         foreach ($this->loadActions() as $actionName => $str) {
             $app->register($actionName, ProxyFactory::factory($str));
         }
@@ -283,13 +288,46 @@ class Descriptor
             } elseif (isset($data['service']) && !empty($data['service'])) {
                 $listeners[] = $container->get($data['service']);
             } else {
-                throw new Exception('You must specify attribute"class" or "service" for listener');
+                throw new Exception('You must specify attribute "class" or "service" for listener');
             }
         }
         
         return $listeners;
     }
-    
+
+    public function loadPlugins(Container $container)
+    {
+        $plugins  = array();
+        $xml        = array();
+        $map        = $this->xmlPluginsMapFactory();
+        foreach ($this->sources as $source) {
+            $parse  = $map->execute($this->getSourceXml($source));
+            $res    = (isset($parse['plugins']) ? $parse['plugins'] : array());
+            $xml    = array_merge($xml, $res);
+        }
+
+        foreach ($xml as $data) {
+            $finalParams = array();
+            foreach ($data['params'] as $paramData) {
+                $finalParams[$paramData['name']] = $paramData['value'];
+            }
+
+            if (isset($data['class']) && !empty($data['class'])) {
+                $def = new ClassDefinition(
+                    $this->propertizeString($data['class']),
+                    $finalParams
+                );
+                $plugins[] = $def->invoke($container);
+            } elseif (isset($data['service']) && !empty($data['service'])) {
+                $plugins[] = $container->get($data['service']);
+            } else {
+                throw new Exception('You must specify attribute "class" or "service" for plugin');
+            }
+        }
+
+        return $plugins;
+    }
+
     public function loadActions()
     {
         $actions    = array();
@@ -367,6 +405,31 @@ class Descriptor
              )
         );
         
+        return $map;
+    }
+
+    /**
+     * Builds an XML Map used to parse plugins from an XML source
+     *
+     * @return Map
+     */
+    protected function xmlPluginsMapFactory()
+    {
+        $map = new Map();
+        $map->add(
+            Path::factory('/fwk/plugin', 'plugins')
+                ->loop(true)
+                ->attribute('class')
+                ->attribute('service')
+                ->addChildren(
+                    Path::factory('param', 'params')
+                        ->attribute('name')
+                        ->filter(array($this, 'propertizeString'))
+                        ->value('value')
+                        ->loop(true)
+                )
+        );
+
         return $map;
     }
     
