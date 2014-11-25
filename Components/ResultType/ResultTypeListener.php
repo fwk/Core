@@ -28,7 +28,8 @@ class ResultTypeListener
     {
         $event->getApplication()->notify(
             new ResultTypeServiceLoadedEvent(
-                $event->getApplication()->getServices()->get($this->serviceName)
+                $event->getApplication()->getServices()->get($this->serviceName),
+                array(), $event->getApplication(), $event->getContext()
             )
         );
     }

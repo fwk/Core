@@ -62,7 +62,8 @@ class UrlRewriterListener
     {
         $event->getApplication()->notify(
             new UrlRewriterLoadedEvent(
-                $event->getApplication()->getServices()->get($this->serviceName)
+                $event->getApplication()->getServices()->get($this->serviceName),
+                array(), $event->getApplication(), $event->getContext()
             )
         );
     }

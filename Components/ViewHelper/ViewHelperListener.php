@@ -66,7 +66,7 @@ class ViewHelperListener
             throw new Exception('Service is not a ViewHelperService');
         }
 
-        $event->getApplication()->notify(new ViewHelperLoadedEvent($helper));
+        $event->getApplication()->notify(new ViewHelperLoadedEvent($helper, array(), $event->getApplication(), $event->getContext()));
     }
 
     /**
