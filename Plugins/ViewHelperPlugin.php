@@ -81,7 +81,7 @@ class ViewHelperPlugin implements Plugin
     protected function getDefaultViewHelpers()
     {
         return array(
-            'url'       => new UrlViewHelper(UrlRewriterPlugin::SERVICE_NAME, RequestMatcherPlugin::SERVICE_NAME),
+            'url'       => new UrlViewHelper(RequestMatcherPlugin::SERVICE_NAME, UrlRewriterPlugin::SERVICE_NAME),
             'embed'     => new EmbedViewHelper(),
             'escape'    => new EscapeViewHelper()
         );
