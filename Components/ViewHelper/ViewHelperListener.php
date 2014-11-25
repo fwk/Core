@@ -34,7 +34,7 @@
 namespace Fwk\Core\Components\ViewHelper;
 
 use Fwk\Core\Events\BeforeActionEvent;
-use Fwk\Core\Components\Descriptor\DescriptorLoadedEvent;
+use Fwk\Core\Events\BootEvent;
 
 /**
  * This Listener adds a ViewHelper available in templates when rendering
@@ -55,7 +55,20 @@ class ViewHelperListener
     {
         $this->serviceName = $serviceName;
     }
-    
+
+    public function onBoot(BootEvent $event)
+    {
+        $helper = $event->getApplication()
+            ->getServices()
+            ->get($this->serviceName);
+
+        if (!$helper instanceof ViewHelperService) {
+            throw new Exception('Service is not a ViewHelperService');
+        }
+
+        $event->getApplication()->notify(new ViewHelperLoadedEvent($helper));
+    }
+
     /**
      *
      * @param BeforeActionEvent $event
@@ -77,12 +90,5 @@ class ViewHelperListener
         $data = $event->getActionProxy()->getActionData();
         $data[$helper->getPropName()] = $helper;
         $event->getActionProxy()->setActionData($data);
-    }
-    
-    public function onDescriptorLoaded(DescriptorLoadedEvent $event)
-    {
-        /**
-         * @todo register view helpers from descriptor
-         */
     }
 }

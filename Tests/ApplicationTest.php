@@ -2,6 +2,22 @@
 
 namespace Fwk\Core;
 
+use Fwk\Core\Action\ProxyFactory;
+use Fwk\Di\Container;
+
+class MyTestPlugin implements Plugin
+{
+    public function load(Application $app)
+    {
+        $app->register('PluginAction', ProxyFactory::factory(function() { return 'plugin'; }));
+    }
+
+    public function loadServices(Container $container) {
+        $container->set('pluginService', new \stdClass());
+
+        return $container;
+    }
+}
 
 /**
  * Test class for Application.
@@ -98,5 +114,14 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase {
         $this->assertInstanceOf('Fwk\Core\ActionProxy', $this->object['TestAction']);
         unset($this->object['TestAction']);
         $this->assertFalse(isset($this->object['TestAction']));
+    }
+
+    public function testPlugin()
+    {
+        $this->assertFalse(isset($this->object['PluginAction']));
+        $this->assertFalse($this->object->getServices()->exists('pluginService'));
+        $this->object->plugin(new MyTestPlugin());
+        $this->assertTrue(isset($this->object['PluginAction']));
+        $this->assertTrue($this->object->getServices()->exists('pluginService'));
     }
 }

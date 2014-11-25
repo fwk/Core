@@ -1,7 +1,6 @@
 <?php
 namespace Fwk\Core;
 
-use Fwk\Core\ActionProxy;
 use Fwk\Events\Dispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Fwk\Di\Container;
@@ -330,5 +329,25 @@ class Application extends Dispatcher implements \ArrayAccess
     public function offsetUnset($actionName)
     {
         return $this->unregister($actionName);
+    }
+
+    /**
+     * Adds a Plugin to the Application.
+     *
+     * @param Plugin $plugin The plugin to be loaded
+     *
+     * @return Application
+     */
+    public function plugin(Plugin $plugin)
+    {
+        $services = $this->getServices();
+
+        // A Plugin can also be a listener of the Application Events
+        $this->addListener($plugin);
+
+        $plugin->loadServices($services);
+        $plugin->load($this);
+
+        return $this;
     }
 }

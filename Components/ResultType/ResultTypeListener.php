@@ -4,6 +4,7 @@ namespace Fwk\Core\Components\ResultType;
 use Fwk\Core\Events\AfterActionEvent;
 use Fwk\Core\Components\Descriptor\Descriptor;
 use Fwk\Core\Components\Descriptor\DescriptorLoadedEvent;
+use Fwk\Core\Events\BootEvent;
 use Symfony\Component\HttpFoundation\Response;
 use Fwk\Xml\Map, Fwk\Xml\Path;
 use Fwk\Di\ClassDefinition, Fwk\Di\Container;
@@ -21,6 +22,15 @@ class ResultTypeListener
     public function __construct($serviceName)
     {
         $this->serviceName = $serviceName;
+    }
+
+    public function onBoot(BootEvent $event)
+    {
+        $event->getApplication()->notify(
+            new ResultTypeServiceLoadedEvent(
+                $event->getApplication()->getServices()->get($this->serviceName)
+            )
+        );
     }
     
     public function onAfterAction(AfterActionEvent $event)

@@ -33,6 +33,7 @@
  */
 namespace Fwk\Core\Components\UrlRewriter;
 
+use Fwk\Core\Events\BootEvent;
 use Fwk\Core\Events\DispatchEvent;
 use Fwk\Core\Components\Descriptor\DescriptorLoadedEvent;
 use Fwk\Core\Components\Descriptor\Descriptor;
@@ -55,6 +56,15 @@ class UrlRewriterListener
     public function __construct($serviceName)
     {
         $this->serviceName = $serviceName;
+    }
+
+    public function onBoot(BootEvent $event)
+    {
+        $event->getApplication()->notify(
+            new UrlRewriterLoadedEvent(
+                $event->getApplication()->getServices()->get($this->serviceName)
+            )
+        );
     }
 
     public function onDispatch(DispatchEvent $event)
