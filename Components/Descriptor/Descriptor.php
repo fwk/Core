@@ -205,7 +205,6 @@ class Descriptor
     
     public function loadServices(Container $container)
     {
-        $services   = array();
         $xml        = array();
         $map        = $this->xmlServicesMapFactory();
         foreach ($this->sources as $source) {
