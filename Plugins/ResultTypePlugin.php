@@ -70,7 +70,10 @@ class ResultTypePlugin implements Plugin
     {
         return array(
             'json'      => new JsonResultType(),
-            'redirect'  => new RedirectResultType(),
+            'redirect'  => new RedirectResultType(array(
+                'requestMatcher' => RequestMatcherPlugin::SERVICE_NAME,
+                'urlRewriter' => UrlRewriterPlugin::SERVICE_NAME
+            )),
             'chain'     => new ChainResultType()
         );
     }
