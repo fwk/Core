@@ -13,7 +13,7 @@
     "require": {
         "php": ">=5.3.4",
         "fwk/events": "dev-master",
-        "fwk/di": "dev-master",
+        "fwk/di": "1.*",
         "fwk/xml": "dev-master",
         "symfony/http-foundation": "dev-master"
     },
